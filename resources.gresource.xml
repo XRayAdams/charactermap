@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/app/rayadams/charactermap">
+    <file compressed="true">assets/app.rayadams.charactermap.png</file>
+  </gresource>
+</gresources>
