@@ -76,6 +76,7 @@ pub enum Messages {
     FontSelected(String),
     CharacterSelected(i32),
     CharacterDoubleClicked(i32),
+    ClearCollectedText,
     SetCollapsed(bool),
     SetFontPreview(bool),
     JumpToUnicodeSet(String),
@@ -417,6 +418,15 @@ impl SimpleComponent for App {
 
                                         gtk::Entry {
                                             set_placeholder_text: Some("double click character to add here"),
+                                            set_icon_from_icon_name[Some("edit-clear-symbolic")]: gtk::EntryIconPosition::Secondary,
+                                            set_icon_activatable[true]: gtk::EntryIconPosition::Secondary,
+                                            #[watch]
+                                            set_icon_sensitive[!model.collected_text.is_empty()]: gtk::EntryIconPosition::Secondary,
+                                            connect_icon_release[sender] => move |_, pos| {
+                                                if pos == gtk::EntryIconPosition::Secondary {
+                                                    sender.input(Messages::ClearCollectedText);
+                                                }
+                                            },
                                             #[watch]
                                             set_text: &model.collected_text,
                                             #[watch]
@@ -661,6 +671,9 @@ impl SimpleComponent for App {
                 if let Some(ch) = char::from_u32(char_code as u32) {
                     self.collected_text.push(ch);
                 }
+            }
+            Messages::ClearCollectedText => {
+                self.collected_text.clear();
             }
             Messages::SetCollapsed(is_collapsed) => {
                 self.is_collapsed = is_collapsed;
