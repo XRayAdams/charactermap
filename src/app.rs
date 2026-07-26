@@ -362,145 +362,144 @@ impl SimpleComponent for App {
                                     set_margin_bottom: SPACING_MEDIUM,
 
                                     #[wrap(Some)]
-                                    set_child = &
-                                gtk::Box {
-                                    set_orientation: gtk::Orientation::Horizontal,
-                                    set_spacing: SPACING_SMALL,
-                                    set_margin_start: SPACING_MEDIUM,
-                                    set_margin_end: SPACING_MEDIUM,
-                                    set_margin_top: SPACING_SMALL,
-                                    set_margin_bottom: SPACING_MEDIUM,
-
-                                    gtk::Box {
-                                        set_orientation: gtk::Orientation::Vertical,
+                                    set_child = &gtk::Box {
+                                        set_orientation: gtk::Orientation::Horizontal,
                                         set_spacing: SPACING_SMALL,
-                                        set_valign: gtk::Align::Start,
+                                        set_margin_start: SPACING_MEDIUM,
+                                        set_margin_end: SPACING_MEDIUM,
+                                        set_margin_top: SPACING_SMALL,
+                                        set_margin_bottom: SPACING_MEDIUM,
 
-                                        #[name = "jump_to_set_button"]
-                                        gtk::MenuButton {
-                                            set_valign: gtk::Align::Center,
-                                            set_label: "Jump to Unicode Set",
+                                        gtk::Box {
+                                            set_orientation: gtk::Orientation::Vertical,
+                                            set_spacing: SPACING_SMALL,
+                                            set_valign: gtk::Align::Start,
+
+                                            #[name = "jump_to_set_button"]
+                                            gtk::MenuButton {
+                                                set_valign: gtk::Align::Center,
+                                                set_label: "Jump to Unicode Set",
+
+                                                #[wrap(Some)]
+                                                set_popover = &gtk::Popover {
+                                                    #[wrap(Some)]
+                                                    set_child = &gtk::ScrolledWindow {
+                                                        set_min_content_height: 300,
+                                                        set_min_content_width: 250,
+                                                        set_hscrollbar_policy: gtk::PolicyType::Never,
+
+                                                        #[name = "unicode_set_list"]
+                                                        gtk::ListBox {
+                                                            set_selection_mode: gtk::SelectionMode::Single,
+                                                            connect_row_activated[sender, jump_to_set_button] => move |_, row| {
+                                                                if let Some(label) = row
+                                                                    .child()
+                                                                    .and_then(|w| w.downcast::<gtk::Label>().ok())
+                                                                {
+                                                                    sender.input(Messages::JumpToUnicodeSet(label.text().to_string()));
+                                                                }
+                                                                jump_to_set_button.popdown();
+                                                            },
+                                                        }
+                                                    }
+                                                },
+                                            },
+
+                                            gtk::Entry {
+                                                set_placeholder_text: Some("double click character to add here"),
+                                                set_icon_from_icon_name[Some("edit-clear-symbolic")]: gtk::EntryIconPosition::Secondary,
+                                                set_icon_activatable[true]: gtk::EntryIconPosition::Secondary,
+                                                #[watch]
+                                                set_icon_sensitive[!model.collected_text.is_empty()]: gtk::EntryIconPosition::Secondary,
+                                                connect_icon_release[sender] => move |_, pos| {
+                                                    if pos == gtk::EntryIconPosition::Secondary {
+                                                        sender.input(Messages::ClearCollectedText);
+                                                    }
+                                                },
+                                                #[watch]
+                                                set_text: &model.collected_text,
+                                                #[watch]
+                                                set_attributes: &if model.collected_text.is_empty() {
+                                                    gtk4::pango::AttrList::new()
+                                                } else {
+                                                    font_attr_list(&model.selected_font, None)
+                                                },
+                                            },
+
+                                            gtk::Box {
+                                                set_orientation: gtk::Orientation::Horizontal,
+                                                set_spacing: SPACING_SMALL,
+
+                                                gtk::Label {
+                                                    set_label: "Hex:",
+                                                    set_valign: gtk::Align::Center,
+                                                },
+
+                                                gtk::Entry {
+                                                    set_width_request: 70,
+                                                    set_valign: gtk::Align::Center,
+                                                    #[watch]
+                                                    set_text: &model.hex_value,
+                                                },
+
+                                                gtk::Button {
+                                                    set_label: "Find",
+                                                    set_valign: gtk::Align::Center,
+                                                },
+                                            },
+
+                                            gtk::Box {
+                                                set_orientation: gtk::Orientation::Horizontal,
+                                                set_spacing: SPACING_SMALL,
+
+                                                gtk::Label {
+                                                    set_label: "Dec:",
+                                                    set_valign: gtk::Align::Center,
+                                                },
+
+                                                gtk::Entry {
+                                                    set_width_request: 70,
+                                                    set_valign: gtk::Align::Center,
+                                                    #[watch]
+                                                    set_text: &model.dec_value,
+                                                },
+
+                                                gtk::Button {
+                                                    set_label: "Find",
+                                                    set_valign: gtk::Align::Center,
+                                                },
+                                            },
+                                        },
+
+                                        // spacer pushes the character information panel to the right
+                                        gtk::Box {
+                                            set_hexpand: true,
+                                        },
+
+                                        gtk::Frame {
+                                            set_label: Some("Character Information"),
 
                                             #[wrap(Some)]
-                                            set_popover = &gtk::Popover {
-                                                #[wrap(Some)]
-                                                set_child = &gtk::ScrolledWindow {
-                                                    set_min_content_height: 300,
-                                                    set_min_content_width: 250,
-                                                    set_hscrollbar_policy: gtk::PolicyType::Never,
+                                            set_child = &gtk::Box {
+                                                set_orientation: gtk::Orientation::Vertical,
+                                                set_margin_start: SPACING_SMALL,
+                                                set_margin_end: SPACING_SMALL,
+                                                set_margin_top: SPACING_SMALL,
+                                                set_margin_bottom: SPACING_SMALL,
 
-                                                    #[name = "unicode_set_list"]
-                                                    gtk::ListBox {
-                                                        set_selection_mode: gtk::SelectionMode::Single,
-                                                        connect_row_activated[sender, jump_to_set_button] => move |_, row| {
-                                                            if let Some(label) = row
-                                                                .child()
-                                                                .and_then(|w| w.downcast::<gtk::Label>().ok())
-                                                            {
-                                                                sender.input(Messages::JumpToUnicodeSet(label.text().to_string()));
-                                                            }
-                                                            jump_to_set_button.popdown();
-                                                        },
-                                                    }
-                                                }
+                                                #[name = "character_preview_label"]
+                                                gtk::Label {
+                                                    #[watch]
+                                                    set_label: &model.selected_character.map(|ch| ch.to_string()).unwrap_or_default(),
+                                                    set_width_request: 120,
+                                                    set_height_request: 120,
+                                                    add_css_class: "card",
+                                                    set_justify: gtk::Justification::Center,
+                                                    #[watch]
+                                                    set_attributes: Some(&font_attr_list(&model.selected_font, Some(48))),
+                                                },
                                             },
                                         },
-
-                                        gtk::Entry {
-                                            set_placeholder_text: Some("double click character to add here"),
-                                            set_icon_from_icon_name[Some("edit-clear-symbolic")]: gtk::EntryIconPosition::Secondary,
-                                            set_icon_activatable[true]: gtk::EntryIconPosition::Secondary,
-                                            #[watch]
-                                            set_icon_sensitive[!model.collected_text.is_empty()]: gtk::EntryIconPosition::Secondary,
-                                            connect_icon_release[sender] => move |_, pos| {
-                                                if pos == gtk::EntryIconPosition::Secondary {
-                                                    sender.input(Messages::ClearCollectedText);
-                                                }
-                                            },
-                                            #[watch]
-                                            set_text: &model.collected_text,
-                                            #[watch]
-                                            set_attributes: &if model.collected_text.is_empty() {
-                                                gtk4::pango::AttrList::new()
-                                            } else {
-                                                font_attr_list(&model.selected_font, None)
-                                            },
-                                        },
-
-                                        gtk::Box {
-                                            set_orientation: gtk::Orientation::Horizontal,
-                                            set_spacing: SPACING_SMALL,
-
-                                            gtk::Label {
-                                                set_label: "Hex:",
-                                                set_valign: gtk::Align::Center,
-                                            },
-
-                                            gtk::Entry {
-                                                set_width_request: 70,
-                                                set_valign: gtk::Align::Center,
-                                                #[watch]
-                                                set_text: &model.hex_value,
-                                            },
-
-                                            gtk::Button {
-                                                set_label: "Find",
-                                                set_valign: gtk::Align::Center,
-                                            },
-                                        },
-
-                                        gtk::Box {
-                                            set_orientation: gtk::Orientation::Horizontal,
-                                            set_spacing: SPACING_SMALL,
-
-                                            gtk::Label {
-                                                set_label: "Dec:",
-                                                set_valign: gtk::Align::Center,
-                                            },
-
-                                            gtk::Entry {
-                                                set_width_request: 70,
-                                                set_valign: gtk::Align::Center,
-                                                #[watch]
-                                                set_text: &model.dec_value,
-                                            },
-
-                                            gtk::Button {
-                                                set_label: "Find",
-                                                set_valign: gtk::Align::Center,
-                                            },
-                                        },
-                                    },
-
-                                    // spacer pushes the character information panel to the right
-                                    gtk::Box {
-                                        set_hexpand: true,
-                                    },
-
-                                    gtk::Frame {
-                                        set_label: Some("Character Information"),
-
-                                        #[wrap(Some)]
-                                        set_child = &gtk::Box {
-                                            set_orientation: gtk::Orientation::Vertical,
-                                            set_margin_start: SPACING_SMALL,
-                                            set_margin_end: SPACING_SMALL,
-                                            set_margin_top: SPACING_SMALL,
-                                            set_margin_bottom: SPACING_SMALL,
-
-                                            #[name = "character_preview_label"]
-                                            gtk::Label {
-                                                #[watch]
-                                                set_label: &model.selected_character.map(|ch| ch.to_string()).unwrap_or_default(),
-                                                set_width_request: 120,
-                                                set_height_request: 120,
-                                                add_css_class: "card",
-                                                set_justify: gtk::Justification::Center,
-                                                #[watch]
-                                                set_attributes: Some(&font_attr_list(&model.selected_font, Some(48))),
-                                            },
-                                        },
-                                    },
                                 },
                             },
                             }
@@ -583,15 +582,15 @@ impl SimpleComponent for App {
             .unicode_grid_view
             .set_header_factory(Some(&header_factory));
 
-        widgets.unicode_scroller.hadjustment().connect_notify_local(
-            Some("page-size"),
-            {
+        widgets
+            .unicode_scroller
+            .hadjustment()
+            .connect_notify_local(Some("page-size"), {
                 let sender = sender.clone();
                 move |adjustment, _| {
                     sender.input(Messages::GridWidthChanged(adjustment.page_size()));
                 }
-            },
-        );
+            });
 
         for font_name in &model.fonts {
             let label = gtk::Label::new(Some(font_name));
@@ -721,7 +720,12 @@ fn apply_font_preview(label: &gtk::Label, font_name: &str, enabled: bool) {
 
 /// Returns whether the given font family has a glyph for at least one
 /// codepoint in the inclusive `start..=end` range.
-fn font_supports_range(context: &gtk4::pango::Context, font_name: &str, start: u32, end: u32) -> bool {
+fn font_supports_range(
+    context: &gtk4::pango::Context,
+    font_name: &str,
+    start: u32,
+    end: u32,
+) -> bool {
     let mut font_desc = gtk4::pango::FontDescription::new();
     font_desc.set_family(font_name);
 
@@ -810,58 +814,58 @@ fn build_unicode_grid_factory(
     factory.connect_setup({
         let highlighted_char = highlighted_char.clone();
         move |_, list_item| {
-        let Some(list_item) = list_item.downcast_ref::<gtk::ListItem>() else {
-            return;
-        };
+            let Some(list_item) = list_item.downcast_ref::<gtk::ListItem>() else {
+                return;
+            };
 
-        let row_box = gtk::Box::new(gtk::Orientation::Horizontal, SPACING_SMALL);
-        row_box.set_halign(gtk::Align::Start);
-        row_box.set_margin_start(SPACING_MEDIUM);
-        row_box.set_margin_end(SPACING_MEDIUM);
-        row_box.set_margin_bottom(SPACING_SMALL);
+            let row_box = gtk::Box::new(gtk::Orientation::Horizontal, SPACING_SMALL);
+            row_box.set_halign(gtk::Align::Start);
+            row_box.set_margin_start(SPACING_MEDIUM);
+            row_box.set_margin_end(SPACING_MEDIUM);
+            row_box.set_margin_bottom(SPACING_SMALL);
 
-        for _ in 0..MAX_GRID_COLUMNS {
-            let label = gtk::Label::new(None);
-            label.set_width_request(CELL_SIZE);
-            label.set_height_request(CELL_SIZE);
-            label.set_halign(gtk::Align::Center);
-            label.set_valign(gtk::Align::Center);
-            label.set_justify(gtk::Justification::Center);
-            label.add_css_class("unicode-cell");
+            for _ in 0..MAX_GRID_COLUMNS {
+                let label = gtk::Label::new(None);
+                label.set_width_request(CELL_SIZE);
+                label.set_height_request(CELL_SIZE);
+                label.set_halign(gtk::Align::Center);
+                label.set_valign(gtk::Align::Center);
+                label.set_justify(gtk::Justification::Center);
+                label.add_css_class("unicode-cell");
 
-            let gesture = gtk::GestureClick::new();
-            gesture.connect_released({
-                let sender = sender.clone();
-                let label = label.clone();
-                let highlighted_char = highlighted_char.clone();
-                let selected_label = selected_label.clone();
-                move |_, n_press, _, _| {
-                    if let Some(ch) = label.text().chars().next() {
-                        *highlighted_char.borrow_mut() = Some(ch);
+                let gesture = gtk::GestureClick::new();
+                gesture.connect_released({
+                    let sender = sender.clone();
+                    let label = label.clone();
+                    let highlighted_char = highlighted_char.clone();
+                    let selected_label = selected_label.clone();
+                    move |_, n_press, _, _| {
+                        if let Some(ch) = label.text().chars().next() {
+                            *highlighted_char.borrow_mut() = Some(ch);
 
-                        if let Some(prev) = selected_label.borrow_mut().take() {
-                            prev.remove_css_class("selected-cell");
-                        }
-                        label.add_css_class("selected-cell");
-                        *selected_label.borrow_mut() = Some(label.clone());
+                            if let Some(prev) = selected_label.borrow_mut().take() {
+                                prev.remove_css_class("selected-cell");
+                            }
+                            label.add_css_class("selected-cell");
+                            *selected_label.borrow_mut() = Some(label.clone());
 
-                        sender.input(Messages::CharacterSelected(ch as i32));
+                            sender.input(Messages::CharacterSelected(ch as i32));
 
-                        if n_press == 2 {
-                            sender.input(Messages::CharacterDoubleClicked(ch as i32));
+                            if n_press == 2 {
+                                sender.input(Messages::CharacterDoubleClicked(ch as i32));
+                            }
                         }
                     }
-                }
-            });
-            label.add_controller(gesture);
+                });
+                label.add_controller(gesture);
 
-            row_box.append(&label);
-        }
+                row_box.append(&label);
+            }
 
-        list_item.set_child(Some(&row_box));
-        list_item.set_focusable(false);
-        list_item.set_selectable(false);
-        list_item.set_activatable(false);
+            list_item.set_child(Some(&row_box));
+            list_item.set_focusable(false);
+            list_item.set_selectable(false);
+            list_item.set_activatable(false);
         }
     });
 
@@ -877,7 +881,10 @@ fn build_unicode_grid_factory(
         };
         let row: std::cell::Ref<GridRow> = boxed.borrow();
 
-        let Some(row_box) = list_item.child().and_then(|w| w.downcast::<gtk::Box>().ok()) else {
+        let Some(row_box) = list_item
+            .child()
+            .and_then(|w| w.downcast::<gtk::Box>().ok())
+        else {
             return;
         };
 
