@@ -28,6 +28,16 @@ const MAX_GRID_COLUMNS: usize = 48;
 /// to compute how many columns fit in the available width.
 const CELL_SIZE: i32 = 36;
 
+/// Builds a Pango attribute list that selects the given font family, for use
+/// with `Label`/`Entry` widgets' `set_attributes`.
+fn font_attr_list(font_name: &str) -> gtk4::pango::AttrList {
+    let mut font_desc = gtk4::pango::FontDescription::new();
+    font_desc.set_family(font_name);
+    let attrs = gtk4::pango::AttrList::new();
+    attrs.insert(gtk4::pango::AttrFontDesc::new(&font_desc));
+    attrs
+}
+
 /// One virtualized row of the character grid: a chunk of characters that
 /// belongs to a single unicode block, plus enough info to render/label it.
 struct GridRow {
@@ -56,6 +66,7 @@ pub struct App {
     character_preview: Option<gtk::Label>,
     hex_value: String,
     dec_value: String,
+    collected_text: String,
     highlighted_char: Rc<RefCell<Option<char>>>,
     grid_columns: usize,
 }
@@ -64,6 +75,7 @@ pub struct App {
 pub enum Messages {
     FontSelected(String),
     CharacterSelected(i32),
+    CharacterDoubleClicked(i32),
     SetCollapsed(bool),
     SetFontPreview(bool),
     JumpToUnicodeSet(String),
@@ -403,6 +415,18 @@ impl SimpleComponent for App {
                                             },
                                         },
 
+                                        gtk::Entry {
+                                            set_placeholder_text: Some("double click character to add here"),
+                                            #[watch]
+                                            set_text: &model.collected_text,
+                                            #[watch]
+                                            set_attributes: &if model.collected_text.is_empty() {
+                                                gtk4::pango::AttrList::new()
+                                            } else {
+                                                font_attr_list(&model.selected_font)
+                                            },
+                                        },
+
                                         gtk::Box {
                                             set_orientation: gtk::Orientation::Horizontal,
                                             set_spacing: SPACING_SMALL,
@@ -537,6 +561,7 @@ impl SimpleComponent for App {
             character_preview: None,
             hex_value: String::new(),
             dec_value: String::new(),
+            collected_text: String::new(),
             highlighted_char: Rc::new(RefCell::new(None)),
             grid_columns: 1,
         };
@@ -631,6 +656,11 @@ impl SimpleComponent for App {
             Messages::CharacterSelected(char_code) => {
                 self.selected_character = char::from_u32(char_code as u32);
                 self.update_character_preview();
+            }
+            Messages::CharacterDoubleClicked(char_code) => {
+                if let Some(ch) = char::from_u32(char_code as u32) {
+                    self.collected_text.push(ch);
+                }
             }
             Messages::SetCollapsed(is_collapsed) => {
                 self.is_collapsed = is_collapsed;
@@ -799,7 +829,7 @@ fn build_unicode_grid_factory(
                 let label = label.clone();
                 let highlighted_char = highlighted_char.clone();
                 let selected_label = selected_label.clone();
-                move |_, _, _, _| {
+                move |_, n_press, _, _| {
                     if let Some(ch) = label.text().chars().next() {
                         *highlighted_char.borrow_mut() = Some(ch);
 
@@ -810,6 +840,10 @@ fn build_unicode_grid_factory(
                         *selected_label.borrow_mut() = Some(label.clone());
 
                         sender.input(Messages::CharacterSelected(ch as i32));
+
+                        if n_press == 2 {
+                            sender.input(Messages::CharacterDoubleClicked(ch as i32));
+                        }
                     }
                 }
             });
