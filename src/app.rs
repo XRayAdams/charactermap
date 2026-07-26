@@ -355,6 +355,14 @@ impl SimpleComponent for App {
                                 },
 
                                 // bottom bar
+                                gtk::Frame {
+                                    set_margin_start: SPACING_MEDIUM,
+                                    set_margin_end: SPACING_MEDIUM,
+                                    set_margin_top: SPACING_SMALL,
+                                    set_margin_bottom: SPACING_MEDIUM,
+
+                                    #[wrap(Some)]
+                                    set_child = &
                                 gtk::Box {
                                     set_orientation: gtk::Orientation::Horizontal,
                                     set_spacing: SPACING_SMALL,
@@ -494,6 +502,7 @@ impl SimpleComponent for App {
                                         },
                                     },
                                 },
+                            },
                             }
                         },
 
