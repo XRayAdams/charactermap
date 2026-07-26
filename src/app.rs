@@ -54,6 +54,8 @@ pub struct App {
     section_positions: HashMap<String, u32>,
     selected_character: Option<char>,
     character_preview: Option<gtk::Label>,
+    hex_value: String,
+    dec_value: String,
     highlighted_char: Rc<RefCell<Option<char>>>,
     grid_columns: usize,
 }
@@ -165,7 +167,18 @@ impl App {
     }
 
     /// Renders the currently selected character, big, in the Character Information box.
-    fn update_character_preview(&self) {
+    fn update_character_preview(&mut self) {
+        match self.selected_character {
+            Some(ch) => {
+                self.hex_value = format!("{:04X}", ch as u32);
+                self.dec_value = (ch as u32).to_string();
+            }
+            None => {
+                self.hex_value.clear();
+                self.dec_value.clear();
+            }
+        }
+
         let Some(label) = &self.character_preview else {
             return;
         };
@@ -355,33 +368,83 @@ impl SimpleComponent for App {
                                     set_margin_top: SPACING_SMALL,
                                     set_margin_bottom: SPACING_MEDIUM,
 
-                                    #[name = "jump_to_set_button"]
-                                    gtk::MenuButton {
+                                    gtk::Box {
+                                        set_orientation: gtk::Orientation::Vertical,
+                                        set_spacing: SPACING_SMALL,
                                         set_valign: gtk::Align::Start,
-                                        set_label: "Jump to Unicode Set",
 
-                                        #[wrap(Some)]
-                                        set_popover = &gtk::Popover {
+                                        #[name = "jump_to_set_button"]
+                                        gtk::MenuButton {
+                                            set_valign: gtk::Align::Center,
+                                            set_label: "Jump to Unicode Set",
+
                                             #[wrap(Some)]
-                                            set_child = &gtk::ScrolledWindow {
-                                                set_min_content_height: 300,
-                                                set_min_content_width: 250,
-                                                set_hscrollbar_policy: gtk::PolicyType::Never,
+                                            set_popover = &gtk::Popover {
+                                                #[wrap(Some)]
+                                                set_child = &gtk::ScrolledWindow {
+                                                    set_min_content_height: 300,
+                                                    set_min_content_width: 250,
+                                                    set_hscrollbar_policy: gtk::PolicyType::Never,
 
-                                                #[name = "unicode_set_list"]
-                                                gtk::ListBox {
-                                                    set_selection_mode: gtk::SelectionMode::Single,
-                                                    connect_row_activated[sender, jump_to_set_button] => move |_, row| {
-                                                        if let Some(label) = row
-                                                            .child()
-                                                            .and_then(|w| w.downcast::<gtk::Label>().ok())
-                                                        {
-                                                            sender.input(Messages::JumpToUnicodeSet(label.text().to_string()));
-                                                        }
-                                                        jump_to_set_button.popdown();
-                                                    },
+                                                    #[name = "unicode_set_list"]
+                                                    gtk::ListBox {
+                                                        set_selection_mode: gtk::SelectionMode::Single,
+                                                        connect_row_activated[sender, jump_to_set_button] => move |_, row| {
+                                                            if let Some(label) = row
+                                                                .child()
+                                                                .and_then(|w| w.downcast::<gtk::Label>().ok())
+                                                            {
+                                                                sender.input(Messages::JumpToUnicodeSet(label.text().to_string()));
+                                                            }
+                                                            jump_to_set_button.popdown();
+                                                        },
+                                                    }
                                                 }
-                                            }
+                                            },
+                                        },
+
+                                        gtk::Box {
+                                            set_orientation: gtk::Orientation::Horizontal,
+                                            set_spacing: SPACING_SMALL,
+
+                                            gtk::Label {
+                                                set_label: "Hex:",
+                                                set_valign: gtk::Align::Center,
+                                            },
+
+                                            gtk::Entry {
+                                                set_width_request: 70,
+                                                set_valign: gtk::Align::Center,
+                                                #[watch]
+                                                set_text: &model.hex_value,
+                                            },
+
+                                            gtk::Button {
+                                                set_label: "Find",
+                                                set_valign: gtk::Align::Center,
+                                            },
+                                        },
+
+                                        gtk::Box {
+                                            set_orientation: gtk::Orientation::Horizontal,
+                                            set_spacing: SPACING_SMALL,
+
+                                            gtk::Label {
+                                                set_label: "Dec:",
+                                                set_valign: gtk::Align::Center,
+                                            },
+
+                                            gtk::Entry {
+                                                set_width_request: 70,
+                                                set_valign: gtk::Align::Center,
+                                                #[watch]
+                                                set_text: &model.dec_value,
+                                            },
+
+                                            gtk::Button {
+                                                set_label: "Find",
+                                                set_valign: gtk::Align::Center,
+                                            },
                                         },
                                     },
 
@@ -472,6 +535,8 @@ impl SimpleComponent for App {
             section_positions: HashMap::new(),
             selected_character: None,
             character_preview: None,
+            hex_value: String::new(),
+            dec_value: String::new(),
             highlighted_char: Rc::new(RefCell::new(None)),
             grid_columns: 1,
         };
