@@ -28,11 +28,15 @@ const MAX_GRID_COLUMNS: usize = 48;
 /// to compute how many columns fit in the available width.
 const CELL_SIZE: i32 = 36;
 
-/// Builds a Pango attribute list that selects the given font family, for use
-/// with `Label`/`Entry` widgets' `set_attributes`.
-fn font_attr_list(font_name: &str) -> gtk4::pango::AttrList {
+/// Builds a Pango attribute list that selects the given font family (and
+/// optionally a point size), for use with `Label`/`Entry` widgets'
+/// `set_attributes`.
+fn font_attr_list(font_name: &str, size_pt: Option<i32>) -> gtk4::pango::AttrList {
     let mut font_desc = gtk4::pango::FontDescription::new();
     font_desc.set_family(font_name);
+    if let Some(size_pt) = size_pt {
+        font_desc.set_size(size_pt * gtk4::pango::SCALE);
+    }
     let attrs = gtk4::pango::AttrList::new();
     attrs.insert(gtk4::pango::AttrFontDesc::new(&font_desc));
     attrs
@@ -63,7 +67,6 @@ pub struct App {
     unicode_set_list: Option<gtk::ListBox>,
     section_positions: HashMap<String, u32>,
     selected_character: Option<char>,
-    character_preview: Option<gtk::Label>,
     hex_value: String,
     dec_value: String,
     collected_text: String,
@@ -189,27 +192,6 @@ impl App {
             None => {
                 self.hex_value.clear();
                 self.dec_value.clear();
-            }
-        }
-
-        let Some(label) = &self.character_preview else {
-            return;
-        };
-
-        match self.selected_character {
-            Some(ch) => {
-                label.set_label(&ch.to_string());
-
-                let mut font_desc = gtk4::pango::FontDescription::new();
-                font_desc.set_family(&self.selected_font);
-                font_desc.set_size(48 * gtk4::pango::SCALE);
-                let attrs = gtk4::pango::AttrList::new();
-                attrs.insert(gtk4::pango::AttrFontDesc::new(&font_desc));
-                label.set_attributes(Some(&attrs));
-            }
-            None => {
-                label.set_label("");
-                label.set_attributes(None);
             }
         }
     }
@@ -433,7 +415,7 @@ impl SimpleComponent for App {
                                             set_attributes: &if model.collected_text.is_empty() {
                                                 gtk4::pango::AttrList::new()
                                             } else {
-                                                font_attr_list(&model.selected_font)
+                                                font_attr_list(&model.selected_font, None)
                                             },
                                         },
 
@@ -500,10 +482,14 @@ impl SimpleComponent for App {
 
                                             #[name = "character_preview_label"]
                                             gtk::Label {
+                                                #[watch]
+                                                set_label: &model.selected_character.map(|ch| ch.to_string()).unwrap_or_default(),
                                                 set_width_request: 120,
                                                 set_height_request: 120,
                                                 add_css_class: "card",
                                                 set_justify: gtk::Justification::Center,
+                                                #[watch]
+                                                set_attributes: Some(&font_attr_list(&model.selected_font, Some(48))),
                                             },
                                         },
                                     },
@@ -568,7 +554,6 @@ impl SimpleComponent for App {
             unicode_set_list: None,
             section_positions: HashMap::new(),
             selected_character: None,
-            character_preview: None,
             hex_value: String::new(),
             dec_value: String::new(),
             collected_text: String::new(),
@@ -580,7 +565,6 @@ impl SimpleComponent for App {
 
         model.unicode_grid_view = Some(widgets.unicode_grid_view.clone());
         model.unicode_set_list = Some(widgets.unicode_set_list.clone());
-        model.character_preview = Some(widgets.character_preview_label.clone());
 
         let header_factory = build_unicode_header_factory();
         let grid_factory =
