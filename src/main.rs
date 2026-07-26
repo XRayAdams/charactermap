@@ -2,6 +2,7 @@ use libadwaita as adw;
 use gtk4::gio::{self, prelude::ApplicationExt};
 mod app;
 mod helpers;
+mod unicode;
 use app::App;
 use helpers::static_data::{APP_ID};
 use relm4::RelmApp;
