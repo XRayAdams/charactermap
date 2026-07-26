@@ -18,7 +18,7 @@ relm4 = { version = "0.11.0", features = ["libadwaita"] }
 relm4-macros = { version = "0.11.0"}
 relm4-components = "0.11.0"
 
-gtk4 = { version = "0.11.3", features = ["v4_10"] }
+gtk4 = { version = "0.11.3", features = ["v4_12"] }
 libadwaita = { version = "0.9.1", features = ["v1_5"] }
 clap = { version = "4.5", features = ["derive"] }
 gettext-rs = { version = "0.7", features = ["gettext-system"] }

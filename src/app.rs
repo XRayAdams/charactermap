@@ -1,5 +1,5 @@
 use adw::prelude::*;
-use gtk4::{glib, prelude::*};
+use gtk4::{gio, glib, prelude::*};
 use libadwaita as adw;
 use relm4::actions::RelmActionGroup;
 use relm4::prelude::*;
@@ -18,6 +18,25 @@ const SPACING_MEDIUM: i32 = 12;
 const SPACING_LARGE: i32 = 18;
 const SPACING_SMALL: i32 = 6;
 
+/// Fixed size of the reusable label pool created per virtualized grid row.
+/// The number of these labels actually shown per row is dynamic (see
+/// `App::grid_columns`) and adapts to the available width, so this only
+/// needs to be a generous upper bound.
+const MAX_GRID_COLUMNS: usize = 48;
+
+/// Cell width/height (in pixels) used both to render each character cell and
+/// to compute how many columns fit in the available width.
+const CELL_SIZE: i32 = 36;
+
+/// One virtualized row of the character grid: a chunk of characters that
+/// belongs to a single unicode block, plus enough info to render/label it.
+struct GridRow {
+    description: String,
+    font_name: String,
+    chars: Vec<char>,
+    grid_columns: usize,
+}
+
 #[derive(Serialize, Deserialize)]
 struct AppSettings {
     render_font_preview: bool,
@@ -30,12 +49,13 @@ pub struct App {
     render_font_preview: bool,
     font_list: Option<gtk::ListBox>,
     unicode_set: UnicodeSet,
-    unicode_container: Option<gtk::Box>,
-    unicode_scroller: Option<gtk::ScrolledWindow>,
+    unicode_grid_view: Option<gtk::ListView>,
     unicode_set_list: Option<gtk::ListBox>,
-    section_headers: HashMap<String, gtk::Widget>,
+    section_positions: HashMap<String, u32>,
     selected_character: Option<char>,
     character_preview: Option<gtk::Label>,
+    highlighted_char: Rc<RefCell<Option<char>>>,
+    grid_columns: usize,
 }
 
 #[derive(Debug)]
@@ -45,6 +65,7 @@ pub enum Messages {
     SetCollapsed(bool),
     SetFontPreview(bool),
     JumpToUnicodeSet(String),
+    GridWidthChanged(f64),
 }
 
 impl App {
@@ -83,8 +104,8 @@ impl App {
     }
 
     /// Recomputes which unicode blocks the currently selected font supports,
-    /// rebuilds the character grid and the "Jump to Unicode Set" list.
-    fn refresh_unicode_sections(&mut self, sender: ComponentSender<Self>) {
+    /// rebuilds the character grid model and the "Jump to Unicode Set" list.
+    fn refresh_unicode_sections(&mut self) {
         let Some(font_list) = self.font_list.clone() else {
             return;
         };
@@ -101,13 +122,14 @@ impl App {
             .cloned()
             .collect();
 
-        if let Some(container) = &self.unicode_container {
-            self.section_headers = populate_unicode_grid(
-                container,
+        if let Some(list_view) = &self.unicode_grid_view {
+            let (selection_model, positions) = build_unicode_model(
                 &self.unicode_set.filtered_unicode_sections,
                 &font_name,
-                &sender,
+                self.grid_columns,
             );
+            list_view.set_model(Some(&selection_model));
+            self.section_positions = positions;
         }
 
         if let Some(list) = &self.unicode_set_list {
@@ -130,22 +152,16 @@ impl App {
         }
     }
 
-    /// Scrolls the character grid so the header for the given unicode block is visible.
+    /// Scrolls the character grid so the given unicode block's row is visible.
     fn scroll_to_unicode_set(&self, description: &str) {
-        let (Some(container), Some(scroller), Some(header)) = (
-            &self.unicode_container,
-            &self.unicode_scroller,
-            self.section_headers.get(description),
+        let (Some(list_view), Some(&position)) = (
+            &self.unicode_grid_view,
+            self.section_positions.get(description),
         ) else {
             return;
         };
 
-        if let Some(bounds) = header.compute_bounds(container) {
-            let adjustment = scroller.vadjustment();
-            let max_value = (adjustment.upper() - adjustment.page_size()).max(adjustment.lower());
-            let target = (bounds.y() as f64).clamp(adjustment.lower(), max_value);
-            adjustment.set_value(target);
-        }
+        list_view.scroll_to(position, gtk::ListScrollFlags::empty(), None);
     }
 
     /// Renders the currently selected character, big, in the Character Information box.
@@ -318,18 +334,15 @@ impl SimpleComponent for App {
                                 set_orientation: gtk::Orientation::Vertical,
                                 set_vexpand: true,
 
-                                // grid list of characters grouped by unicode blocks
+                                // virtualized grid list of characters grouped by unicode blocks
                                 #[name = "unicode_scroller"]
                                 gtk::ScrolledWindow {
                                     set_vexpand: true,
-                                    set_hscrollbar_policy: gtk::PolicyType::Never,
+                                    set_hscrollbar_policy: gtk::PolicyType::Automatic,
 
-                                    #[name = "unicode_container"]
-                                    gtk::Box {
-                                        set_orientation: gtk::Orientation::Vertical,
-                                        set_margin_start: SPACING_MEDIUM,
-                                        set_margin_end: SPACING_MEDIUM,
-                                        set_margin_bottom: SPACING_MEDIUM,
+                                    #[name = "unicode_grid_view"]
+                                    gtk::ListView {
+                                        set_show_separators: false,
                                     }
                                 },
 
@@ -427,8 +440,9 @@ impl SimpleComponent for App {
 
         if let Some(display) = gtk4::gdk::Display::default() {
             let provider = gtk4::CssProvider::new();
-            provider.load_from_data(
-                ".unicode-cell { border-radius: 6px; background-color: alpha(currentColor, 0.08); }",
+            provider.load_from_string(
+                ".unicode-cell { border-radius: 6px; background-color: alpha(currentColor, 0.08); }\n\
+                 .unicode-cell.selected-cell { background-color: alpha(@accent_bg_color, 0.6); color: @accent_fg_color; }",
             );
             gtk4::style_context_add_provider_for_display(
                 &display,
@@ -453,20 +467,38 @@ impl SimpleComponent for App {
             render_font_preview: settings.render_font_preview,
             font_list: None,
             unicode_set: UnicodeSet::new(),
-            unicode_container: None,
-            unicode_scroller: None,
+            unicode_grid_view: None,
             unicode_set_list: None,
-            section_headers: HashMap::new(),
+            section_positions: HashMap::new(),
             selected_character: None,
             character_preview: None,
+            highlighted_char: Rc::new(RefCell::new(None)),
+            grid_columns: 1,
         };
 
         let widgets = view_output!();
 
-        model.unicode_container = Some(widgets.unicode_container.clone());
-        model.unicode_scroller = Some(widgets.unicode_scroller.clone());
+        model.unicode_grid_view = Some(widgets.unicode_grid_view.clone());
         model.unicode_set_list = Some(widgets.unicode_set_list.clone());
         model.character_preview = Some(widgets.character_preview_label.clone());
+
+        let header_factory = build_unicode_header_factory();
+        let grid_factory =
+            build_unicode_grid_factory(sender.clone(), model.highlighted_char.clone());
+        widgets.unicode_grid_view.set_factory(Some(&grid_factory));
+        widgets
+            .unicode_grid_view
+            .set_header_factory(Some(&header_factory));
+
+        widgets.unicode_scroller.hadjustment().connect_notify_local(
+            Some("page-size"),
+            {
+                let sender = sender.clone();
+                move |adjustment, _| {
+                    sender.input(Messages::GridWidthChanged(adjustment.page_size()));
+                }
+            },
+        );
 
         for font_name in &model.fonts {
             let label = gtk::Label::new(Some(font_name));
@@ -522,12 +554,13 @@ impl SimpleComponent for App {
         ComponentParts { model, widgets }
     }
 
-    fn update(&mut self, message: Self::Input, sender: ComponentSender<Self>) {
+    fn update(&mut self, message: Self::Input, _sender: ComponentSender<Self>) {
         match message {
             Messages::FontSelected(font_name) => {
                 self.selected_font = font_name;
                 self.selected_character = None;
-                self.refresh_unicode_sections(sender);
+                *self.highlighted_char.borrow_mut() = None;
+                self.refresh_unicode_sections();
                 self.update_character_preview();
             }
             Messages::CharacterSelected(char_code) => {
@@ -539,6 +572,13 @@ impl SimpleComponent for App {
             }
             Messages::JumpToUnicodeSet(description) => {
                 self.scroll_to_unicode_set(&description);
+            }
+            Messages::GridWidthChanged(available_width) => {
+                let columns = compute_grid_columns(available_width);
+                if columns != self.grid_columns {
+                    self.grid_columns = columns;
+                    self.refresh_unicode_sections();
+                }
             }
             Messages::SetFontPreview(enabled) => {
                 self.render_font_preview = enabled;
@@ -595,82 +635,244 @@ fn font_supports_range(context: &gtk4::pango::Context, font_name: &str, start: u
     })
 }
 
-/// Rebuilds the character grid inside `container`, one section per unicode
-/// block, and returns a map of block description -> section header widget
-/// (used later to scroll to a chosen block).
-fn populate_unicode_grid(
-    container: &gtk::Box,
+/// Computes how many fixed-size character cells fit in the given available
+/// width (in pixels), clamped to a sane [1, MAX_GRID_COLUMNS] range.
+fn compute_grid_columns(available_width: f64) -> usize {
+    if available_width <= 0.0 {
+        return 1;
+    }
+
+    let cell_span = (CELL_SIZE + SPACING_SMALL) as f64;
+    let usable_width = available_width - (2 * SPACING_MEDIUM) as f64;
+    let columns = (usable_width / cell_span).floor().max(1.0) as usize;
+
+    columns.clamp(1, MAX_GRID_COLUMNS)
+}
+
+/// Builds the virtualized data model backing the character grid: one child
+/// `gio::ListStore` per unicode block (each block becomes one "section" once
+/// flattened), where each item is a `GridRow` chunk of up to `grid_columns`
+/// characters. Returns the model wrapped for `ListView` use, plus a map of
+/// block description -> flattened row position (used to scroll to a block).
+fn build_unicode_model(
     sections: &[UnicodeEntry],
     font_name: &str,
-    sender: &ComponentSender<App>,
-) -> HashMap<String, gtk::Widget> {
-    while let Some(child) = container.first_child() {
-        container.remove(&child);
-    }
-
-    let mut headers = HashMap::new();
-
-    let mut font_desc = gtk4::pango::FontDescription::new();
-    font_desc.set_family(font_name);
-    font_desc.set_size(16 * gtk4::pango::SCALE);
-    let attrs = gtk4::pango::AttrList::new();
-    attrs.insert(gtk4::pango::AttrFontDesc::new(&font_desc));
+    grid_columns: usize,
+) -> (gtk::NoSelection, HashMap<String, u32>) {
+    let outer_store = gio::ListStore::new::<gio::ListStore>();
+    let mut positions = HashMap::new();
+    let mut position: u32 = 0;
+    let grid_columns = grid_columns.max(1);
 
     for section in sections {
-        let section_box = gtk::Box::new(gtk::Orientation::Vertical, SPACING_SMALL);
+        let chars: Vec<char> = (section.start_index..=section.end_index)
+            .filter_map(|code| char::from_u32(code).filter(|ch| !ch.is_control()))
+            .collect();
 
-        let header = gtk::Label::new(Some(&section.description));
-        header.set_xalign(0.0);
-        header.add_css_class("heading");
-        header.set_margin_top(SPACING_MEDIUM);
-        section_box.append(&header);
-
-        let flow_box = gtk::FlowBox::new();
-        flow_box.set_selection_mode(gtk::SelectionMode::Single);
-        flow_box.set_homogeneous(true);
-        flow_box.set_row_spacing(SPACING_SMALL as u32);
-        flow_box.set_column_spacing(SPACING_SMALL as u32);
-        flow_box.set_min_children_per_line(4);
-        flow_box.set_max_children_per_line(24);
-        flow_box.set_activate_on_single_click(true);
-
-        flow_box.connect_child_activated({
-            let sender = sender.clone();
-            move |_, child| {
-                if let Some(ch) = child
-                    .child()
-                    .and_then(|w| w.downcast::<gtk::Label>().ok())
-                    .and_then(|label| label.text().chars().next())
-                {
-                    sender.input(Messages::CharacterSelected(ch as i32));
-                }
-            }
-        });
-
-        for code in section.start_index..=section.end_index {
-            if let Some(ch) = char::from_u32(code).filter(|ch| !ch.is_control()) {
-                let label = gtk::Label::new(Some(&ch.to_string()));
-                label.set_width_request(36);
-                label.set_height_request(36);
-                label.set_halign(gtk::Align::Center);
-                label.set_valign(gtk::Align::Center);
-                label.set_justify(gtk::Justification::Center);
-                label.add_css_class("unicode-cell");
-                label.set_attributes(Some(&attrs));
-                flow_box.insert(&label, -1);
-            }
+        if chars.is_empty() {
+            continue;
         }
 
-        section_box.append(&flow_box);
-        container.append(&section_box);
+        positions.insert(section.description.clone(), position);
 
-        headers.insert(
-            section.description.clone(),
-            section_box.upcast::<gtk::Widget>(),
-        );
+        let block_store = gio::ListStore::new::<glib::BoxedAnyObject>();
+        for chunk in chars.chunks(grid_columns) {
+            let row = GridRow {
+                description: section.description.clone(),
+                font_name: font_name.to_string(),
+                chars: chunk.to_vec(),
+                grid_columns,
+            };
+            block_store.append(&glib::BoxedAnyObject::new(row));
+            position += 1;
+        }
+
+        outer_store.append(&block_store);
     }
 
-    headers
+    let flatten_model = gtk::FlattenListModel::new(Some(outer_store));
+    let selection_model = gtk::NoSelection::new(Some(flatten_model));
+
+    (selection_model, positions)
+}
+
+/// Builds the (created-once, reused-forever) factory that renders each
+/// virtualized row as a fixed-size strip of up to `MAX_GRID_COLUMNS` character
+/// cells (only as many as the current row's chunk actually uses are filled in).
+fn build_unicode_grid_factory(
+    sender: ComponentSender<App>,
+    highlighted_char: Rc<RefCell<Option<char>>>,
+) -> gtk::SignalListItemFactory {
+    let factory = gtk::SignalListItemFactory::new();
+    let selected_label: Rc<RefCell<Option<gtk::Label>>> = Rc::new(RefCell::new(None));
+
+    factory.connect_setup({
+        let highlighted_char = highlighted_char.clone();
+        move |_, list_item| {
+        let Some(list_item) = list_item.downcast_ref::<gtk::ListItem>() else {
+            return;
+        };
+
+        let row_box = gtk::Box::new(gtk::Orientation::Horizontal, SPACING_SMALL);
+        row_box.set_halign(gtk::Align::Start);
+        row_box.set_margin_start(SPACING_MEDIUM);
+        row_box.set_margin_end(SPACING_MEDIUM);
+        row_box.set_margin_bottom(SPACING_SMALL);
+
+        for _ in 0..MAX_GRID_COLUMNS {
+            let label = gtk::Label::new(None);
+            label.set_width_request(CELL_SIZE);
+            label.set_height_request(CELL_SIZE);
+            label.set_halign(gtk::Align::Center);
+            label.set_valign(gtk::Align::Center);
+            label.set_justify(gtk::Justification::Center);
+            label.add_css_class("unicode-cell");
+
+            let gesture = gtk::GestureClick::new();
+            gesture.connect_released({
+                let sender = sender.clone();
+                let label = label.clone();
+                let highlighted_char = highlighted_char.clone();
+                let selected_label = selected_label.clone();
+                move |_, _, _, _| {
+                    if let Some(ch) = label.text().chars().next() {
+                        *highlighted_char.borrow_mut() = Some(ch);
+
+                        if let Some(prev) = selected_label.borrow_mut().take() {
+                            prev.remove_css_class("selected-cell");
+                        }
+                        label.add_css_class("selected-cell");
+                        *selected_label.borrow_mut() = Some(label.clone());
+
+                        sender.input(Messages::CharacterSelected(ch as i32));
+                    }
+                }
+            });
+            label.add_controller(gesture);
+
+            row_box.append(&label);
+        }
+
+        list_item.set_child(Some(&row_box));
+        list_item.set_focusable(false);
+        list_item.set_selectable(false);
+        list_item.set_activatable(false);
+        }
+    });
+
+    factory.connect_bind(move |_, list_item| {
+        let Some(list_item) = list_item.downcast_ref::<gtk::ListItem>() else {
+            return;
+        };
+        let Some(item) = list_item.item() else {
+            return;
+        };
+        let Ok(boxed) = item.downcast::<glib::BoxedAnyObject>() else {
+            return;
+        };
+        let row: std::cell::Ref<GridRow> = boxed.borrow();
+
+        let Some(row_box) = list_item.child().and_then(|w| w.downcast::<gtk::Box>().ok()) else {
+            return;
+        };
+
+        let mut font_desc = gtk4::pango::FontDescription::new();
+        font_desc.set_family(&row.font_name);
+        font_desc.set_size(16 * gtk4::pango::SCALE);
+        let attrs = gtk4::pango::AttrList::new();
+        attrs.insert(gtk4::pango::AttrFontDesc::new(&font_desc));
+
+        let highlighted = *highlighted_char.borrow();
+
+        let mut child = row_box.first_child();
+        let mut index = 0usize;
+        while let Some(widget) = child {
+            let next = widget.next_sibling();
+
+            if let Some(label) = widget.downcast_ref::<gtk::Label>() {
+                if index >= row.grid_columns {
+                    // Beyond the currently active column count for this
+                    // width bucket: collapse entirely so this row's natural
+                    // width doesn't balloon out to the full MAX_GRID_COLUMNS
+                    // label pool size.
+                    label.set_visible(false);
+                    label.set_label("");
+                    label.set_attributes(None);
+                    label.remove_css_class("unicode-cell");
+                    label.remove_css_class("selected-cell");
+                } else {
+                    label.set_visible(true);
+                    match row.chars.get(index) {
+                        Some(ch) => {
+                            label.set_label(&ch.to_string());
+                            label.set_attributes(Some(&attrs));
+                            label.add_css_class("unicode-cell");
+                            if Some(*ch) == highlighted {
+                                label.add_css_class("selected-cell");
+                            } else {
+                                label.remove_css_class("selected-cell");
+                            }
+                        }
+                        None => {
+                            label.set_label("");
+                            label.set_attributes(None);
+                            label.remove_css_class("unicode-cell");
+                            label.remove_css_class("selected-cell");
+                        }
+                    }
+                }
+            }
+
+            index += 1;
+            child = next;
+        }
+    });
+
+    factory
+}
+
+/// Builds the (created-once, reused-forever) factory that renders each
+/// section's header (the unicode block description) above its first row.
+fn build_unicode_header_factory() -> gtk::SignalListItemFactory {
+    let factory = gtk::SignalListItemFactory::new();
+
+    factory.connect_setup(move |_, list_item| {
+        let Some(list_header) = list_item.downcast_ref::<gtk::ListHeader>() else {
+            return;
+        };
+
+        let label = gtk::Label::new(None);
+        label.set_xalign(0.0);
+        label.add_css_class("heading");
+        label.set_margin_start(SPACING_MEDIUM);
+        label.set_margin_end(SPACING_MEDIUM);
+        label.set_margin_top(SPACING_MEDIUM);
+        label.set_margin_bottom(SPACING_SMALL);
+
+        list_header.set_child(Some(&label));
+    });
+
+    factory.connect_bind(move |_, list_item| {
+        let Some(list_header) = list_item.downcast_ref::<gtk::ListHeader>() else {
+            return;
+        };
+        let Some(item) = list_header.item() else {
+            return;
+        };
+        let Ok(boxed) = item.downcast::<glib::BoxedAnyObject>() else {
+            return;
+        };
+        let row: std::cell::Ref<GridRow> = boxed.borrow();
+
+        if let Some(label) = list_header
+            .child()
+            .and_then(|w| w.downcast::<gtk::Label>().ok())
+        {
+            label.set_label(&row.description);
+        }
+    });
+
+    factory
 }
 
 fn bp_with_setters(
