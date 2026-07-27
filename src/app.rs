@@ -68,6 +68,14 @@ pub struct App {
     /// from the top-visible cell during scrolling.
     block_boundaries: Rc<RefCell<Vec<(u32, String)>>>,
     sticky_header: Option<gtk::Label>,
+    /// Filter applied to the (built-once) full character model. On font change
+    /// only this filter's predicate changes and `changed()` is called, so the
+    /// GridView reuses its realized cell widgets instead of tearing down and
+    /// recreating the whole model (which is what made font switching slow).
+    grid_filter: Option<gtk::CustomFilter>,
+    /// Sorted, inclusive codepoint ranges the currently selected font covers;
+    /// read by the grid filter to decide which characters to show.
+    covered_ranges: Rc<RefCell<Vec<(u32, u32)>>>,
 }
 
 #[derive(Debug)]
@@ -141,14 +149,47 @@ impl App {
             .cloned()
             .collect();
 
-        if let Some(grid_view) = &self.unicode_grid_view {
-            let (selection_model, positions, boundaries) =
-                build_unicode_model(&self.unicode_set.filtered_unicode_sections);
+        // Update the shared cell attributes so rebound cells render in the
+        // selected font.
+        *self.cell_attrs.borrow_mut() = font_attr_list(&font_name, Some(GRID_FONT_SIZE));
 
-            // Update the shared cell attributes so newly bound cells render in
-            // the selected font, then swap in the new model.
-            *self.cell_attrs.borrow_mut() = font_attr_list(&font_name, Some(GRID_FONT_SIZE));
-            grid_view.set_model(Some(&selection_model));
+        // Point the grid filter at the covered ranges and flip it: the GridView
+        // keeps its realized cell widgets and only rebinds the visible ones,
+        // rather than rebuilding the whole model.
+        {
+            let mut ranges: Vec<(u32, u32)> = self
+                .unicode_set
+                .filtered_unicode_sections
+                .iter()
+                .map(|entry| (entry.start_index, entry.end_index))
+                .collect();
+            ranges.sort_unstable_by_key(|(start, _)| *start);
+            *self.covered_ranges.borrow_mut() = ranges;
+        }
+        if let Some(filter) = &self.grid_filter {
+            filter.changed(gtk::FilterChange::Different);
+        }
+
+        if let Some(grid_view) = &self.unicode_grid_view {
+            // `filter.changed()` only re-binds cells whose *item* changed;
+            // cells whose character is unchanged by the filter flip keep their
+            // old font. Push the new font onto every currently-realized cell
+            // directly so the whole grid re-renders in the selected font.
+            let mut cells = Vec::new();
+            collect_cell_labels(grid_view.upcast_ref(), &mut cells);
+            {
+                let attrs = self.cell_attrs.borrow();
+                for cell in &cells {
+                    cell.set_attributes(Some(&attrs));
+                }
+            }
+
+            // Positions/boundaries mirror the filtered order (covered blocks in
+            // ascending order, each contributing its non-control chars), and
+            // are computed directly from the section list without touching the
+            // model.
+            let (positions, boundaries) =
+                compute_positions_boundaries(&self.unicode_set.filtered_unicode_sections);
 
             self.section_positions = positions;
 
@@ -619,6 +660,8 @@ impl SimpleComponent for App {
             cell_attrs: Rc::new(RefCell::new(gtk4::pango::AttrList::new())),
             block_boundaries: Rc::new(RefCell::new(Vec::new())),
             sticky_header: None,
+            grid_filter: None,
+            covered_ranges: Rc::new(RefCell::new(Vec::new())),
         };
 
         let widgets = view_output!();
@@ -634,6 +677,41 @@ impl SimpleComponent for App {
             model.block_boundaries.clone(),
         );
         widgets.unicode_grid_view.set_factory(Some(&grid_factory));
+
+        // Build the full character model ONCE (every non-control codepoint of
+        // every unicode block, in block order). Font switching then only
+        // changes the filter predicate below, so the GridView keeps its
+        // realized cell widgets and just rebinds them instead of rebuilding.
+        let full_store = build_full_model(&model.unicode_set.unicode_sections);
+        let grid_filter = gtk::CustomFilter::new({
+            let covered_ranges = model.covered_ranges.clone();
+            move |obj| {
+                let Some(code) = obj
+                    .downcast_ref::<gtk::StringObject>()
+                    .and_then(|s| s.string().chars().next())
+                    .map(|ch| ch as u32)
+                else {
+                    return false;
+                };
+                let ranges = covered_ranges.borrow();
+                ranges
+                    .binary_search_by(|(start, end)| {
+                        if code < *start {
+                            std::cmp::Ordering::Greater
+                        } else if code > *end {
+                            std::cmp::Ordering::Less
+                        } else {
+                            std::cmp::Ordering::Equal
+                        }
+                    })
+                    .is_ok()
+            }
+        });
+        let filter_model =
+            gtk::FilterListModel::new(Some(full_store), Some(grid_filter.clone()));
+        let selection_model = gtk::NoSelection::new(Some(filter_model));
+        widgets.unicode_grid_view.set_model(Some(&selection_model));
+        model.grid_filter = Some(grid_filter);
 
         // Keep the sticky "current block" header in sync with the scroll
         // position (the top-most visible cell's unicode block).
@@ -775,48 +853,51 @@ fn font_covers_range(font: &gtk4::pango::Font, start: u32, end: u32) -> bool {
     })
 }
 
-/// Builds the virtualized data model backing the character grid: a single
-/// flat `gio::ListStore` of individual characters (one `StringObject` per
-/// displayable codepoint, in block order). `GtkGridView` lays these out into
-/// as many columns as fit the available width automatically. Returns the
-/// model wrapped for `GridView` use, a map of block description -> flat start
-/// position (used to scroll to a block), and the sorted list of flat
-/// start-position -> block-description boundaries (used to resolve the sticky
-/// "current block" header while scrolling).
-fn build_unicode_model(
-    sections: &[UnicodeEntry],
-) -> (
-    gtk::NoSelection,
-    HashMap<String, u32>,
-    Vec<(u32, String)>,
-) {
+/// Builds the full, never-rebuilt data model backing the character grid: a
+/// single flat `gio::ListStore` of every displayable codepoint of every
+/// unicode block, in block order. Which of these are shown is controlled by a
+/// `FilterListModel` filter that is flipped on font change, so the model
+/// itself is constructed only once.
+fn build_full_model(sections: &[UnicodeEntry]) -> gio::ListStore {
     let store = gio::ListStore::new::<gtk::StringObject>();
+    let mut buf = [0u8; 4];
+    for section in sections {
+        for code in section.start_index..=section.end_index {
+            if let Some(ch) = char::from_u32(code).filter(|ch| !ch.is_control()) {
+                store.append(&gtk::StringObject::new(ch.encode_utf8(&mut buf)));
+            }
+        }
+    }
+    store
+}
+
+/// Computes, for the given (filtered) blocks, a map of block description ->
+/// flat start position and the sorted list of flat start-position -> block
+/// description boundaries. These mirror the filtered order in the grid (covered
+/// blocks in ascending order, each contributing its non-control chars) and are
+/// derived purely from the section list, without touching the model.
+fn compute_positions_boundaries(
+    sections: &[UnicodeEntry],
+) -> (HashMap<String, u32>, Vec<(u32, String)>) {
     let mut positions = HashMap::new();
     let mut boundaries = Vec::new();
     let mut position: u32 = 0;
 
     for section in sections {
-        let chars: Vec<char> = (section.start_index..=section.end_index)
+        let count = (section.start_index..=section.end_index)
             .filter_map(|code| char::from_u32(code).filter(|ch| !ch.is_control()))
-            .collect();
+            .count() as u32;
 
-        if chars.is_empty() {
+        if count == 0 {
             continue;
         }
 
         positions.insert(section.description.clone(), position);
         boundaries.push((position, section.description.clone()));
-
-        let mut buf = [0u8; 4];
-        for ch in chars {
-            store.append(&gtk::StringObject::new(ch.encode_utf8(&mut buf)));
-            position += 1;
-        }
+        position += count;
     }
 
-    let selection_model = gtk::NoSelection::new(Some(store));
-
-    (selection_model, positions, boundaries)
+    (positions, boundaries)
 }
 
 /// Builds the (created-once, reused-forever) factory that renders each grid
