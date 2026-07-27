@@ -161,7 +161,6 @@ impl App {
             self.unicode_set.unicode_sections.clone()
         };
 
-
         // Update the shared cell attributes so freshly-bound cells render in
         // the selected font.
         *self.cell_attrs.borrow_mut() = font_attr_list(&font_name, Some(GRID_FONT_SIZE));
@@ -200,8 +199,7 @@ impl App {
                 self.displayed_ranges = new_ranges;
 
                 if let Some(selection) = &self.unicode_selection {
-                    let store =
-                        build_unicode_store(&self.unicode_set.filtered_unicode_sections);
+                    let store = build_unicode_store(&self.unicode_set.filtered_unicode_sections);
                     selection.set_model(Some(&store));
                 }
 
@@ -496,6 +494,7 @@ impl SimpleComponent for App {
                                     set_margin_end: SPACING_MEDIUM,
                                     set_margin_top: SPACING_SMALL,
                                     set_margin_bottom: SPACING_MEDIUM,
+                                    set_label: Some("Character Information"),
 
                                     #[wrap(Some)]
                                     set_child = &gtk::Box {
@@ -509,7 +508,7 @@ impl SimpleComponent for App {
                                         gtk::Box {
                                             set_orientation: gtk::Orientation::Vertical,
                                             set_spacing: SPACING_SMALL,
-                                            set_valign: gtk::Align::Start,
+                                            set_valign: gtk4::Align::End,
 
                                             #[name = "jump_to_set_button"]
                                             gtk::MenuButton {
@@ -607,23 +606,17 @@ impl SimpleComponent for App {
                                             },
                                         },
 
-                                        // spacer pushes the character information panel to the right
                                         gtk::Box {
                                             set_hexpand: true,
                                         },
 
-                                        gtk::Frame {
-                                            set_label: Some("Character Information"),
-
-                                            #[wrap(Some)]
-                                            set_child = &gtk::Box {
+                                        gtk::Box {
                                                 set_orientation: gtk::Orientation::Vertical,
                                                 set_margin_start: SPACING_SMALL,
                                                 set_margin_end: SPACING_SMALL,
                                                 set_margin_top: SPACING_SMALL,
                                                 set_margin_bottom: SPACING_SMALL,
 
-                                                #[name = "character_preview_label"]
                                                 gtk::Label {
                                                     #[watch]
                                                     set_label: &model.selected_character.map(|ch| ch.to_string()).unwrap_or_default(),
@@ -632,10 +625,10 @@ impl SimpleComponent for App {
                                                     add_css_class: "card",
                                                     set_justify: gtk::Justification::Center,
                                                     #[watch]
-                                                    set_attributes: Some(&font_attr_list(&model.selected_font, Some(48))),
+                                                    set_attributes: Some(&font_attr_list(&model.selected_font, Some(50))),
                                                 },
                                             },
-                                        },
+
                                 },
                             },
                             }
@@ -715,10 +708,8 @@ impl SimpleComponent for App {
         model.unicode_set_list = Some(widgets.unicode_set_list.clone());
         model.sticky_header = Some(widgets.sticky_header.clone());
 
-        let grid_factory = build_unicode_grid_factory(
-            model.cell_attrs.clone(),
-            model.block_boundaries.clone(),
-        );
+        let grid_factory =
+            build_unicode_grid_factory(model.cell_attrs.clone(), model.block_boundaries.clone());
         widgets.unicode_grid_view.set_factory(Some(&grid_factory));
 
         // Use GTK's native single-selection: the GridView highlights the
@@ -761,14 +752,17 @@ impl SimpleComponent for App {
 
         // Keep the sticky "current block" header in sync with the scroll
         // position (the top-most visible cell's unicode block).
-        widgets.unicode_scroller.vadjustment().connect_value_changed({
-            let grid_view = widgets.unicode_grid_view.clone();
-            let boundaries = model.block_boundaries.clone();
-            let header = widgets.sticky_header.clone();
-            move |_adjustment| {
-                update_sticky_header(&grid_view, &boundaries.borrow(), &header);
-            }
-        });
+        widgets
+            .unicode_scroller
+            .vadjustment()
+            .connect_value_changed({
+                let grid_view = widgets.unicode_grid_view.clone();
+                let boundaries = model.block_boundaries.clone();
+                let header = widgets.sticky_header.clone();
+                move |_adjustment| {
+                    update_sticky_header(&grid_view, &boundaries.borrow(), &header);
+                }
+            });
 
         for font_name in &model.fonts {
             let label = gtk::Label::new(Some(font_name));
@@ -1060,9 +1054,7 @@ fn grid_geometry(grid_view: &gtk::GridView) -> Option<(u32, f64)> {
         if !cell.is_mapped() {
             continue;
         }
-        if let Some(point) =
-            cell.compute_point(grid_view, &gtk4::graphene::Point::new(0.0, 0.0))
-        {
+        if let Some(point) = cell.compute_point(grid_view, &gtk4::graphene::Point::new(0.0, 0.0)) {
             ys.push(point.y());
         }
     }
@@ -1086,7 +1078,12 @@ fn grid_geometry(grid_view: &gtk::GridView) -> Option<(u32, f64)> {
 
     // A full row has the maximum cell count; the row pitch is the smallest
     // positive gap between consecutive rows.
-    let columns = rows.iter().map(|&(_, count)| count).max().unwrap_or(1).max(1);
+    let columns = rows
+        .iter()
+        .map(|&(_, count)| count)
+        .max()
+        .unwrap_or(1)
+        .max(1);
     let mut pitch = f32::MAX;
     for pair in rows.windows(2) {
         let gap = pair[1].0 - pair[0].0;
@@ -1156,8 +1153,7 @@ fn update_sticky_header(
             continue;
         }
 
-        let Some(point) =
-            label.compute_point(grid_view, &gtk4::graphene::Point::new(0.0, 0.0))
+        let Some(point) = label.compute_point(grid_view, &gtk4::graphene::Point::new(0.0, 0.0))
         else {
             continue;
         };
@@ -1171,8 +1167,8 @@ fn update_sticky_header(
             continue;
         }
 
-        let Some(position) = (unsafe { label.data::<u32>(CELL_POSITION_KEY) })
-            .map(|ptr| unsafe { *ptr.as_ref() })
+        let Some(position) =
+            (unsafe { label.data::<u32>(CELL_POSITION_KEY) }).map(|ptr| unsafe { *ptr.as_ref() })
         else {
             continue;
         };
