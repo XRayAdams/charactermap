@@ -63,6 +63,10 @@ pub struct App {
     unicode_selection: Option<gtk::SingleSelection>,
     unicode_set_list: Option<gtk::ListBox>,
     section_positions: HashMap<String, u32>,
+    /// Codepoint ranges of the blocks currently loaded into the grid model.
+    /// Lets us skip the expensive `set_model` rebuild when a font change
+    /// doesn't change which characters are shown (e.g. with filtering off).
+    displayed_ranges: Vec<(u32, u32)>,
     selected_character: Option<char>,
     hex_value: String,
     dec_value: String,
@@ -178,20 +182,45 @@ impl App {
                 .unwrap_or_default();
             *self.block_boundaries.borrow_mut() = boundaries;
 
-            // Rebuild the character store for the current blocks and swap it
-            // into the persistent selection model. Every cell is re-bound, so
-            // font and block shading are recomputed from scratch.
-            if let Some(selection) = &self.unicode_selection {
-                let store =
-                    build_unicode_store(&self.unicode_set.filtered_unicode_sections);
-                selection.set_model(Some(&store));
-            }
+            // Rebuilding the grid (`set_model`) re-realizes every cell and
+            // costs time proportional to the number of characters shown, so it
+            // is only worth doing when the visible set of characters actually
+            // changes. With filtering off (and between two fonts of identical
+            // coverage) the character set is unchanged, so we skip the rebuild
+            // entirely and just repaint the already-realized cells in the new
+            // font — making those switches near-instant.
+            let new_ranges: Vec<(u32, u32)> = self
+                .unicode_set
+                .filtered_unicode_sections
+                .iter()
+                .map(|entry| (entry.start_index, entry.end_index))
+                .collect();
 
-            if let Some(header) = &self.sticky_header {
-                header.set_label(&first_block);
-            }
+            if new_ranges != self.displayed_ranges {
+                self.displayed_ranges = new_ranges;
 
-            grid_view.scroll_to(0, gtk::ListScrollFlags::empty(), None);
+                if let Some(selection) = &self.unicode_selection {
+                    let store =
+                        build_unicode_store(&self.unicode_set.filtered_unicode_sections);
+                    selection.set_model(Some(&store));
+                }
+
+                if let Some(header) = &self.sticky_header {
+                    header.set_label(&first_block);
+                }
+
+                grid_view.scroll_to(0, gtk::ListScrollFlags::empty(), None);
+            } else {
+                // Same characters, only the font changed: push the new font
+                // onto every realized cell (cells realized later pick it up
+                // from the shared `cell_attrs` when they bind).
+                let mut cells = Vec::new();
+                collect_cell_labels(grid_view.upcast_ref(), &mut cells);
+                let attrs = self.cell_attrs.borrow();
+                for cell in &cells {
+                    cell.set_attributes(Some(&attrs));
+                }
+            }
         }
 
         if let Some(list) = &self.unicode_set_list {
@@ -670,6 +699,7 @@ impl SimpleComponent for App {
             unicode_selection: None,
             unicode_set_list: None,
             section_positions: HashMap::new(),
+            displayed_ranges: Vec::new(),
             selected_character: None,
             hex_value: String::new(),
             dec_value: String::new(),
