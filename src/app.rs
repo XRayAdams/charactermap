@@ -58,13 +58,15 @@ pub struct App {
     font_list: Option<gtk::ListBox>,
     unicode_set: UnicodeSet,
     unicode_grid_view: Option<gtk::GridView>,
+    /// The grid's native single-selection model; its inner store is swapped on
+    /// font change. GTK draws the selection highlight and handles keyboard nav.
+    unicode_selection: Option<gtk::SingleSelection>,
     unicode_set_list: Option<gtk::ListBox>,
     section_positions: HashMap<String, u32>,
     selected_character: Option<char>,
     hex_value: String,
     dec_value: String,
     collected_text: String,
-    highlighted_char: Rc<RefCell<Option<char>>>,
     /// Shared Pango attributes (selected font + size) applied to every grid
     /// cell; updated in place on font change so recycled cells pick it up.
     cell_attrs: Rc<RefCell<gtk4::pango::AttrList>>,
@@ -176,12 +178,14 @@ impl App {
                 .unwrap_or_default();
             *self.block_boundaries.borrow_mut() = boundaries;
 
-            // Rebuild the character model for the current blocks and swap it in.
-            // Every cell is re-bound, so font, selection and block shading are
-            // all recomputed from scratch — no need to touch realized cells.
-            let selection_model =
-                build_unicode_model(&self.unicode_set.filtered_unicode_sections);
-            grid_view.set_model(Some(&selection_model));
+            // Rebuild the character store for the current blocks and swap it
+            // into the persistent selection model. Every cell is re-bound, so
+            // font and block shading are recomputed from scratch.
+            if let Some(selection) = &self.unicode_selection {
+                let store =
+                    build_unicode_store(&self.unicode_set.filtered_unicode_sections);
+                selection.set_model(Some(&store));
+            }
 
             if let Some(header) = &self.sticky_header {
                 header.set_label(&first_block);
@@ -636,8 +640,7 @@ impl SimpleComponent for App {
             let provider = gtk4::CssProvider::new();
             provider.load_from_string(
                 ".unicode-cell { border-radius: 6px; background-color: alpha(currentColor, 0.08); }\n\
-                 .unicode-cell.block-alt { background-color: alpha(currentColor, 0.16); }\n\
-                 .unicode-cell.selected-cell { background-color: alpha(@accent_bg_color, 0.6); color: @accent_fg_color; }",
+                 .unicode-cell.block-alt { background-color: alpha(currentColor, 0.16); }",
             );
             gtk4::style_context_add_provider_for_display(
                 &display,
@@ -664,13 +667,13 @@ impl SimpleComponent for App {
             font_list: None,
             unicode_set: UnicodeSet::new(),
             unicode_grid_view: None,
+            unicode_selection: None,
             unicode_set_list: None,
             section_positions: HashMap::new(),
             selected_character: None,
             hex_value: String::new(),
             dec_value: String::new(),
             collected_text: String::new(),
-            highlighted_char: Rc::new(RefCell::new(None)),
             cell_attrs: Rc::new(RefCell::new(gtk4::pango::AttrList::new())),
             block_boundaries: Rc::new(RefCell::new(Vec::new())),
             sticky_header: None,
@@ -683,15 +686,48 @@ impl SimpleComponent for App {
         model.sticky_header = Some(widgets.sticky_header.clone());
 
         let grid_factory = build_unicode_grid_factory(
-            sender.clone(),
-            model.highlighted_char.clone(),
             model.cell_attrs.clone(),
             model.block_boundaries.clone(),
         );
         widgets.unicode_grid_view.set_factory(Some(&grid_factory));
 
-        // The character model is (re)built and set in `refresh_unicode_sections`
-        // when a font is selected (the first row is auto-selected below).
+        // Use GTK's native single-selection: the GridView highlights the
+        // selected cell and handles keyboard navigation itself. The store is
+        // (re)built and swapped in by `refresh_unicode_sections` on font change.
+        let selection = gtk::SingleSelection::new(None::<gio::ListStore>);
+        selection.set_autoselect(false);
+        selection.set_can_unselect(true);
+        widgets.unicode_grid_view.set_model(Some(&selection));
+        model.unicode_selection = Some(selection.clone());
+
+        // Selecting a cell (click or keyboard) updates the character preview.
+        selection.connect_selection_changed({
+            let sender = sender.clone();
+            move |selection, _, _| {
+                if let Some(ch) = selection
+                    .selected_item()
+                    .and_then(|item| item.downcast::<gtk::StringObject>().ok())
+                    .and_then(|obj| obj.string().chars().next())
+                {
+                    sender.input(Messages::CharacterSelected(ch as i32));
+                }
+            }
+        });
+
+        // Activating a cell (double-click or Enter) appends it to the text.
+        widgets.unicode_grid_view.connect_activate({
+            let sender = sender.clone();
+            move |grid_view, position| {
+                if let Some(ch) = grid_view
+                    .model()
+                    .and_then(|m| m.item(position))
+                    .and_then(|item| item.downcast::<gtk::StringObject>().ok())
+                    .and_then(|obj| obj.string().chars().next())
+                {
+                    sender.input(Messages::CharacterDoubleClicked(ch as i32));
+                }
+            }
+        });
 
         // Keep the sticky "current block" header in sync with the scroll
         // position (the top-most visible cell's unicode block).
@@ -763,7 +799,6 @@ impl SimpleComponent for App {
             Messages::FontSelected(font_name) => {
                 self.selected_font = font_name;
                 self.selected_character = None;
-                *self.highlighted_char.borrow_mut() = None;
                 self.refresh_unicode_sections();
                 self.update_character_preview();
             }
@@ -838,11 +873,10 @@ fn font_covers_range(font: &gtk4::pango::Font, start: u32, end: u32) -> bool {
     })
 }
 
-/// Builds the character grid's data model for the given (filtered) blocks: a
-/// flat `gio::ListStore` of every displayable codepoint, in block order,
-/// wrapped in a `NoSelection` (selection is handled manually via CSS classes).
-/// Rebuilt and swapped into the GridView on every font change.
-fn build_unicode_model(sections: &[UnicodeEntry]) -> gtk::NoSelection {
+/// Builds the character grid's flat data store for the given (filtered)
+/// blocks: a `gio::ListStore` of every displayable codepoint, in block order.
+/// Swapped into the grid's `SingleSelection` on every font change.
+fn build_unicode_store(sections: &[UnicodeEntry]) -> gio::ListStore {
     let store = gio::ListStore::new::<gtk::StringObject>();
     let mut buf = [0u8; 4];
     for section in sections {
@@ -852,7 +886,7 @@ fn build_unicode_model(sections: &[UnicodeEntry]) -> gtk::NoSelection {
             }
         }
     }
-    gtk::NoSelection::new(Some(store))
+    store
 }
 
 /// Computes, for the given (filtered) blocks, a map of block description ->
@@ -889,82 +923,41 @@ fn compute_positions_boundaries(
 /// column layout and virtualization; each cell just shows one character in
 /// the currently selected font (via the shared `cell_attrs`).
 fn build_unicode_grid_factory(
-    sender: ComponentSender<App>,
-    highlighted_char: Rc<RefCell<Option<char>>>,
     cell_attrs: Rc<RefCell<gtk4::pango::AttrList>>,
     block_boundaries: Rc<RefCell<Vec<(u32, String)>>>,
 ) -> gtk::SignalListItemFactory {
     let factory = gtk::SignalListItemFactory::new();
-    let selected_label: Rc<RefCell<Option<gtk::Inscription>>> = Rc::new(RefCell::new(None));
 
-    factory.connect_setup({
-        let highlighted_char = highlighted_char.clone();
-        let selected_label = selected_label.clone();
-        move |_, list_item| {
-            let Some(list_item) = list_item.downcast_ref::<gtk::ListItem>() else {
-                return;
-            };
+    factory.connect_setup(|_, list_item| {
+        let Some(list_item) = list_item.downcast_ref::<gtk::ListItem>() else {
+            return;
+        };
 
-            // GtkInscription (not GtkLabel) renders text in a FIXED area and
-            // never resizes to its content. GtkGridView sizes every cell to the
-            // largest natural size among realized cells, so a Label whose glyph
-            // is wider/taller than CELL_SIZE (color emoji, CJK, fallback fonts)
-            // would make every cell grow and the columns reflow while
-            // scrolling. Pinning nat-chars/nat-lines to 1 keeps the natural
-            // size below the CELL_SIZE request, so all cells stay CELL_SIZE.
-            let label = gtk::Inscription::new(None);
-            label.set_width_request(CELL_SIZE);
-            label.set_height_request(CELL_SIZE);
-            label.set_min_chars(1);
-            label.set_nat_chars(1);
-            label.set_min_lines(1);
-            label.set_nat_lines(1);
-            label.set_xalign(0.5);
-            label.set_yalign(0.5);
-            label.set_halign(gtk::Align::Fill);
-            label.set_valign(gtk::Align::Center);
-            label.set_hexpand(true);
-            label.add_css_class("unicode-cell");
+        // GtkInscription (not GtkLabel) renders text in a FIXED area and
+        // never resizes to its content. GtkGridView sizes every cell to the
+        // largest natural size among realized cells, so a Label whose glyph
+        // is wider/taller than CELL_SIZE (color emoji, CJK, fallback fonts)
+        // would make every cell grow and the columns reflow while
+        // scrolling. Pinning nat-chars/nat-lines to 1 keeps the natural
+        // size below the CELL_SIZE request, so all cells stay CELL_SIZE.
+        let label = gtk::Inscription::new(None);
+        label.set_width_request(CELL_SIZE);
+        label.set_height_request(CELL_SIZE);
+        label.set_min_chars(1);
+        label.set_nat_chars(1);
+        label.set_min_lines(1);
+        label.set_nat_lines(1);
+        label.set_xalign(0.5);
+        label.set_yalign(0.5);
+        label.set_halign(gtk::Align::Fill);
+        label.set_valign(gtk::Align::Center);
+        label.set_hexpand(true);
+        label.add_css_class("unicode-cell");
 
-            let gesture = gtk::GestureClick::new();
-            gesture.connect_released({
-                let sender = sender.clone();
-                // Weak reference: the gesture (and its closure) is owned by
-                // `label` itself via `add_controller` below. A *strong* clone
-                // here would create a label -> gesture -> closure -> label
-                // cycle that GObject refcounting can never collect, leaking
-                // every cell label the factory ever creates.
-                let label_weak = label.downgrade();
-                let highlighted_char = highlighted_char.clone();
-                let selected_label = selected_label.clone();
-                move |_, n_press, _, _| {
-                    let Some(label) = label_weak.upgrade() else {
-                        return;
-                    };
-                    if let Some(ch) = label.text().and_then(|t| t.chars().next()) {
-                        *highlighted_char.borrow_mut() = Some(ch);
-
-                        if let Some(prev) = selected_label.borrow_mut().take() {
-                            prev.remove_css_class("selected-cell");
-                        }
-                        label.add_css_class("selected-cell");
-                        *selected_label.borrow_mut() = Some(label.clone());
-
-                        sender.input(Messages::CharacterSelected(ch as i32));
-
-                        if n_press == 2 {
-                            sender.input(Messages::CharacterDoubleClicked(ch as i32));
-                        }
-                    }
-                }
-            });
-            label.add_controller(gesture);
-
-            list_item.set_child(Some(&label));
-            list_item.set_focusable(true);
-            list_item.set_selectable(true);
-            list_item.set_activatable(true);
-        }
+        list_item.set_child(Some(&label));
+        list_item.set_focusable(true);
+        list_item.set_selectable(true);
+        list_item.set_activatable(true);
     });
 
     factory.connect_bind(move |_, list_item| {
@@ -1012,16 +1005,6 @@ fn build_unicode_grid_factory(
             }
         } else if label.has_css_class("block-alt") {
             label.remove_css_class("block-alt");
-        }
-
-        let highlighted = *highlighted_char.borrow();
-        let ch = text.chars().next();
-        if ch.is_some() && ch == highlighted {
-            if !label.has_css_class("selected-cell") {
-                label.add_css_class("selected-cell");
-            }
-        } else if label.has_css_class("selected-cell") {
-            label.remove_css_class("selected-cell");
         }
     });
 
