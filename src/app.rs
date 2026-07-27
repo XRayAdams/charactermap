@@ -73,14 +73,6 @@ pub struct App {
     /// from the top-visible cell during scrolling.
     block_boundaries: Rc<RefCell<Vec<(u32, String)>>>,
     sticky_header: Option<gtk::Label>,
-    /// Filter applied to the (built-once) full character model. On font change
-    /// only this filter's predicate changes and `changed()` is called, so the
-    /// GridView reuses its realized cell widgets instead of tearing down and
-    /// recreating the whole model (which is what made font switching slow).
-    grid_filter: Option<gtk::CustomFilter>,
-    /// Sorted, inclusive codepoint ranges the currently selected font covers;
-    /// read by the grid filter to decide which characters to show.
-    covered_ranges: Rc<RefCell<Vec<(u32, u32)>>>,
 }
 
 #[derive(Debug)]
@@ -164,45 +156,15 @@ impl App {
         };
 
 
-        // Update the shared cell attributes so rebound cells render in the
-        // selected font.
+        // Update the shared cell attributes so freshly-bound cells render in
+        // the selected font.
         *self.cell_attrs.borrow_mut() = font_attr_list(&font_name, Some(GRID_FONT_SIZE));
 
-        // Point the grid filter at the covered ranges and flip it: the GridView
-        // keeps its realized cell widgets and only rebinds the visible ones,
-        // rather than rebuilding the whole model.
-        {
-            let mut ranges: Vec<(u32, u32)> = self
-                .unicode_set
-                .filtered_unicode_sections
-                .iter()
-                .map(|entry| (entry.start_index, entry.end_index))
-                .collect();
-            ranges.sort_unstable_by_key(|(start, _)| *start);
-            *self.covered_ranges.borrow_mut() = ranges;
-        }
-        if let Some(filter) = &self.grid_filter {
-            filter.changed(gtk::FilterChange::Different);
-        }
-
         if let Some(grid_view) = &self.unicode_grid_view {
-            // `filter.changed()` only re-binds cells whose *item* changed;
-            // cells whose character is unchanged by the filter flip keep their
-            // old font. Push the new font onto every currently-realized cell
-            // directly so the whole grid re-renders in the selected font.
-            let mut cells = Vec::new();
-            collect_cell_labels(grid_view.upcast_ref(), &mut cells);
-            {
-                let attrs = self.cell_attrs.borrow();
-                for cell in &cells {
-                    cell.set_attributes(Some(&attrs));
-                }
-            }
-
-            // Positions/boundaries mirror the filtered order (covered blocks in
-            // ascending order, each contributing its non-control chars), and
-            // are computed directly from the section list without touching the
-            // model.
+            // Positions/boundaries mirror the model order (covered blocks in
+            // ascending order, each contributing its non-control chars).
+            // Update them BEFORE swapping the model so the factory's `bind`
+            // callback resolves the correct block for every cell.
             let (positions, boundaries) =
                 compute_positions_boundaries(&self.unicode_set.filtered_unicode_sections);
 
@@ -213,6 +175,14 @@ impl App {
                 .map(|(_, description)| description.clone())
                 .unwrap_or_default();
             *self.block_boundaries.borrow_mut() = boundaries;
+
+            // Rebuild the character model for the current blocks and swap it in.
+            // Every cell is re-bound, so font, selection and block shading are
+            // all recomputed from scratch — no need to touch realized cells.
+            let selection_model =
+                build_unicode_model(&self.unicode_set.filtered_unicode_sections);
+            grid_view.set_model(Some(&selection_model));
+
             if let Some(header) = &self.sticky_header {
                 header.set_label(&first_block);
             }
@@ -252,13 +222,18 @@ impl App {
         // Align the block to the TOP of the viewport rather than using
         // `scroll_to` (which only scrolls the item just into view, landing it at
         // the bottom edge). The sticky header tracks the top row, so the target
-        // block must be at the top for the header to agree. All rows are
-        // `CELL_SIZE` tall and the column count is derived from the viewport
-        // width, so the top offset can be computed directly.
+        // block must be at the top for the header to agree. The column count and
+        // row pitch are MEASURED from the realized cells (GridView adds its own
+        // spacing, so they can't be derived from CELL_SIZE).
         if let Some(vadjustment) = grid_view.vadjustment() {
-            let columns = (grid_view.width() / CELL_SIZE).clamp(1, 100) as u32;
+            let (columns, row_pitch) = grid_geometry(grid_view).unwrap_or_else(|| {
+                (
+                    (grid_view.width() / CELL_SIZE).clamp(1, 100) as u32,
+                    f64::from(CELL_SIZE),
+                )
+            });
             let row = position / columns;
-            let target = f64::from(row) * f64::from(CELL_SIZE);
+            let target = f64::from(row) * row_pitch;
             let max = (vadjustment.upper() - vadjustment.page_size()).max(vadjustment.lower());
             vadjustment.set_value(target.clamp(vadjustment.lower(), max));
         }
@@ -271,7 +246,6 @@ impl App {
         }
     }
 
-    /// Renders the currently selected character, big, in the Character Information box.
     fn update_character_preview(&mut self) {
         match self.selected_character {
             Some(ch) => {
@@ -700,8 +674,6 @@ impl SimpleComponent for App {
             cell_attrs: Rc::new(RefCell::new(gtk4::pango::AttrList::new())),
             block_boundaries: Rc::new(RefCell::new(Vec::new())),
             sticky_header: None,
-            grid_filter: None,
-            covered_ranges: Rc::new(RefCell::new(Vec::new())),
         };
 
         let widgets = view_output!();
@@ -718,40 +690,8 @@ impl SimpleComponent for App {
         );
         widgets.unicode_grid_view.set_factory(Some(&grid_factory));
 
-        // Build the full character model ONCE (every non-control codepoint of
-        // every unicode block, in block order). Font switching then only
-        // changes the filter predicate below, so the GridView keeps its
-        // realized cell widgets and just rebinds them instead of rebuilding.
-        let full_store = build_full_model(&model.unicode_set.unicode_sections);
-        let grid_filter = gtk::CustomFilter::new({
-            let covered_ranges = model.covered_ranges.clone();
-            move |obj| {
-                let Some(code) = obj
-                    .downcast_ref::<gtk::StringObject>()
-                    .and_then(|s| s.string().chars().next())
-                    .map(|ch| ch as u32)
-                else {
-                    return false;
-                };
-                let ranges = covered_ranges.borrow();
-                ranges
-                    .binary_search_by(|(start, end)| {
-                        if code < *start {
-                            std::cmp::Ordering::Greater
-                        } else if code > *end {
-                            std::cmp::Ordering::Less
-                        } else {
-                            std::cmp::Ordering::Equal
-                        }
-                    })
-                    .is_ok()
-            }
-        });
-        let filter_model =
-            gtk::FilterListModel::new(Some(full_store), Some(grid_filter.clone()));
-        let selection_model = gtk::NoSelection::new(Some(filter_model));
-        widgets.unicode_grid_view.set_model(Some(&selection_model));
-        model.grid_filter = Some(grid_filter);
+        // The character model is (re)built and set in `refresh_unicode_sections`
+        // when a font is selected (the first row is auto-selected below).
 
         // Keep the sticky "current block" header in sync with the scroll
         // position (the top-most visible cell's unicode block).
@@ -898,12 +838,11 @@ fn font_covers_range(font: &gtk4::pango::Font, start: u32, end: u32) -> bool {
     })
 }
 
-/// Builds the full, never-rebuilt data model backing the character grid: a
-/// single flat `gio::ListStore` of every displayable codepoint of every
-/// unicode block, in block order. Which of these are shown is controlled by a
-/// `FilterListModel` filter that is flipped on font change, so the model
-/// itself is constructed only once.
-fn build_full_model(sections: &[UnicodeEntry]) -> gio::ListStore {
+/// Builds the character grid's data model for the given (filtered) blocks: a
+/// flat `gio::ListStore` of every displayable codepoint, in block order,
+/// wrapped in a `NoSelection` (selection is handled manually via CSS classes).
+/// Rebuilt and swapped into the GridView on every font change.
+fn build_unicode_model(sections: &[UnicodeEntry]) -> gtk::NoSelection {
     let store = gio::ListStore::new::<gtk::StringObject>();
     let mut buf = [0u8; 4];
     for section in sections {
@@ -913,7 +852,7 @@ fn build_full_model(sections: &[UnicodeEntry]) -> gio::ListStore {
             }
         }
     }
-    store
+    gtk::NoSelection::new(Some(store))
 }
 
 /// Computes, for the given (filtered) blocks, a map of block description ->
@@ -1022,9 +961,9 @@ fn build_unicode_grid_factory(
             label.add_controller(gesture);
 
             list_item.set_child(Some(&label));
-            list_item.set_focusable(false);
-            list_item.set_selectable(false);
-            list_item.set_activatable(false);
+            list_item.set_focusable(true);
+            list_item.set_selectable(true);
+            list_item.set_activatable(true);
         }
     });
 
@@ -1092,6 +1031,62 @@ fn build_unicode_grid_factory(
 /// Qdata key under which each grid cell `Inscription` stores its flat model
 /// position (a `u32`), used by [`update_sticky_header`].
 const CELL_POSITION_KEY: &str = "cell-position";
+
+/// Measures the character grid's ACTUAL layout from its currently-realized
+/// cells: the number of columns and the row pitch (vertical distance between
+/// consecutive rows, in px). `GtkGridView` derives its column count and adds
+/// inter-cell spacing itself, so neither can be reliably guessed from
+/// `CELL_SIZE` — they must be read back from real cell geometry. Returns
+/// `None` if too few cells are realized to measure.
+fn grid_geometry(grid_view: &gtk::GridView) -> Option<(u32, f64)> {
+    let mut cells = Vec::new();
+    collect_cell_labels(grid_view.upcast_ref(), &mut cells);
+
+    let mut ys: Vec<f32> = Vec::new();
+    for cell in &cells {
+        if !cell.is_mapped() {
+            continue;
+        }
+        if let Some(point) =
+            cell.compute_point(grid_view, &gtk4::graphene::Point::new(0.0, 0.0))
+        {
+            ys.push(point.y());
+        }
+    }
+    if ys.len() < 2 {
+        return None;
+    }
+    ys.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+
+    // Bucket cells into rows (same y within a small tolerance), counting how
+    // many cells fall in each row.
+    let mut rows: Vec<(f32, u32)> = Vec::new();
+    for &y in &ys {
+        match rows.last_mut() {
+            Some(last) if (y - last.0).abs() < 2.0 => last.1 += 1,
+            _ => rows.push((y, 1)),
+        }
+    }
+    if rows.len() < 2 {
+        return None;
+    }
+
+    // A full row has the maximum cell count; the row pitch is the smallest
+    // positive gap between consecutive rows.
+    let columns = rows.iter().map(|&(_, count)| count).max().unwrap_or(1).max(1);
+    let mut pitch = f32::MAX;
+    for pair in rows.windows(2) {
+        let gap = pair[1].0 - pair[0].0;
+        if gap > 1.0 && gap < pitch {
+            pitch = gap;
+        }
+    }
+    if pitch == f32::MAX {
+        return None;
+    }
+
+    Some((columns, f64::from(pitch)))
+}
 
 /// Recursively collects every character-cell `Inscription` currently realized
 /// under the grid view (all `Inscription`s in the subtree are cells).
