@@ -43,6 +43,7 @@ fn font_attr_list(font_name: &str, size_pt: Option<i32>) -> gtk4::pango::AttrLis
 #[derive(Serialize, Deserialize)]
 struct AppSettings {
     render_font_preview: bool,
+    filter_unicode_pages: bool,
 }
 
 pub struct App {
@@ -50,6 +51,10 @@ pub struct App {
     is_collapsed: bool,
     fonts: Vec<String>,
     render_font_preview: bool,
+    /// When on, the character grid only shows unicode blocks the selected font
+    /// actually covers; when off, all blocks are shown (which also makes font
+    /// switching much faster, as the grid model no longer changes).
+    filter_unicode_pages: bool,
     font_list: Option<gtk::ListBox>,
     unicode_set: UnicodeSet,
     unicode_grid_view: Option<gtk::GridView>,
@@ -86,6 +91,7 @@ pub enum Messages {
     ClearCollectedText,
     SetCollapsed(bool),
     SetFontPreview(bool),
+    SetFilterUnicodePages(bool),
     JumpToUnicodeSet(String),
 }
 
@@ -105,6 +111,7 @@ impl App {
     fn save_config(&self) {
         let settings = AppSettings {
             render_font_preview: self.render_font_preview,
+            filter_unicode_pages: self.filter_unicode_pages,
         };
         if let Ok(content) = serde_json::to_string_pretty(&settings) {
             let path = Self::get_config_path();
@@ -121,6 +128,7 @@ impl App {
         }
         AppSettings {
             render_font_preview: true,
+            filter_unicode_pages: true,
         }
     }
 
@@ -133,21 +141,28 @@ impl App {
         let context = font_list.pango_context();
         let font_name = self.selected_font.clone();
 
-        let mut font_desc = gtk4::pango::FontDescription::new();
-        font_desc.set_family(&font_name);
-        let font = context.load_font(&font_desc);
+        self.unicode_set.filtered_unicode_sections = if self.filter_unicode_pages {
+            // Keep only the blocks the selected font actually covers.
+            let mut font_desc = gtk4::pango::FontDescription::new();
+            font_desc.set_family(&font_name);
+            let font = context.load_font(&font_desc);
 
-        self.unicode_set.filtered_unicode_sections = self
-            .unicode_set
-            .unicode_sections
-            .iter()
-            .filter(|entry| {
-                font.as_ref().is_some_and(|font| {
-                    font_covers_range(font, entry.start_index, entry.end_index)
+            self.unicode_set
+                .unicode_sections
+                .iter()
+                .filter(|entry| {
+                    font.as_ref().is_some_and(|font| {
+                        font_covers_range(font, entry.start_index, entry.end_index)
+                    })
                 })
-            })
-            .cloned()
-            .collect();
+                .cloned()
+                .collect()
+        } else {
+            // No coverage filtering: show every block (unsupported glyphs
+            // render as tofu boxes, but font switching is near-instant).
+            self.unicode_set.unicode_sections.clone()
+        };
+
 
         // Update the shared cell attributes so rebound cells render in the
         // selected font.
@@ -382,6 +397,30 @@ impl SimpleComponent for App {
                                             }
                                         },
                                     }
+                                },
+
+                                // toggle: filter grid to blocks the font covers
+                                gtk::Box {
+                                    set_orientation: gtk::Orientation::Horizontal,
+                                    set_spacing: SPACING_SMALL,
+                                    set_margin_top: SPACING_MEDIUM,
+
+                                    gtk::Label {
+                                        set_label: "Filter Unicode pages",
+                                        set_xalign: 0.0,
+                                        set_hexpand: true,
+                                    },
+
+                                    #[name = "filter_pages_switch"]
+                                    gtk::Switch {
+                                        set_valign: gtk::Align::Center,
+                                        set_tooltip_text: Some("Show only Unicode blocks the selected font supports"),
+                                        #[watch]
+                                        set_active: model.filter_unicode_pages,
+                                        connect_active_notify[sender] => move |sw| {
+                                            sender.input(Messages::SetFilterUnicodePages(sw.is_active()));
+                                        },
+                                    },
                                 },
                             }
                         }
@@ -647,6 +686,7 @@ impl SimpleComponent for App {
             is_collapsed: false,
             fonts,
             render_font_preview: settings.render_font_preview,
+            filter_unicode_pages: settings.filter_unicode_pages,
             font_list: None,
             unicode_set: UnicodeSet::new(),
             unicode_grid_view: None,
@@ -801,6 +841,11 @@ impl SimpleComponent for App {
             }
             Messages::SetCollapsed(is_collapsed) => {
                 self.is_collapsed = is_collapsed;
+            }
+            Messages::SetFilterUnicodePages(enabled) => {
+                self.filter_unicode_pages = enabled;
+                self.save_config();
+                self.refresh_unicode_sections();
             }
             Messages::JumpToUnicodeSet(description) => {
                 self.scroll_to_unicode_set(&description);
