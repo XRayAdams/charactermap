@@ -808,6 +808,115 @@ impl SimpleComponent for App {
             }
         });
 
+        // Type-ahead: while the font list has keyboard focus, typing letters
+        // accumulates a prefix and jumps the selection to the first (visible)
+        // row starting with it. The prefix resets after a short pause between
+        // keystrokes (so typing "arial" quickly narrows down to "Arial"
+        // instead of restarting on every letter), or immediately if the
+        // selection changes some other way (e.g. clicking a different row).
+        let type_ahead_buffer = Rc::new(RefCell::new(String::new()));
+        let type_ahead_reset: Rc<RefCell<Option<glib::SourceId>>> = Rc::new(RefCell::new(None));
+        // Set for the duration of the `select_row` call inside the type-ahead
+        // handler itself, so the `row-selected` listener below (which clears
+        // the buffer on any OTHER selection change) knows to leave it alone.
+        let type_ahead_selecting = Rc::new(std::cell::Cell::new(false));
+
+        widgets.font_list.connect_row_selected({
+            let buffer = type_ahead_buffer.clone();
+            let reset_source = type_ahead_reset.clone();
+            let selecting = type_ahead_selecting.clone();
+            move |_, _| {
+                if selecting.get() {
+                    return;
+                }
+                // The selection changed for a reason other than our own
+                // type-ahead jump (e.g. a mouse click) -- start the next
+                // search from scratch. Only cancel the timeout if it hasn't
+                // already fired (it clears itself to `None` when it does),
+                // since removing an already-fired source panics.
+                if let Some(source) = reset_source.borrow_mut().take() {
+                    source.remove();
+                }
+                buffer.borrow_mut().clear();
+            }
+        });
+
+        let type_ahead_controller = gtk::EventControllerKey::new();
+        type_ahead_controller.connect_key_pressed({
+            let font_list = widgets.font_list.clone();
+            let buffer = type_ahead_buffer.clone();
+            let reset_source = type_ahead_reset.clone();
+            let selecting = type_ahead_selecting.clone();
+            move |_, keyval, _keycode, state| {
+                // Let modified keys (Ctrl/Alt) and non-printable keys (arrows,
+                // Tab, Enter, Backspace, ...) fall through to normal handling
+                // instead of being captured as search text.
+                if state.intersects(
+                    gtk4::gdk::ModifierType::CONTROL_MASK | gtk4::gdk::ModifierType::ALT_MASK,
+                ) {
+                    return glib::Propagation::Proceed;
+                }
+                let Some(ch) = keyval.to_unicode().filter(|ch| !ch.is_control()) else {
+                    return glib::Propagation::Proceed;
+                };
+
+                // Cancel the pending reset only if it hasn't already fired
+                // (it clears itself to `None` when it does, since removing an
+                // already-fired/self source panics).
+                if let Some(source) = reset_source.borrow_mut().take() {
+                    source.remove();
+                }
+
+                buffer.borrow_mut().extend(ch.to_lowercase());
+
+                *reset_source.borrow_mut() = Some(glib::timeout_add_local_once(
+                    std::time::Duration::from_millis(1000),
+                    {
+                        let buffer = buffer.clone();
+                        let reset_source = reset_source.clone();
+                        move || {
+                            buffer.borrow_mut().clear();
+                            // The source has now fired (and GLib has already
+                            // removed it); forget it so a later keystroke
+                            // doesn't try to remove it again and panic.
+                            *reset_source.borrow_mut() = None;
+                        }
+                    },
+                ));
+
+                let query = buffer.borrow().clone();
+                let mut child = font_list.first_child();
+                while let Some(widget) = child {
+                    let next = widget.next_sibling();
+                    if let Some(row) = widget.downcast_ref::<gtk::ListBoxRow>() {
+                        // `ListBox`'s filter function toggles `child-visible`,
+                        // not the `visible` property itself, so a filtered-out
+                        // row still reports `is_visible() == true`. Checking
+                        // `is_child_visible()` is what actually reflects
+                        // whether the search-box filter currently hides it.
+                        if row.is_child_visible() {
+                            let matches = row
+                                .child()
+                                .and_then(|w| w.downcast::<gtk::Label>().ok())
+                                .is_some_and(|label| label.text().to_lowercase().starts_with(&query));
+                            if matches {
+                                selecting.set(true);
+                                font_list.select_row(Some(row));
+                                selecting.set(false);
+                                row.grab_focus();
+                                break;
+                            }
+                        }
+                    }
+                    child = next;
+                }
+
+                glib::Propagation::Stop
+            }
+        });
+        widgets.font_list.add_controller(type_ahead_controller);
+
+
         let about_action =
             create_about_action(widgets.main_window.clone(), Self::get_app_version());
 
@@ -825,6 +934,15 @@ impl SimpleComponent for App {
                 self.selected_character = None;
                 self.refresh_unicode_sections();
                 self.update_character_preview();
+
+                // Clear the grid's visual selection highlight too: swapping
+                // the store (or, on the fast "same characters" path, leaving
+                // it alone) doesn't reset `SingleSelection`'s selected index
+                // on its own, so the previously selected cell could stay
+                // highlighted even after `selected_character` above is reset.
+                if let Some(selection) = &self.unicode_selection {
+                    selection.set_selected(gtk::INVALID_LIST_POSITION);
+                }
             }
             Messages::CharacterSelected(char_code) => {
                 self.selected_character = char::from_u32(char_code as u32);
@@ -979,9 +1097,6 @@ fn build_unicode_grid_factory(
         label.add_css_class("unicode-cell");
 
         list_item.set_child(Some(&label));
-        list_item.set_focusable(true);
-        list_item.set_selectable(true);
-        list_item.set_activatable(true);
     });
 
     factory.connect_bind(move |_, list_item| {
