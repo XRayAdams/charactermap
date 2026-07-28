@@ -35,7 +35,7 @@ fn range_name(label: &str, code: u32) -> String {
         hangul_syllable_name(code)
     } else {
         // Ranges without a formal per-character name (e.g. Private Use).
-        format!("{}-{code:04X}", label.to_uppercase())
+        format!("{}-{code:04X}", label.to_lowercase())
     }
 }
 

@@ -1,5 +1,5 @@
 use adw::prelude::*;
-use gtk4::{gio, glib, prelude::*};
+use gtk4::{gio, glib, pango, prelude::*};
 use libadwaita as adw;
 use relm4::actions::RelmActionGroup;
 use relm4::prelude::*;
@@ -503,25 +503,22 @@ impl SimpleComponent for App {
 
                                 // bottom bar
                                 gtk::Frame {
-                                    set_margin_start: SPACING_MEDIUM,
-                                    set_margin_end: SPACING_MEDIUM,
+                                    set_margin_start: SPACING_SMALL,
+                                    set_margin_end: SPACING_SMALL,
                                     set_margin_top: SPACING_SMALL,
-                                    set_margin_bottom: SPACING_MEDIUM,
+                                    set_margin_bottom: SPACING_SMALL,
                                     set_label: Some("Character Information"),
 
                                     #[wrap(Some)]
                                     set_child = &gtk::Box {
                                         set_orientation: gtk::Orientation::Horizontal,
-                                        set_spacing: SPACING_SMALL,
-                                        set_margin_start: SPACING_MEDIUM,
-                                        set_margin_end: SPACING_MEDIUM,
-                                        set_margin_top: SPACING_SMALL,
-                                        set_margin_bottom: SPACING_MEDIUM,
+                                        set_margin_start: SPACING_SMALL,
+                                        set_height_request: 200,
 
                                         gtk::Box {
                                             set_orientation: gtk::Orientation::Vertical,
                                             set_spacing: SPACING_SMALL,
-                                            set_valign: gtk4::Align::End,
+                                            set_valign: gtk4::Align::Start,
 
                                             #[name = "jump_to_set_button"]
                                             gtk::MenuButton {
@@ -625,11 +622,9 @@ impl SimpleComponent for App {
 
                                         gtk::Box {
                                                 set_orientation: gtk::Orientation::Vertical,
-                                                set_margin_start: SPACING_SMALL,
                                                 set_margin_end: SPACING_SMALL,
-                                                set_margin_top: SPACING_SMALL,
-                                                set_margin_bottom: SPACING_SMALL,
-                                                set_halign: gtk::Align::End,
+                                                set_halign: gtk::Align::Start,
+                                                set_valign: gtk::Align::Start,
                                             
                                             gtk::Box {
                                                 set_halign: gtk::Align::End,
@@ -637,8 +632,8 @@ impl SimpleComponent for App {
                                                 gtk::Label {
                                                     #[watch]
                                                     set_label: &model.selected_character.map(|ch| ch.to_string()).unwrap_or_default(),
-                                                    set_width_request: 120,
-                                                    set_height_request: 120,
+                                                    set_width_request: 150,
+                                                    set_height_request: 150,
                                                     add_css_class: "card",
                                                     set_justify: gtk::Justification::Center,
                                                     #[watch]
@@ -651,6 +646,8 @@ impl SimpleComponent for App {
                                                 set_label: &model.character_name,
                                                 set_margin_top: SPACING_SMALL,
                                                 set_halign: gtk::Align::End,
+                                                set_valign: gtk::Align::End,
+                                                set_wrap: true,
                                             }
                                         },
 
