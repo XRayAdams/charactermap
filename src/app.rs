@@ -1063,7 +1063,7 @@ fn build_unicode_store(sections: &[UnicodeEntry]) -> gio::ListStore {
 /// blocks in ascending order, each contributing its non-control chars) and are
 /// derived purely from the section list, without touching the model.
 fn compute_positions_boundaries(
-    sections: &[UnicodeEntry],Is there any way to make custom 
+    sections: &[UnicodeEntry],
 ) -> (HashMap<String, u32>, Vec<(u32, String)>) {
     let mut positions = HashMap::new();
     let mut boundaries = Vec::new();
