@@ -11,11 +11,11 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 use crate::helpers::actions::{AboutAction, WindowActionGroup, create_about_action};
+use crate::helpers::character_names::CharacterNames;
 use crate::helpers::static_data::APP_NAME;
 use crate::unicode::{UnicodeEntry, UnicodeSet};
 
 const SPACING_MEDIUM: i32 = 12;
-const SPACING_LARGE: i32 = 18;
 const SPACING_SMALL: i32 = 6;
 
 /// Cell width/height (in pixels) used to render each character cell. The
@@ -79,6 +79,8 @@ pub struct App {
     /// from the top-visible cell during scrolling.
     block_boundaries: Rc<RefCell<Vec<(u32, String)>>>,
     sticky_header: Option<gtk::Label>,
+    character_names: CharacterNames,
+    character_name: String,
 }
 
 #[derive(Debug)]
@@ -126,7 +128,7 @@ impl App {
         }
         AppSettings {
             render_font_preview: true,
-            filter_unicode_pages: true,
+            filter_unicode_pages: false,
         }
     }
 
@@ -275,6 +277,14 @@ impl App {
         if let Some(header) = &self.sticky_header {
             header.set_label(description);
         }
+
+        // Also select the first character of the block we just jumped to.
+        // This triggers `SingleSelection`'s "selection-changed" signal, whose
+        // handler (connected in `init`) sends `Messages::CharacterSelected`
+        // and updates the character preview/info panel accordingly.
+        if let Some(selection) = &self.unicode_selection {
+            selection.set_selected(position);
+        }
     }
 
     fn update_character_preview(&mut self) {
@@ -282,10 +292,12 @@ impl App {
             Some(ch) => {
                 self.hex_value = format!("{:04X}", ch as u32);
                 self.dec_value = (ch as u32).to_string();
+                self.character_name = self.character_names.name(ch).unwrap_or_default();
             }
             None => {
                 self.hex_value.clear();
                 self.dec_value.clear();
+                self.character_name.clear();
             }
         }
     }
@@ -616,6 +628,10 @@ impl SimpleComponent for App {
                                                 set_margin_end: SPACING_SMALL,
                                                 set_margin_top: SPACING_SMALL,
                                                 set_margin_bottom: SPACING_SMALL,
+                                                set_halign: gtk::Align::End,
+                                            
+                                            gtk::Box {
+                                                set_halign: gtk::Align::End,
 
                                                 gtk::Label {
                                                     #[watch]
@@ -628,6 +644,14 @@ impl SimpleComponent for App {
                                                     set_attributes: Some(&font_attr_list(&model.selected_font, Some(50))),
                                                 },
                                             },
+                                            
+                                            gtk::Label {
+                                                #[watch]
+                                                set_label: &model.character_name,
+                                                set_margin_top: SPACING_SMALL,
+                                                set_halign: gtk::Align::End,
+                                            }
+                                        },
 
                                 },
                             },
@@ -700,6 +724,8 @@ impl SimpleComponent for App {
             cell_attrs: Rc::new(RefCell::new(gtk4::pango::AttrList::new())),
             block_boundaries: Rc::new(RefCell::new(Vec::new())),
             sticky_header: None,
+            character_names: CharacterNames::new(),
+            character_name: String::new(),
         };
 
         let widgets = view_output!();
@@ -1037,7 +1063,7 @@ fn build_unicode_store(sections: &[UnicodeEntry]) -> gio::ListStore {
 /// blocks in ascending order, each contributing its non-control chars) and are
 /// derived purely from the section list, without touching the model.
 fn compute_positions_boundaries(
-    sections: &[UnicodeEntry],
+    sections: &[UnicodeEntry],Is there any way to make custom 
 ) -> (HashMap<String, u32>, Vec<(u32, String)>) {
     let mut positions = HashMap::new();
     let mut boundaries = Vec::new();

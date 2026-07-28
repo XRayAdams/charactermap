@@ -15,6 +15,16 @@ def escape(text: str) -> str:
     return text.replace("\\", "\\\\").replace('"', '\\"')
 
 
+def to_sentence_case(text: str) -> str:
+    """Converts an ALL-CAPS Unicode character name into a sentence: only the
+    first letter capitalized, everything else lowercase, e.g.
+    "LATIN SMALL LETTER A" -> "Latin small letter a"."""
+    lowered = text.lower()
+    if not lowered:
+        return lowered
+    return lowered[0].upper() + lowered[1:]
+
+
 def main() -> None:
     names: list[tuple[int, str]] = []
     ranges: list[tuple[int, int, str]] = []
@@ -32,7 +42,7 @@ def main() -> None:
             if name.startswith("<"):
                 inner = name[1:-1]  # strip the angle brackets
                 if inner.endswith(", First"):
-                    range_start = (code, inner[: -len(", First")])
+                    range_start = (code, to_sentence_case(inner[: -len(", First")]))
                 elif inner.endswith(", Last"):
                     if range_start is not None:
                         ranges.append((range_start[0], code, range_start[1]))
@@ -40,10 +50,10 @@ def main() -> None:
                 elif inner == "control":
                     alias = fields[10] if len(fields) > 10 else ""
                     if alias:
-                        names.append((code, alias))
+                        names.append((code, to_sentence_case(alias)))
                 # other <...> markers have no name
             else:
-                names.append((code, name))
+                names.append((code, to_sentence_case(name)))
 
     names.sort(key=lambda entry: entry[0])
 
