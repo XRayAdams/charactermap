@@ -13,7 +13,8 @@ use std::rc::Rc;
 use crate::helpers::actions::{AboutAction, WindowActionGroup, create_about_action};
 use crate::helpers::character_names::CharacterNames;
 use crate::helpers::static_data::APP_NAME;
-use crate::unicode::{UnicodeEntry, UnicodeSet};
+use crate::unicode::char_list_model::displayable_count;
+use crate::unicode::{UnicodeCharModel, UnicodeEntry, UnicodeSet};
 
 const SPACING_MEDIUM: i32 = 12;
 const SPACING_SMALL: i32 = 6;
@@ -1042,19 +1043,12 @@ fn font_covers_range(font: &gtk4::pango::Font, start: u32, end: u32) -> bool {
 }
 
 /// Builds the character grid's flat data store for the given (filtered)
-/// blocks: a `gio::ListStore` of every displayable codepoint, in block order.
-/// Swapped into the grid's `SingleSelection` on every font change.
-fn build_unicode_store(sections: &[UnicodeEntry]) -> gio::ListStore {
-    let store = gio::ListStore::new::<gtk::StringObject>();
-    let mut buf = [0u8; 4];
-    for section in sections {
-        for code in section.start_index..=section.end_index {
-            if let Some(ch) = char::from_u32(code).filter(|ch| !ch.is_control()) {
-                store.append(&gtk::StringObject::new(ch.encode_utf8(&mut buf)));
-            }
-        }
-    }
-    store
+/// blocks: a lazy `UnicodeCharModel` that resolves each displayable codepoint
+/// on demand instead of eagerly allocating a `GtkStringObject` for all of
+/// them up front. Swapped into the grid's `SingleSelection` on every font
+/// change.
+fn build_unicode_store(sections: &[UnicodeEntry]) -> UnicodeCharModel {
+    UnicodeCharModel::new(sections)
 }
 
 /// Computes, for the given (filtered) blocks, a map of block description ->
@@ -1070,9 +1064,7 @@ fn compute_positions_boundaries(
     let mut position: u32 = 0;
 
     for section in sections {
-        let count = (section.start_index..=section.end_index)
-            .filter_map(|code| char::from_u32(code).filter(|ch| !ch.is_control()))
-            .count() as u32;
+        let count = displayable_count(section.start_index, section.end_index);
 
         if count == 0 {
             continue;
