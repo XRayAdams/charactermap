@@ -1,5 +1,5 @@
 use adw::prelude::*;
-use gtk4::{gio, glib, pango, prelude::*};
+use gtk4::{gio, glib, prelude::*};
 use libadwaita as adw;
 use relm4::actions::RelmActionGroup;
 use relm4::prelude::*;
@@ -94,6 +94,8 @@ pub enum Messages {
     SetFontPreview(bool),
     SetFilterUnicodePages(bool),
     JumpToUnicodeSet(String),
+    FindHex(String),
+    FindDec(String),
 }
 
 impl App {
@@ -1010,6 +1012,20 @@ impl SimpleComponent for App {
                         }
 
                         child = next;
+                    }
+                }
+            }
+            Messages::FindHex(hex) => {
+                if let Ok(code) = u32::from_str_radix(&hex, 16) {
+                    if let Some(ch) = char::from_u32(code) {
+                        
+                    }
+                }
+            }
+            Messages::FindDec(dec) => {
+                if let Ok(code) = dec.parse::<u32>() {
+                    if let Some(ch) = char::from_u32(code) {
+                        
                     }
                 }
             }

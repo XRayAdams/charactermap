@@ -28,9 +28,9 @@ const JAMO_TRAILING: [&str; 28] = [
 /// Derives the name of a character inside an algorithmically named range.
 fn range_name(label: &str, code: u32) -> String {
     if label.starts_with("CJK Ideograph") {
-        format!("CJK UNIFIED IDEOGRAPH-{code:04X}")
+        format!("CJK Ideograph-{code:04X}")
     } else if label.starts_with("Tangut Ideograph") {
-        format!("TANGUT IDEOGRAPH-{code:04X}")
+        format!("Tangut Ideograph-{code:04X}")
     } else if label == "Hangul Syllable" {
         hangul_syllable_name(code)
     } else {
@@ -46,7 +46,7 @@ fn hangul_syllable_name(code: u32) -> String {
     let vowel = ((index % 588) / 28) as usize;
     let trailing = (index % 28) as usize;
     format!(
-        "HANGUL SYLLABLE {}{}{}",
+        "Hangul syllable {}{}{}",
         JAMO_LEADING[leading], JAMO_VOWEL[vowel], JAMO_TRAILING[trailing]
     )
 }
@@ -85,10 +85,10 @@ mod tests {
     #[test]
     fn resolves_names() {
         let names = CharacterNames::new();
-        assert_eq!(names.name('A').as_deref(), Some("LATIN CAPITAL LETTER A"));
-        assert_eq!(names.name('€').as_deref(), Some("EURO SIGN"));
-        assert_eq!(names.name('中').as_deref(), Some("CJK UNIFIED IDEOGRAPH-4E2D"));
-        assert_eq!(names.name('가').as_deref(), Some("HANGUL SYLLABLE GA"));
-        assert_eq!(names.name('힣').as_deref(), Some("HANGUL SYLLABLE HIH"));
+        assert_eq!(names.name('A').as_deref(), Some("Latin capital letter a"));
+        assert_eq!(names.name('€').as_deref(), Some("Euro sign"));
+        assert_eq!(names.name('中').as_deref(), Some("cjk ideograph-4E2D"));
+        assert_eq!(names.name('가').as_deref(), Some("hangul syllable-AC00"));
+        assert_eq!(names.name('힣').as_deref(), Some("hangul syllable-D7A3"));
     }
 }
