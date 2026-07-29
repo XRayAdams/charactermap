@@ -299,8 +299,12 @@ impl App {
             Some(ch) => {
                 self.hex_value = format!("{:04X}", ch as u32);
                 self.dec_value = (ch as u32).to_string();
-                self.dec_entry.as_ref().map(|entry| entry.set_text(&self.dec_value));
-                self.hex_entry.as_ref().map(|entry| entry.set_text(&self.hex_value));
+                self.dec_entry
+                    .as_ref()
+                    .map(|entry| entry.set_text(&self.dec_value));
+                self.hex_entry
+                    .as_ref()
+                    .map(|entry| entry.set_text(&self.hex_value));
                 self.character_name = self.character_names.name(ch).unwrap_or_default();
             }
             None => {
@@ -437,7 +441,6 @@ impl SimpleComponent for App {
                                         set_hexpand: true,
                                     },
 
-                                    #[name = "filter_pages_switch"]
                                     gtk::Switch {
                                         set_valign: gtk::Align::Center,
                                         set_tooltip_text: Some("Show only Unicode blocks the selected font supports"),
@@ -649,7 +652,7 @@ impl SimpleComponent for App {
                                                 set_margin_end: SPACING_SMALL,
                                                 set_halign: gtk::Align::Start,
                                                 set_valign: gtk::Align::Start,
-                                            
+
                                             gtk::Box {
                                                 set_halign: gtk::Align::End,
 
@@ -664,7 +667,7 @@ impl SimpleComponent for App {
                                                     set_attributes: Some(&font_attr_list(&model.selected_font, Some(50))),
                                                 },
                                             },
-                                            
+
                                             gtk::Label {
                                                 #[watch]
                                                 set_label: &model.character_name,
@@ -950,7 +953,9 @@ impl SimpleComponent for App {
                             let matches = row
                                 .child()
                                 .and_then(|w| w.downcast::<gtk::Label>().ok())
-                                .is_some_and(|label| label.text().to_lowercase().starts_with(&query));
+                                .is_some_and(|label| {
+                                    label.text().to_lowercase().starts_with(&query)
+                                });
                             if matches {
                                 selecting.set(true);
                                 font_list.select_row(Some(row));
@@ -967,7 +972,6 @@ impl SimpleComponent for App {
             }
         });
         widgets.font_list.add_controller(type_ahead_controller);
-
 
         let about_action =
             create_about_action(widgets.main_window.clone(), Self::get_app_version());
@@ -1049,16 +1053,12 @@ impl SimpleComponent for App {
             }
             Messages::FindHex => {
                 if let Ok(code) = u32::from_str_radix(&self.hex_value, 16) {
-                    if let Some(ch) = char::from_u32(code) {
-                        
-                    }
+                    if let Some(ch) = char::from_u32(code) {}
                 }
             }
             Messages::FindDec => {
                 if let Ok(code) = self.dec_value.parse::<u32>() {
-                    if let Some(ch) = char::from_u32(code) {
-                        
-                    }
+                    if let Some(ch) = char::from_u32(code) {}
                 }
             }
         }
