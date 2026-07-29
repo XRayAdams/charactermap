@@ -595,8 +595,7 @@ impl SimpleComponent for App {
                                                     set_max_length: 7,
                                                     connect_changed[sender] => move |entry| {
                                                         sender.input(Messages::SetHexValue(entry.text().to_string()));
-                                                    } @hex_changed_handler,
-                                                    
+                                                    },
                                                 },
 
                                                 gtk::Button {
@@ -626,7 +625,7 @@ impl SimpleComponent for App {
                                                     set_max_length: 7,
                                                     connect_changed[sender] => move |entry|  {
                                                         sender.input(Messages::SetDecValue(entry.text().to_string()));
-                                                    } @dec_changed_handler,
+                                                    },
                                                 },
 
                                                 gtk::Button {
