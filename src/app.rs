@@ -82,6 +82,8 @@ pub struct App {
     sticky_header: Option<gtk::Label>,
     character_names: CharacterNames,
     character_name: String,
+    hex_entry: Option<gtk::Entry>,
+    dec_entry: Option<gtk::Entry>,
 }
 
 #[derive(Debug)]
@@ -94,8 +96,10 @@ pub enum Messages {
     SetFontPreview(bool),
     SetFilterUnicodePages(bool),
     JumpToUnicodeSet(String),
-    FindHex(String),
-    FindDec(String),
+    SetHexValue(String),
+    SetDecValue(String),
+    FindHex,
+    FindDec,
 }
 
 impl App {
@@ -295,6 +299,8 @@ impl App {
             Some(ch) => {
                 self.hex_value = format!("{:04X}", ch as u32);
                 self.dec_value = (ch as u32).to_string();
+                self.dec_entry.as_ref().map(|entry| entry.set_text(&self.dec_value));
+                self.hex_entry.as_ref().map(|entry| entry.set_text(&self.hex_value));
                 self.character_name = self.character_names.name(ch).unwrap_or_default();
             }
             None => {
@@ -582,16 +588,25 @@ impl SimpleComponent for App {
                                                     set_valign: gtk::Align::Center,
                                                 },
 
+                                                #[name = "hex_entry"]
                                                 gtk::Entry {
                                                     set_width_request: 70,
                                                     set_valign: gtk::Align::Center,
-                                                    #[watch]
-                                                    set_text: &model.hex_value,
+                                                    set_max_length: 7,
+                                                    connect_changed[sender] => move |entry| {
+                                                        sender.input(Messages::SetHexValue(entry.text().to_string()));
+                                                    } @hex_changed_handler,
+                                                    
                                                 },
 
                                                 gtk::Button {
                                                     set_label: "Find",
                                                     set_valign: gtk::Align::Center,
+                                                    #[watch]
+                                                    set_sensitive: !model.hex_value.is_empty(),
+                                                    connect_clicked[sender] => move |_| {
+                                                        sender.input(Messages::FindHex);
+                                                    },
                                                 },
                                             },
 
@@ -604,16 +619,24 @@ impl SimpleComponent for App {
                                                     set_valign: gtk::Align::Center,
                                                 },
 
+                                                #[name = "dec_entry"]
                                                 gtk::Entry {
                                                     set_width_request: 70,
                                                     set_valign: gtk::Align::Center,
-                                                    #[watch]
-                                                    set_text: &model.dec_value,
+                                                    set_max_length: 7,
+                                                    connect_changed[sender] => move |entry|  {
+                                                        sender.input(Messages::SetDecValue(entry.text().to_string()));
+                                                    } @dec_changed_handler,
                                                 },
 
                                                 gtk::Button {
                                                     set_label: "Find",
                                                     set_valign: gtk::Align::Center,
+                                                    #[watch]
+                                                    set_sensitive: !model.dec_value.is_empty(),
+                                                    connect_clicked[sender] => move |_| {
+                                                        sender.input(Messages::FindDec);
+                                                    },
                                                 },
                                             },
                                         },
@@ -726,6 +749,8 @@ impl SimpleComponent for App {
             sticky_header: None,
             character_names: CharacterNames::new(),
             character_name: String::new(),
+            hex_entry: None,
+            dec_entry: None,
         };
 
         let widgets = view_output!();
@@ -733,6 +758,8 @@ impl SimpleComponent for App {
         model.unicode_grid_view = Some(widgets.unicode_grid_view.clone());
         model.unicode_set_list = Some(widgets.unicode_set_list.clone());
         model.sticky_header = Some(widgets.sticky_header.clone());
+        model.hex_entry = Some(widgets.hex_entry.clone());
+        model.dec_entry = Some(widgets.dec_entry.clone());
 
         let grid_factory =
             build_unicode_grid_factory(model.cell_attrs.clone(), model.block_boundaries.clone());
@@ -1015,15 +1042,21 @@ impl SimpleComponent for App {
                     }
                 }
             }
-            Messages::FindHex(hex) => {
-                if let Ok(code) = u32::from_str_radix(&hex, 16) {
+            Messages::SetDecValue(dec) => {
+                self.dec_value = dec;
+            }
+            Messages::SetHexValue(hex) => {
+                self.hex_value = hex;
+            }
+            Messages::FindHex => {
+                if let Ok(code) = u32::from_str_radix(&self.hex_value, 16) {
                     if let Some(ch) = char::from_u32(code) {
                         
                     }
                 }
             }
-            Messages::FindDec(dec) => {
-                if let Ok(code) = dec.parse::<u32>() {
+            Messages::FindDec => {
+                if let Ok(code) = self.dec_value.parse::<u32>() {
                     if let Some(ch) = char::from_u32(code) {
                         
                     }
