@@ -14,7 +14,7 @@ use crate::helpers::actions::{AboutAction, WindowActionGroup, create_about_actio
 use crate::helpers::character_names::CharacterNames;
 use crate::helpers::static_data::APP_NAME;
 use crate::unicode::char_list_model::displayable_count;
-use crate::unicode::{UnicodeCharModel, UnicodeEntry, UnicodeSet};
+use crate::unicode::{UnicodeCharModel, UnicodeEntry, UnicodeSet, raw_offset_to_filtered_index};
 
 const SPACING_MEDIUM: i32 = 12;
 const SPACING_SMALL: i32 = 6;
@@ -250,8 +250,9 @@ impl App {
         }
     }
 
-    /// Scrolls the character grid so the given unicode block's row is visible.
-    fn scroll_to_unicode_set(&self, description: &str) {
+    /// Scrolls the character grid so the given unicode block
+    /// Select first character if no offset was passed
+    fn scroll_to_unicode_set(&self, description: &str, offset: Option<u32>) {
         let (Some(grid_view), Some(&position)) = (
             &self.unicode_grid_view,
             self.section_positions.get(description),
@@ -285,19 +286,17 @@ impl App {
             header.set_label(description);
         }
 
-        // Also select the first character of the block we just jumped to.
-        // This triggers `SingleSelection`'s "selection-changed" signal, whose
-        // handler (connected in `init`) sends `Messages::CharacterSelected`
-        // and updates the character preview/info panel accordingly.
+        // Select character at offset if passed,
+        // otherwise select first character of the block
         if let Some(selection) = &self.unicode_selection {
-            selection.set_selected(position);
+            selection.set_selected(position + offset.unwrap_or(0));
         }
     }
 
     fn update_character_preview(&mut self) {
         match self.selected_character {
             Some(ch) => {
-                self.hex_value = format!("{:04X}", ch as u32);
+                self.hex_value = format!("{:X}", ch as u32);
                 self.dec_value = (ch as u32).to_string();
                 self.dec_entry
                     .as_ref()
@@ -311,6 +310,16 @@ impl App {
                 self.hex_value.clear();
                 self.dec_value.clear();
                 self.character_name.clear();
+            }
+        }
+    }
+
+    fn find_char(&self, ch: u32) {
+        if let (Some(entry), Some(offset)) = self.unicode_set.find_character(ch) {
+            let position = raw_offset_to_filtered_index(entry.start_index, entry.end_index, offset);
+
+            if let Some(pos) = position {
+                self.scroll_to_unicode_set(&entry.description, Some(pos));
             }
         }
     }
@@ -599,6 +608,9 @@ impl SimpleComponent for App {
                                                     connect_changed[sender] => move |entry| {
                                                         sender.input(Messages::SetHexValue(entry.text().to_string()));
                                                     },
+                                                    connect_activate[sender] => move |_| {
+                                                        sender.input(Messages::FindHex);
+                                                    },
                                                 },
 
                                                 gtk::Button {
@@ -628,6 +640,9 @@ impl SimpleComponent for App {
                                                     set_max_length: 7,
                                                     connect_changed[sender] => move |entry|  {
                                                         sender.input(Messages::SetDecValue(entry.text().to_string()));
+                                                    },
+                                                    connect_activate[sender] => move |_| {
+                                                        sender.input(Messages::FindDec);
                                                     },
                                                 },
 
@@ -1021,7 +1036,7 @@ impl SimpleComponent for App {
                 self.refresh_unicode_sections();
             }
             Messages::JumpToUnicodeSet(description) => {
-                self.scroll_to_unicode_set(&description);
+                self.scroll_to_unicode_set(&description, None);
             }
             Messages::SetFontPreview(enabled) => {
                 self.render_font_preview = enabled;
@@ -1053,12 +1068,12 @@ impl SimpleComponent for App {
             }
             Messages::FindHex => {
                 if let Ok(code) = u32::from_str_radix(&self.hex_value, 16) {
-                    if let Some(ch) = char::from_u32(code) {}
+                    self.find_char(code);
                 }
             }
             Messages::FindDec => {
                 if let Ok(code) = self.dec_value.parse::<u32>() {
-                    if let Some(ch) = char::from_u32(code) {}
+                    self.find_char(code);
                 }
             }
         }

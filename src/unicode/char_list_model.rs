@@ -60,6 +60,32 @@ fn nth_displayable_char(start: u32, end: u32, mut local_offset: u32) -> Option<c
     None
 }
 
+
+/// Converts a raw unfiltered offset (e.g. 127) into a filtered grid index.
+pub fn raw_offset_to_filtered_index(start: u32, end: u32, local_unfiltered_offset: u32) -> Option<u32> {
+    let target_codepoint = start + local_unfiltered_offset;
+
+    // 1. Boundary check on the actual calculated codepoint
+    if target_codepoint > end || is_excluded(target_codepoint) {
+        return None; // This target codepoint is either past the section or excluded
+    }
+
+    // 2. Count valid non-excluded characters between `start` and `target_codepoint`
+    let mut filtered_index = 0;
+    for cp in start..target_codepoint {
+        if !is_excluded(cp) {
+            filtered_index += 1;
+        }
+    }
+
+    Some(filtered_index)
+}
+
+/// Helper to check if a single character is excluded
+fn is_excluded(cp: u32) -> bool {
+    EXCLUDED_RANGES.iter().any(|&(s, e)| cp >= s && cp <= e)
+}
+
 mod imp {
     use std::cell::{Cell, RefCell};
 

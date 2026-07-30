@@ -24,4 +24,9 @@ impl UnicodeEntry {
             include,
         }
     }
+
+    pub fn contains(&self, character: u32) -> bool {
+        character >= self.start_index && character <= self.end_index
+    }
+    
 }

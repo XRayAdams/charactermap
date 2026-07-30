@@ -442,6 +442,14 @@ impl UnicodeSet {
             filtered_unicode_sections: Vec::new(),
         }
     }
+
+    pub fn find_character(&self, character: u32) -> (Option<&UnicodeEntry>, Option<u32>) {
+        if let Some(entry) = self.unicode_sections.iter().find(|entry| entry.contains(character)) {
+            (Some(entry), Some(character - entry.start_index))
+        } else {
+            (None, None)
+        }
+    }
 }
 
 impl Default for UnicodeSet {
