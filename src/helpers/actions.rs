@@ -4,7 +4,6 @@ use libadwaita as adw;
 use libadwaita::prelude::AdwDialogExt;
 use relm4::actions::{RelmAction};
 use super::static_data::APP_ID;
-use gettextrs::gettext;
 
 relm4::new_action_group!(pub WindowActionGroup, "win");
 

@@ -13,7 +13,8 @@ use std::rc::Rc;
 use crate::helpers::actions::{AboutAction, WindowActionGroup, create_about_action};
 use crate::helpers::character_names::CharacterNames;
 use crate::helpers::static_data::APP_NAME;
-use crate::unicode::{UnicodeEntry, UnicodeSet};
+use crate::unicode::char_list_model::displayable_count;
+use crate::unicode::{UnicodeCharModel, UnicodeEntry, UnicodeSet, raw_offset_to_filtered_index};
 
 const SPACING_MEDIUM: i32 = 12;
 const SPACING_SMALL: i32 = 6;
@@ -81,6 +82,8 @@ pub struct App {
     sticky_header: Option<gtk::Label>,
     character_names: CharacterNames,
     character_name: String,
+    hex_entry: Option<gtk::Entry>,
+    dec_entry: Option<gtk::Entry>,
 }
 
 #[derive(Debug)]
@@ -93,6 +96,10 @@ pub enum Messages {
     SetFontPreview(bool),
     SetFilterUnicodePages(bool),
     JumpToUnicodeSet(String),
+    SetHexValue(String),
+    SetDecValue(String),
+    FindHex,
+    FindDec,
 }
 
 impl App {
@@ -243,8 +250,9 @@ impl App {
         }
     }
 
-    /// Scrolls the character grid so the given unicode block's row is visible.
-    fn scroll_to_unicode_set(&self, description: &str) {
+    /// Scrolls the character grid so the given unicode block
+    /// Select first character if no offset was passed
+    fn scroll_to_unicode_set(&self, description: &str, offset: Option<u32>) {
         let (Some(grid_view), Some(&position)) = (
             &self.unicode_grid_view,
             self.section_positions.get(description),
@@ -278,26 +286,40 @@ impl App {
             header.set_label(description);
         }
 
-        // Also select the first character of the block we just jumped to.
-        // This triggers `SingleSelection`'s "selection-changed" signal, whose
-        // handler (connected in `init`) sends `Messages::CharacterSelected`
-        // and updates the character preview/info panel accordingly.
+        // Select character at offset if passed,
+        // otherwise select first character of the block
         if let Some(selection) = &self.unicode_selection {
-            selection.set_selected(position);
+            selection.set_selected(position + offset.unwrap_or(0));
         }
     }
 
     fn update_character_preview(&mut self) {
         match self.selected_character {
             Some(ch) => {
-                self.hex_value = format!("{:04X}", ch as u32);
+                self.hex_value = format!("{:X}", ch as u32);
                 self.dec_value = (ch as u32).to_string();
+                self.dec_entry
+                    .as_ref()
+                    .map(|entry| entry.set_text(&self.dec_value));
+                self.hex_entry
+                    .as_ref()
+                    .map(|entry| entry.set_text(&self.hex_value));
                 self.character_name = self.character_names.name(ch).unwrap_or_default();
             }
             None => {
                 self.hex_value.clear();
                 self.dec_value.clear();
                 self.character_name.clear();
+            }
+        }
+    }
+
+    fn find_char(&self, ch: u32) {
+        if let (Some(entry), Some(offset)) = self.unicode_set.find_character(ch) {
+            let position = raw_offset_to_filtered_index(entry.start_index, entry.end_index, offset);
+
+            if let Some(pos) = position {
+                self.scroll_to_unicode_set(&entry.description, Some(pos));
             }
         }
     }
@@ -428,7 +450,6 @@ impl SimpleComponent for App {
                                         set_hexpand: true,
                                     },
 
-                                    #[name = "filter_pages_switch"]
                                     gtk::Switch {
                                         set_valign: gtk::Align::Center,
                                         set_tooltip_text: Some("Show only Unicode blocks the selected font supports"),
@@ -502,25 +523,22 @@ impl SimpleComponent for App {
 
                                 // bottom bar
                                 gtk::Frame {
-                                    set_margin_start: SPACING_MEDIUM,
-                                    set_margin_end: SPACING_MEDIUM,
+                                    set_margin_start: SPACING_SMALL,
+                                    set_margin_end: SPACING_SMALL,
                                     set_margin_top: SPACING_SMALL,
-                                    set_margin_bottom: SPACING_MEDIUM,
+                                    set_margin_bottom: SPACING_SMALL,
                                     set_label: Some("Character Information"),
 
                                     #[wrap(Some)]
                                     set_child = &gtk::Box {
                                         set_orientation: gtk::Orientation::Horizontal,
-                                        set_spacing: SPACING_SMALL,
-                                        set_margin_start: SPACING_MEDIUM,
-                                        set_margin_end: SPACING_MEDIUM,
-                                        set_margin_top: SPACING_SMALL,
-                                        set_margin_bottom: SPACING_MEDIUM,
+                                        set_margin_start: SPACING_SMALL,
+                                        set_height_request: 200,
 
                                         gtk::Box {
                                             set_orientation: gtk::Orientation::Vertical,
                                             set_spacing: SPACING_SMALL,
-                                            set_valign: gtk4::Align::End,
+                                            set_valign: gtk4::Align::Start,
 
                                             #[name = "jump_to_set_button"]
                                             gtk::MenuButton {
@@ -582,16 +600,27 @@ impl SimpleComponent for App {
                                                     set_valign: gtk::Align::Center,
                                                 },
 
+                                                #[name = "hex_entry"]
                                                 gtk::Entry {
                                                     set_width_request: 70,
                                                     set_valign: gtk::Align::Center,
-                                                    #[watch]
-                                                    set_text: &model.hex_value,
+                                                    set_max_length: 7,
+                                                    connect_changed[sender] => move |entry| {
+                                                        sender.input(Messages::SetHexValue(entry.text().to_string()));
+                                                    },
+                                                    connect_activate[sender] => move |_| {
+                                                        sender.input(Messages::FindHex);
+                                                    },
                                                 },
 
                                                 gtk::Button {
                                                     set_label: "Find",
                                                     set_valign: gtk::Align::Center,
+                                                    #[watch]
+                                                    set_sensitive: !model.hex_value.is_empty(),
+                                                    connect_clicked[sender] => move |_| {
+                                                        sender.input(Messages::FindHex);
+                                                    },
                                                 },
                                             },
 
@@ -604,16 +633,27 @@ impl SimpleComponent for App {
                                                     set_valign: gtk::Align::Center,
                                                 },
 
+                                                #[name = "dec_entry"]
                                                 gtk::Entry {
                                                     set_width_request: 70,
                                                     set_valign: gtk::Align::Center,
-                                                    #[watch]
-                                                    set_text: &model.dec_value,
+                                                    set_max_length: 7,
+                                                    connect_changed[sender] => move |entry|  {
+                                                        sender.input(Messages::SetDecValue(entry.text().to_string()));
+                                                    },
+                                                    connect_activate[sender] => move |_| {
+                                                        sender.input(Messages::FindDec);
+                                                    },
                                                 },
 
                                                 gtk::Button {
                                                     set_label: "Find",
                                                     set_valign: gtk::Align::Center,
+                                                    #[watch]
+                                                    set_sensitive: !model.dec_value.is_empty(),
+                                                    connect_clicked[sender] => move |_| {
+                                                        sender.input(Messages::FindDec);
+                                                    },
                                                 },
                                             },
                                         },
@@ -624,32 +664,32 @@ impl SimpleComponent for App {
 
                                         gtk::Box {
                                                 set_orientation: gtk::Orientation::Vertical,
-                                                set_margin_start: SPACING_SMALL,
                                                 set_margin_end: SPACING_SMALL,
-                                                set_margin_top: SPACING_SMALL,
-                                                set_margin_bottom: SPACING_SMALL,
-                                                set_halign: gtk::Align::End,
-                                            
+                                                set_halign: gtk::Align::Start,
+                                                set_valign: gtk::Align::Start,
+
                                             gtk::Box {
                                                 set_halign: gtk::Align::End,
 
                                                 gtk::Label {
                                                     #[watch]
                                                     set_label: &model.selected_character.map(|ch| ch.to_string()).unwrap_or_default(),
-                                                    set_width_request: 120,
-                                                    set_height_request: 120,
+                                                    set_width_request: 150,
+                                                    set_height_request: 150,
                                                     add_css_class: "card",
                                                     set_justify: gtk::Justification::Center,
                                                     #[watch]
                                                     set_attributes: Some(&font_attr_list(&model.selected_font, Some(50))),
                                                 },
                                             },
-                                            
+
                                             gtk::Label {
                                                 #[watch]
                                                 set_label: &model.character_name,
                                                 set_margin_top: SPACING_SMALL,
                                                 set_halign: gtk::Align::End,
+                                                set_valign: gtk::Align::End,
+                                                set_wrap: true,
                                             }
                                         },
 
@@ -726,6 +766,8 @@ impl SimpleComponent for App {
             sticky_header: None,
             character_names: CharacterNames::new(),
             character_name: String::new(),
+            hex_entry: None,
+            dec_entry: None,
         };
 
         let widgets = view_output!();
@@ -733,6 +775,8 @@ impl SimpleComponent for App {
         model.unicode_grid_view = Some(widgets.unicode_grid_view.clone());
         model.unicode_set_list = Some(widgets.unicode_set_list.clone());
         model.sticky_header = Some(widgets.sticky_header.clone());
+        model.hex_entry = Some(widgets.hex_entry.clone());
+        model.dec_entry = Some(widgets.dec_entry.clone());
 
         let grid_factory =
             build_unicode_grid_factory(model.cell_attrs.clone(), model.block_boundaries.clone());
@@ -924,7 +968,9 @@ impl SimpleComponent for App {
                             let matches = row
                                 .child()
                                 .and_then(|w| w.downcast::<gtk::Label>().ok())
-                                .is_some_and(|label| label.text().to_lowercase().starts_with(&query));
+                                .is_some_and(|label| {
+                                    label.text().to_lowercase().starts_with(&query)
+                                });
                             if matches {
                                 selecting.set(true);
                                 font_list.select_row(Some(row));
@@ -941,7 +987,6 @@ impl SimpleComponent for App {
             }
         });
         widgets.font_list.add_controller(type_ahead_controller);
-
 
         let about_action =
             create_about_action(widgets.main_window.clone(), Self::get_app_version());
@@ -991,7 +1036,7 @@ impl SimpleComponent for App {
                 self.refresh_unicode_sections();
             }
             Messages::JumpToUnicodeSet(description) => {
-                self.scroll_to_unicode_set(&description);
+                self.scroll_to_unicode_set(&description, None);
             }
             Messages::SetFontPreview(enabled) => {
                 self.render_font_preview = enabled;
@@ -1013,6 +1058,22 @@ impl SimpleComponent for App {
 
                         child = next;
                     }
+                }
+            }
+            Messages::SetDecValue(dec) => {
+                self.dec_value = dec;
+            }
+            Messages::SetHexValue(hex) => {
+                self.hex_value = hex;
+            }
+            Messages::FindHex => {
+                if let Ok(code) = u32::from_str_radix(&self.hex_value, 16) {
+                    self.find_char(code);
+                }
+            }
+            Messages::FindDec => {
+                if let Ok(code) = self.dec_value.parse::<u32>() {
+                    self.find_char(code);
                 }
             }
         }
@@ -1042,19 +1103,12 @@ fn font_covers_range(font: &gtk4::pango::Font, start: u32, end: u32) -> bool {
 }
 
 /// Builds the character grid's flat data store for the given (filtered)
-/// blocks: a `gio::ListStore` of every displayable codepoint, in block order.
-/// Swapped into the grid's `SingleSelection` on every font change.
-fn build_unicode_store(sections: &[UnicodeEntry]) -> gio::ListStore {
-    let store = gio::ListStore::new::<gtk::StringObject>();
-    let mut buf = [0u8; 4];
-    for section in sections {
-        for code in section.start_index..=section.end_index {
-            if let Some(ch) = char::from_u32(code).filter(|ch| !ch.is_control()) {
-                store.append(&gtk::StringObject::new(ch.encode_utf8(&mut buf)));
-            }
-        }
-    }
-    store
+/// blocks: a lazy `UnicodeCharModel` that resolves each displayable codepoint
+/// on demand instead of eagerly allocating a `GtkStringObject` for all of
+/// them up front. Swapped into the grid's `SingleSelection` on every font
+/// change.
+fn build_unicode_store(sections: &[UnicodeEntry]) -> UnicodeCharModel {
+    UnicodeCharModel::new(sections)
 }
 
 /// Computes, for the given (filtered) blocks, a map of block description ->
@@ -1070,9 +1124,7 @@ fn compute_positions_boundaries(
     let mut position: u32 = 0;
 
     for section in sections {
-        let count = (section.start_index..=section.end_index)
-            .filter_map(|code| char::from_u32(code).filter(|ch| !ch.is_control()))
-            .count() as u32;
+        let count = displayable_count(section.start_index, section.end_index);
 
         if count == 0 {
             continue;
