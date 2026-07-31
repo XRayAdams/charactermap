@@ -8,3 +8,5 @@ pub const SPACING_SMALL: i32 = 6;
 
 pub const CELL_SIZE: i32 = 36;
 pub const GRID_FONT_SIZE: i32 = 16;
+pub const LABEL_FONT_SIZE: i32 = 50;
+pub const CELL_POSITION_KEY: &str = "cell-position";
