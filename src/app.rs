@@ -12,21 +12,11 @@ use std::rc::Rc;
 
 use crate::helpers::actions::{AboutAction, WindowActionGroup, create_about_action};
 use crate::helpers::character_names::CharacterNames;
-use crate::helpers::static_data::APP_NAME;
+use crate::helpers::static_data::{APP_NAME, SPACING_MEDIUM, SPACING_SMALL, CELL_SIZE, GRID_FONT_SIZE};
 use crate::unicode::char_list_model::displayable_count;
 use crate::unicode::{UnicodeCharModel, UnicodeEntry, UnicodeSet, raw_offset_to_filtered_index};
 
-const SPACING_MEDIUM: i32 = 12;
-const SPACING_SMALL: i32 = 6;
-
-/// Cell width/height (in pixels) used to render each character cell. The
-/// number of columns is computed automatically by `GtkGridView` from the
-/// available width and this per-cell size.
-const CELL_SIZE: i32 = 36;
-
-/// Point size used to render each character in the grid cells.
-const GRID_FONT_SIZE: i32 = 16;
-
+    
 /// Builds a Pango attribute list that selects the given font family (and
 /// optionally a point size), for use with `Label`/`Entry` widgets'
 /// `set_attributes`.
@@ -38,6 +28,10 @@ fn font_attr_list(font_name: &str, size_pt: Option<i32>) -> gtk4::pango::AttrLis
     }
     let attrs = gtk4::pango::AttrList::new();
     attrs.insert(gtk4::pango::AttrFontDesc::new(&font_desc));
+    
+    // disable fallback so that unsupported characters render as tofu boxes 
+    attrs.insert(gtk4::pango::AttrInt::new_fallback(false));
+    
     attrs
 }
 
@@ -788,6 +782,7 @@ impl SimpleComponent for App {
         let selection = gtk::SingleSelection::new(None::<gio::ListStore>);
         selection.set_autoselect(false);
         selection.set_can_unselect(true);
+        
         widgets.unicode_grid_view.set_model(Some(&selection));
         model.unicode_selection = Some(selection.clone());
 
@@ -835,12 +830,14 @@ impl SimpleComponent for App {
             });
 
         for font_name in &model.fonts {
-            let label = gtk::Label::new(Some(font_name));
-            label.set_xalign(0.0);
-            label.set_margin_top(SPACING_SMALL);
-            label.set_margin_bottom(SPACING_SMALL);
-            label.set_margin_start(SPACING_SMALL);
-            label.set_margin_end(SPACING_SMALL);
+            let label = gtk::Label::builder()
+                .label(font_name)
+                .xalign(0.0)
+                .margin_top(SPACING_SMALL)
+                .margin_bottom(SPACING_SMALL)
+                .margin_start(SPACING_SMALL)
+                .margin_end(SPACING_SMALL)
+                .build();
 
             apply_font_preview(&label, font_name, model.render_font_preview);
 
@@ -959,11 +956,6 @@ impl SimpleComponent for App {
                 while let Some(widget) = child {
                     let next = widget.next_sibling();
                     if let Some(row) = widget.downcast_ref::<gtk::ListBoxRow>() {
-                        // `ListBox`'s filter function toggles `child-visible`,
-                        // not the `visible` property itself, so a filtered-out
-                        // row still reports `is_visible() == true`. Checking
-                        // `is_child_visible()` is what actually reflects
-                        // whether the search-box filter currently hides it.
                         if row.is_child_visible() {
                             let matches = row
                                 .child()
@@ -1006,11 +998,7 @@ impl SimpleComponent for App {
                 self.refresh_unicode_sections();
                 self.update_character_preview();
 
-                // Clear the grid's visual selection highlight too: swapping
-                // the store (or, on the fast "same characters" path, leaving
-                // it alone) doesn't reset `SingleSelection`'s selected index
-                // on its own, so the previously selected cell could stay
-                // highlighted even after `selected_character` above is reset.
+                // Clear the grid's visual selection highlight 
                 if let Some(selection) = &self.unicode_selection {
                     selection.set_selected(gtk::INVALID_LIST_POSITION);
                 }
@@ -1160,19 +1148,20 @@ fn build_unicode_grid_factory(
         // would make every cell grow and the columns reflow while
         // scrolling. Pinning nat-chars/nat-lines to 1 keeps the natural
         // size below the CELL_SIZE request, so all cells stay CELL_SIZE.
-        let label = gtk::Inscription::new(None);
-        label.set_width_request(CELL_SIZE);
-        label.set_height_request(CELL_SIZE);
-        label.set_min_chars(1);
-        label.set_nat_chars(1);
-        label.set_min_lines(1);
-        label.set_nat_lines(1);
-        label.set_xalign(0.5);
-        label.set_yalign(0.5);
-        label.set_halign(gtk::Align::Fill);
-        label.set_valign(gtk::Align::Center);
-        label.set_hexpand(true);
-        label.add_css_class("unicode-cell");
+        let label = gtk::Inscription::builder()
+            .width_request(CELL_SIZE)
+            .height_request(CELL_SIZE)
+            .min_chars(1)
+            .nat_chars(1)
+            .min_lines(1)
+            .nat_lines(1)
+            .xalign(0.5)
+            .yalign(0.5)
+            .halign(gtk::Align::Fill)
+            .valign(gtk::Align::Center)
+            .hexpand(true)
+            .css_classes(vec!["unicode-cell"])
+            .build();
 
         list_item.set_child(Some(&label));
     });
@@ -1181,13 +1170,14 @@ fn build_unicode_grid_factory(
         let Some(list_item) = list_item.downcast_ref::<gtk::ListItem>() else {
             return;
         };
-        let Some(text) = list_item
+
+        let Some(string_obj) = list_item
             .item()
             .and_then(|item| item.downcast::<gtk::StringObject>().ok())
-            .map(|obj| obj.string())
         else {
             return;
         };
+
         let Some(label) = list_item
             .child()
             .and_then(|w| w.downcast::<gtk::Inscription>().ok())
@@ -1195,7 +1185,7 @@ fn build_unicode_grid_factory(
             return;
         };
 
-        label.set_text(Some(&text));
+        label.set_text(Some(string_obj.string().as_str()));
         label.set_attributes(Some(&cell_attrs.borrow()));
 
         // Record this cell's flat position so the sticky-header scroll handler
