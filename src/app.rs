@@ -133,7 +133,7 @@ impl App {
             let mut font_desc = gtk4::pango::FontDescription::new();
             font_desc.set_family(&font_name);
             let font = context.load_font(&font_desc);
-
+            
             let start_time = Instant::now();
 
             let result: Vec<UnicodeEntry> = self.unicode_set
