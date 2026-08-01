@@ -29,6 +29,7 @@ struct AppSettings {
 pub struct App {
     selected_font: String,
     is_collapsed: bool,
+    is_search_visible: bool,
     fonts: Vec<String>,
     render_font_preview: bool,
     /// When on, the character grid only shows unicode blocks the selected font
@@ -64,13 +65,14 @@ pub struct App {
     character_name: String,
     hex_entry: Option<gtk::Entry>,
     dec_entry: Option<gtk::Entry>,
+    search_entry: Option<gtk::SearchEntry>,
 }
 
 #[derive(Debug)]
 pub enum Messages {
     FontSelected(String),
-    CharacterSelected(i32),
-    CharacterDoubleClicked(i32),
+    CharacterSelected(u32),
+    CharacterDoubleClicked(u32),
     ClearCollectedText,
     SetCollapsed(bool),
     SetFontPreview(bool),
@@ -80,6 +82,8 @@ pub enum Messages {
     SetDecValue(String),
     FindHex,
     FindDec,
+    ShowHideSearch,
+    SearchChanged(String),
 }
 
 impl App {
@@ -427,6 +431,9 @@ impl SimpleComponent for App {
                                                 }
                                             }
                                         },
+                                        connect_realize => |listbox| {
+                                            listbox.grab_focus();
+                                        },
                                     }
                                 },
 
@@ -458,11 +465,26 @@ impl SimpleComponent for App {
 
                     #[wrap(Some)]
                     set_content = &adw::NavigationPage {
-                        set_title: APP_NAME,
 
                         #[wrap(Some)]
                         set_child = &adw::ToolbarView {
                             add_top_bar = &adw::HeaderBar {
+                                #[wrap(Some)]
+                                set_title_widget = if model.is_search_visible { 
+                                    #[name = "search_entry"]
+                                    gtk::SearchEntry {
+                                        set_placeholder_text: Some("Single letter or character name"),
+                                        set_hexpand: true,
+                                        connect_search_changed[sender] => move |entry| {
+                                            sender.input(Messages::SearchChanged(entry.text().to_string()));
+                                        },
+                                    }
+                                } else {
+                                    adw::WindowTitle {
+                                        set_title: APP_NAME,
+                                    }
+                                },
+                            
                                 pack_start = &gtk4::Button {
                                     set_icon_name: "sidebar-show-symbolic",
                                     set_can_focus: false,
@@ -472,12 +494,26 @@ impl SimpleComponent for App {
                                         split_view.set_show_sidebar(true);
                                     },
                                 },
-                                pack_end = &gtk::MenuButton {
-                                    set_icon_name: "open-menu-symbolic",
-                                    set_menu_model: Some(&main_menu),
-                                    set_direction: gtk::ArrowType::Down,
-                                    set_can_focus: false,
-                                }
+                                pack_end = &gtk::Box {
+                                    set_orientation: gtk::Orientation::Horizontal,
+                                    set_spacing: SPACING_SMALL,
+
+                                    gtk::Button {
+                                        set_icon_name: "search-symbolic",
+                                        set_can_focus: false,
+                                        connect_clicked[sender] => move |_| {
+                                            sender.input(Messages::ShowHideSearch);
+                                        },
+                                    },
+                                    gtk::MenuButton {
+                                        set_icon_name: "open-menu-symbolic",
+                                        set_menu_model: Some(&main_menu),
+                                        set_direction: gtk::ArrowType::Down,
+                                        set_can_focus: false,
+                                    },
+                                    
+                                },
+                                
                             },
 
                             #[wrap(Some)]
@@ -510,6 +546,16 @@ impl SimpleComponent for App {
                                         set_max_columns: 100,
                                         set_single_click_activate: false,
                                         set_enable_rubberband: false,
+                                        connect_activate[sender] => move |grid_view, position| {
+                                            if let Some(ch) = grid_view
+                                                .model()
+                                                .and_then(|m| m.item(position))
+                                                .and_then(|item| item.downcast::<gtk::StringObject>().ok())
+                                                .and_then(|obj| obj.string().chars().next())
+                                            {
+                                                sender.input(Messages::CharacterDoubleClicked(ch as u32));
+                                            }
+                                        },
                                     }
                                 },
 
@@ -739,6 +785,7 @@ impl SimpleComponent for App {
         let mut model = App {
             selected_font: String::new(),
             is_collapsed: false,
+            is_search_visible: false,
             fonts,
             render_font_preview: settings.render_font_preview,
             filter_unicode_pages: settings.filter_unicode_pages,
@@ -761,6 +808,7 @@ impl SimpleComponent for App {
             character_name: String::new(),
             hex_entry: None,
             dec_entry: None,
+            search_entry: None,
         };
 
         let widgets = view_output!();
@@ -770,6 +818,7 @@ impl SimpleComponent for App {
         model.sticky_header = Some(widgets.sticky_header.clone());
         model.hex_entry = Some(widgets.hex_entry.clone());
         model.dec_entry = Some(widgets.dec_entry.clone());
+        model.search_entry = Some(widgets.search_entry.clone());
 
         let grid_factory =
             build_unicode_grid_factory(model.cell_attrs.clone(), model.block_boundaries.clone());
@@ -794,22 +843,7 @@ impl SimpleComponent for App {
                     .and_then(|item| item.downcast::<gtk::StringObject>().ok())
                     .and_then(|obj| obj.string().chars().next())
                 {
-                    sender.input(Messages::CharacterSelected(ch as i32));
-                }
-            }
-        });
-
-        // Activating a cell (double-click or Enter) appends it to the text.
-        widgets.unicode_grid_view.connect_activate({
-            let sender = sender.clone();
-            move |grid_view, position| {
-                if let Some(ch) = grid_view
-                    .model()
-                    .and_then(|m| m.item(position))
-                    .and_then(|item| item.downcast::<gtk::StringObject>().ok())
-                    .and_then(|obj| obj.string().chars().next())
-                {
-                    sender.input(Messages::CharacterDoubleClicked(ch as i32));
+                    sender.input(Messages::CharacterSelected(ch as u32));
                 }
             }
         });
@@ -1061,6 +1095,23 @@ impl SimpleComponent for App {
             Messages::FindDec => {
                 if let Ok(code) = self.dec_value.parse::<u32>() {
                     self.find_char(code);
+                }
+            }
+            Messages::ShowHideSearch => {
+                self.is_search_visible = !self.is_search_visible;
+
+                if self.is_search_visible && let Some(search_entry) = &self.search_entry {
+                        search_entry.grab_focus();
+                }
+
+            }
+            Messages::SearchChanged(search) =>  {
+                if search.chars().count() == 1 {
+                    if let Some(code) = search.chars().next().map(|ch| ch as u32) {
+                        self.find_char(code);
+                    }
+                } else {
+                    // search for character names
                 }
             }
         }
