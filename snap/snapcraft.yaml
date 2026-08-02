@@ -32,14 +32,14 @@ adopt-info: charactermap
 parts:
   rust-deps:
     plugin: nil
-    build-snaps:
-      - rustup
+    build-packages:
+      - curl
     override-pull: |
-      # The gnome extension injects an LD_LIBRARY_PATH pointing at the GNOME
-      # SDK's own libc, which crashes the rustup snap with a glibc symbol
-      # lookup error; rustup itself doesn't need the GNOME SDK libraries.
-      unset LD_LIBRARY_PATH
-      rustup default stable
+      # Use the official installer instead of the rustup snap: strictly
+      # confined snaps redirect $HOME to a private snap directory, so
+      # rustup would install the toolchain somewhere the rust plugin's
+      # PATH (which points at the real $HOME/.cargo/bin) can't find it.
+      curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable --profile minimal
 
   charactermap:
     plugin: rust
