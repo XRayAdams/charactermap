@@ -30,15 +30,17 @@ apps:
 adopt-info: charactermap
 
 parts:
+  # core24's archive rustc/cargo (1.75.0) is too old for edition = "2024"
+  # (needs 1.85+), so the docs' "rust-deps: [rustc, cargo]" apt-package
+  # pattern isn't usable here. Install a current toolchain via the
+  # official rustup installer instead of the rustup snap: the rustup
+  # snap's strict confinement redirects $HOME, hiding the installed
+  # toolchain from the rust plugin's PATH (${HOME}/.cargo/bin) lookup.
   rust-deps:
     plugin: nil
     build-packages:
       - curl
     override-pull: |
-      # Use the official installer instead of the rustup snap: strictly
-      # confined snaps redirect $HOME to a private snap directory, so
-      # rustup would install the toolchain somewhere the rust plugin's
-      # PATH (which points at the real $HOME/.cargo/bin) can't find it.
       curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable --profile minimal
 
   charactermap:
