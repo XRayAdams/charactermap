@@ -30,10 +30,18 @@ apps:
 adopt-info: charactermap
 
 parts:
+  rust-deps:
+    plugin: nil
+    build-snaps:
+      - rustup
+    override-pull: |
+      rustup default stable
+
   charactermap:
     plugin: rust
+    after: [rust-deps]
+    rust-channel: none
     source: .
-    rust-channel: stable
     parse-info: [snap/app.rayadams.charactermap.metainfo.xml]
     build-packages:
       - pkg-config
@@ -57,9 +65,3 @@ parts:
           echo "Compiled translation for $lang"
         fi
       done
-  
-  static-assets:
-    plugin: dump
-    source: assets
-    organize:
-      '*': assets/
