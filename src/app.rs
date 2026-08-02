@@ -48,6 +48,19 @@ pub struct App {
     font_list: Option<gtk::ListBox>,
     unicode_set: UnicodeSet,
     unicode_grid_view: Option<gtk::GridView>,
+    /// Mirrors `unicode_grid_view`, kept in sync wherever that field is
+    /// (re)assigned. The scroll-position handler (a plain GTK signal
+    /// closure, connected once in `init` and with no access to `self`) reads
+    /// the grid view through this shared cell instead of a stale captured
+    /// clone, so it keeps working after the REBUILD path replaces the grid
+    /// view widget.
+    grid_view_handle: Rc<RefCell<Option<gtk::GridView>>>,
+    /// Parent of `unicode_grid_view`; the REBUILD path replaces the grid view
+    /// itself (not just its model) here, since GTK never shrinks a
+    /// `GtkGridView`'s recycled-widget pool back down after scrolling, and
+    /// swapping the model of the SAME view/selection object doesn't release
+    /// it either -- only dropping the widget instance does.
+    unicode_scroller: Option<gtk::ScrolledWindow>,
     /// The grid's native single-selection model; its inner store is swapped on
     /// font change. GTK draws the selection highlight and handles keyboard nav.
     unicode_selection: Option<gtk::SingleSelection>,
@@ -105,6 +118,48 @@ pub enum Messages {
     SearchChanged(String),
 }
 
+/// Wires up "selecting a cell updates the character preview" on a grid
+/// selection model. Pulled out so a freshly-recreated `SingleSelection` (see
+/// the REBUILD path in `refresh_unicode_sections`) can be wired the same way
+/// as the one built in `init`.
+fn connect_grid_selection_changed(selection: &gtk::SingleSelection, sender: ComponentSender<App>) {
+    selection.connect_selection_changed(move |selection, _, _| {
+        if let Some(ch) = selection
+            .selected_item()
+            .and_then(|item| item.downcast::<gtk::StringObject>().ok())
+            .and_then(|obj| obj.string().chars().next())
+        {
+            sender.input(Messages::CharacterSelected(ch as u32));
+        }
+    });
+}
+
+/// Builds a fresh, freshly-configured character `GridView` (mirrors the one
+/// declared in the `view!` macro), so the REBUILD path in
+/// `refresh_unicode_sections` can replace the whole widget rather than just
+/// its model -- see the doc comment on `App::unicode_scroller`.
+fn build_unicode_grid_view(sender: ComponentSender<App>) -> gtk::GridView {
+    let grid_view = gtk::GridView::builder()
+        .min_columns(1)
+        .max_columns(100)
+        .single_click_activate(false)
+        .enable_rubberband(false)
+        .build();
+
+    grid_view.connect_activate(move |grid_view, position| {
+        if let Some(ch) = grid_view
+            .model()
+            .and_then(|m| m.item(position))
+            .and_then(|item| item.downcast::<gtk::StringObject>().ok())
+            .and_then(|obj| obj.string().chars().next())
+        {
+            sender.input(Messages::CharacterDoubleClicked(ch as u32));
+        }
+    });
+
+    grid_view
+}
+
 impl App {
     fn get_app_version() -> &'static str {
         env!("CARGO_PKG_VERSION")
@@ -144,7 +199,7 @@ impl App {
 
     /// Recomputes which unicode blocks the currently selected font supports,
     /// rebuilds the character grid model and the "Jump to Unicode Set" list.
-    fn refresh_unicode_sections(&mut self) {
+    fn refresh_unicode_sections(&mut self, sender: &ComponentSender<Self>) {
         let Some(font_list) = self.font_list.clone() else {
             return;
         };
@@ -188,7 +243,7 @@ impl App {
         *self.cell_attrs.borrow_mut() = font_attr_list(&font_name, Some(GRID_FONT_SIZE));
         *self.char_label_attrs.borrow_mut() = font_attr_list(&font_name, Some(LABEL_FONT_SIZE));
 
-        if let Some(grid_view) = &self.unicode_grid_view {
+        if let Some(mut grid_view) = self.unicode_grid_view.clone() {
             // Positions/boundaries mirror the model order (covered blocks in
             // ascending order, each contributing its non-control chars).
             // Update them BEFORE swapping the model so the factory's `bind`
@@ -227,11 +282,13 @@ impl App {
             if restoring_from_search || new_ranges != self.displayed_ranges {
                 self.displayed_ranges = new_ranges;
 
-                if let Some(selection) = &self.unicode_selection {
-                    let store = build_unicode_store(&self.unicode_set.filtered_unicode_sections);
-                    let model = store.upcast::<gio::ListModel>();
-                    selection.set_model(Some(&model));
-                    self.browse_store = Some(model);
+                let store = build_unicode_store(&self.unicode_set.filtered_unicode_sections);
+                let model = store.upcast::<gio::ListModel>();
+
+                self.replace_grid_view(model.clone(), sender);
+                self.browse_store = Some(model);
+                if let Some(new_grid_view) = self.unicode_grid_view.clone() {
+                    grid_view = new_grid_view;
                 }
 
                 if let Some(header) = &self.sticky_header {
@@ -245,6 +302,7 @@ impl App {
                 // from the shared `cell_attrs` when they bind).
                 let mut cells = Vec::new();
                 collect_cell_labels(grid_view.upcast_ref(), &mut cells);
+
                 let attrs = self.cell_attrs.borrow();
                 for cell in &cells {
                     cell.set_attributes(Some(&attrs));
@@ -270,6 +328,35 @@ impl App {
                 list.append(&row);
             }
         }
+    }
+
+    /// Swaps in a new grid model by replacing the whole `GridView` widget,
+    /// not just its model -- GTK never shrinks a `GtkGridView`'s recycled-
+    /// widget pool back down once it's grown from scrolling, and swapping
+    /// the model of the SAME view/selection doesn't release it either, only
+    /// dropping the widget instance does. Used for font changes as well as
+    /// entering/leaving search, since both replace what the grid displays.
+    fn replace_grid_view(&mut self, model: gio::ListModel, sender: &ComponentSender<Self>) {
+        let Some(scroller) = self.unicode_scroller.clone() else {
+            return;
+        };
+
+        let new_selection = gtk::SingleSelection::new(Some(model));
+        new_selection.set_autoselect(false);
+        new_selection.set_can_unselect(true);
+        connect_grid_selection_changed(&new_selection, sender.clone());
+
+        let new_grid_view = build_unicode_grid_view(sender.clone());
+        let new_factory =
+            build_unicode_grid_factory(self.cell_attrs.clone(), self.block_boundaries.clone());
+        new_grid_view.set_factory(Some(&new_factory));
+        new_grid_view.set_model(Some(&new_selection));
+
+        scroller.set_child(Some(&new_grid_view));
+
+        self.unicode_selection = Some(new_selection);
+        self.unicode_grid_view = Some(new_grid_view.clone());
+        *self.grid_view_handle.borrow_mut() = Some(new_grid_view);
     }
 
     /// Scrolls the character grid so the given unicode block
@@ -352,7 +439,7 @@ impl App {
     /// (within the currently filtered/font-covered unicode blocks) whose
     /// name contains `query` (case-insensitive). Scans at most
     /// `MAX_SEARCH_RESULTS` matches.
-    fn refresh_search_results(&mut self, query: &str) {
+    fn refresh_search_results(&mut self, query: &str, sender: &ComponentSender<Self>) {
         let matches = self.character_names.search(
             query,
             &self.unicode_set.filtered_unicode_sections,
@@ -368,9 +455,11 @@ impl App {
         self.selected_character = None;
         self.update_character_preview();
 
+        let store = build_search_result_store(&matches);
+        let model = store.upcast::<gio::ListModel>();
+        self.replace_grid_view(model, sender);
+
         if let Some(selection) = &self.unicode_selection {
-            let store = build_search_result_store(&matches);
-            selection.set_model(Some(&store));
             selection.set_selected(gtk::INVALID_LIST_POSITION);
         }
 
@@ -389,7 +478,7 @@ impl App {
     /// unicode pages" setting changes, both of which can change which
     /// characters are covered, so a search box left open must be refreshed
     /// rather than silently reverting to the browse grid mid-query.
-    fn rerun_search_if_active(&mut self) {
+    fn rerun_search_if_active(&mut self, sender: &ComponentSender<Self>) {
         if !self.is_search_visible {
             return;
         }
@@ -399,16 +488,17 @@ impl App {
             .as_ref()
             .map(|entry| entry.text().to_string());
         if let Some(query) = query.filter(|query| query.chars().count() >= 2) {
-            self.refresh_search_results(&query);
+            self.refresh_search_results(&query, sender);
         }
     }
 
     /// Restores the grid to whatever was showing before search started.
-    /// Unlike `refresh_unicode_sections`, this never touches font coverage
-    /// or rebuilds anything -- the cached browse model/positions/boundaries
-    /// are still exactly what they were, since search never mutates them --
-    /// so switching back is a handful of cheap assignments, not a rebuild.
-    fn restore_browse_grid(&mut self) {
+    /// The cached browse model/positions/boundaries are still exactly what
+    /// they were, since search never mutates them, but showing that model
+    /// again still means replacing the whole `GridView` (see
+    /// `replace_grid_view`) -- reusing the search's `GridView` instance would
+    /// carry over its bloated recycled-widget pool from scrolling.
+    fn restore_browse_grid(&mut self, sender: &ComponentSender<Self>) {
         if !self.is_showing_search_results {
             return;
         }
@@ -419,8 +509,11 @@ impl App {
         self.selected_character = None;
         self.update_character_preview();
 
-        if let (Some(selection), Some(model)) = (&self.unicode_selection, &self.browse_store) {
-            selection.set_model(Some(model));
+        if let Some(model) = self.browse_store.clone() {
+            self.replace_grid_view(model, sender);
+        }
+
+        if let Some(selection) = &self.unicode_selection {
             selection.set_selected(gtk::INVALID_LIST_POSITION);
         }
 
@@ -909,6 +1002,8 @@ impl SimpleComponent for App {
             font_list: None,
             unicode_set: UnicodeSet::new(),
             unicode_grid_view: None,
+            grid_view_handle: Rc::new(RefCell::new(None)),
+            unicode_scroller: None,
             unicode_selection: None,
             unicode_set_list: None,
             section_positions: HashMap::new(),
@@ -936,6 +1031,8 @@ impl SimpleComponent for App {
         let widgets = view_output!();
 
         model.unicode_grid_view = Some(widgets.unicode_grid_view.clone());
+        *model.grid_view_handle.borrow_mut() = Some(widgets.unicode_grid_view.clone());
+        model.unicode_scroller = Some(widgets.unicode_scroller.clone());
         model.unicode_set_list = Some(widgets.unicode_set_list.clone());
         model.sticky_header = Some(widgets.sticky_header.clone());
         model.hex_entry = Some(widgets.hex_entry.clone());
@@ -957,18 +1054,7 @@ impl SimpleComponent for App {
         model.unicode_selection = Some(selection.clone());
 
         // Selecting a cell (click or keyboard) updates the character preview.
-        selection.connect_selection_changed({
-            let sender = sender.clone();
-            move |selection, _, _| {
-                if let Some(ch) = selection
-                    .selected_item()
-                    .and_then(|item| item.downcast::<gtk::StringObject>().ok())
-                    .and_then(|obj| obj.string().chars().next())
-                {
-                    sender.input(Messages::CharacterSelected(ch as u32));
-                }
-            }
-        });
+        connect_grid_selection_changed(&selection, sender.clone());
 
         // Keep the sticky "current block" header in sync with the scroll
         // position (the top-most visible cell's unicode block).
@@ -976,10 +1062,13 @@ impl SimpleComponent for App {
             .unicode_scroller
             .vadjustment()
             .connect_value_changed({
-                let grid_view = widgets.unicode_grid_view.clone();
+                let grid_view_handle = model.grid_view_handle.clone();
                 let boundaries = model.block_boundaries.clone();
                 let header = widgets.sticky_header.clone();
                 move |_adjustment| {
+                    let Some(grid_view) = grid_view_handle.borrow().clone() else {
+                        return;
+                    };
                     update_sticky_header(&grid_view, &boundaries.borrow(), &header);
                 }
             });
@@ -1147,18 +1236,18 @@ impl SimpleComponent for App {
         ComponentParts { model, widgets }
     }
 
-    fn update(&mut self, message: Self::Input, _sender: ComponentSender<Self>) {
+    fn update(&mut self, message: Self::Input, sender: ComponentSender<Self>) {
         match message {
             Messages::FontSelected(font_name) => {
                 self.selected_font = font_name;
                 self.selected_character = None;
-                self.refresh_unicode_sections();
+                self.refresh_unicode_sections(&sender);
                 self.update_character_preview();
 
                 // A name search was active: re-run it under the new font
                 // instead of silently reverting to the browse grid while
                 // the search box still shows the query.
-                self.rerun_search_if_active();
+                self.rerun_search_if_active(&sender);
 
                 // Clear the grid's visual selection highlight
                 if let Some(selection) = &self.unicode_selection {
@@ -1183,8 +1272,8 @@ impl SimpleComponent for App {
             Messages::SetFilterUnicodePages(enabled) => {
                 self.filter_unicode_pages = enabled;
                 self.save_config();
-                self.refresh_unicode_sections();
-                self.rerun_search_if_active();
+                self.refresh_unicode_sections(&sender);
+                self.rerun_search_if_active(&sender);
             }
             Messages::JumpToUnicodeSet(description) => {
                 self.scroll_to_unicode_set(&description, None);
@@ -1235,20 +1324,20 @@ impl SimpleComponent for App {
                         search_entry.grab_focus();
                     }
                 } else if self.is_showing_search_results {
-                    self.restore_browse_grid();
+                    self.restore_browse_grid(&sender);
                 }
             }
             Messages::SearchChanged(search) => {
                 let len = search.chars().count();
                 if len <= 1 {
                     if self.is_showing_search_results {
-                        self.restore_browse_grid();
+                        self.restore_browse_grid(&sender);
                     }
                     if let Some(code) = search.chars().next().map(|ch| ch as u32) {
                         self.find_char(code);
                     }
                 } else {
-                    self.refresh_search_results(&search);
+                    self.refresh_search_results(&search, &sender);
                 }
             }
         }
