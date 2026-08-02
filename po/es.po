@@ -1,0 +1,135 @@
+# charactermap translation template.
+# Copyright (C) 2026 Konstantin Adamov
+# This file is distributed under the same license as the charactermap package.
+# Konstantin Adamov <xrayadamo@gmail.com>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: charactermap 1.1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
+"POT-Creation-Date: 2026-08-01 19:27-0700\n"
+"PO-Revision-Date: 2026-08-01 19:23-0700\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/app.rs:447
+msgid "_Help"
+msgstr "A_yuda"
+
+#: src/app.rs:448
+msgid "_About"
+msgstr "_Acerca de"
+
+#: src/app.rs:472
+msgid "Fonts"
+msgstr "Fuentes"
+
+#: src/app.rs:492
+msgid "Search fonts…"
+msgstr "Buscar fuentes…"
+
+#: src/app.rs:504
+msgid "Show plain font names"
+msgstr "Mostrar nombres de fuente sin formato"
+
+#: src/app.rs:517
+msgid "Preview names using each font"
+msgstr "Previsualizar los nombres usando cada fuente"
+
+#: src/app.rs:562
+msgid "Filter Unicode pages"
+msgstr "Filtrar páginas Unicode"
+
+#: src/app.rs:569
+msgid "Show only Unicode blocks the selected font supports"
+msgstr "Mostrar solo los bloques Unicode admitidos por la fuente seleccionada"
+
+#: src/app.rs:591
+msgid "Single letter or character name"
+msgstr "Una sola letra o nombre de carácter"
+
+#: src/app.rs:683
+msgid "Character Information"
+msgstr "Información del carácter"
+
+#: src/app.rs:699
+msgid "Jump to Unicode Set"
+msgstr "Ir a un conjunto Unicode"
+
+#: src/app.rs:727
+msgid "double click character to add here"
+msgstr "haz doble clic en un carácter para añadirlo aquí"
+
+#: src/app.rs:752
+msgid "Hex:"
+msgstr "Hex:"
+
+#: src/app.rs:770 src/app.rs:803
+msgid "Find"
+msgstr "Buscar"
+
+#: src/app.rs:785
+msgid "Dec:"
+msgstr "Dec:"
+
+#: src/widgets/help_dialog.rs:25
+msgid "Font List"
+msgstr "Lista de fuentes"
+
+#: src/widgets/help_dialog.rs:27 src/widgets/help_dialog.rs:34
+msgid "Use the arrow keys to move the selection."
+msgstr "Usa las teclas de flecha para mover la selección."
+
+#: src/widgets/help_dialog.rs:28
+msgid "Start typing to find a font by name."
+msgstr "Empieza a escribir para buscar una fuente por su nombre."
+
+#: src/widgets/help_dialog.rs:32
+msgid "Grid"
+msgstr "Cuadrícula"
+
+#: src/widgets/help_dialog.rs:35
+msgid ""
+"Double-click, or press Enter, to add the selected character to the "
+"collection box."
+msgstr ""
+"Haz doble clic, o pulsa Intro, para añadir el carácter seleccionado al "
+"cuadro de recopilación."
+
+#: src/widgets/help_dialog.rs:39
+msgid "Hex and Dec Entries"
+msgstr "Campos hexadecimal y decimal"
+
+#: src/widgets/help_dialog.rs:40
+msgid ""
+"Enter a hex value, a decimal value, or a character, then press Enter to find "
+"it."
+msgstr ""
+"Introduce un valor hexadecimal, un valor decimal o un carácter, y pulsa "
+"Intro para encontrarlo."
+
+#: src/widgets/help_dialog.rs:43
+msgid "Search"
+msgstr "Buscar"
+
+#: src/widgets/help_dialog.rs:45
+msgid "Click the search icon to open the search bar."
+msgstr "Haz clic en el icono de búsqueda para abrir la barra de búsqueda."
+
+#: src/widgets/help_dialog.rs:46
+msgid "Type a character's name to find every character whose name contains it."
+msgstr ""
+"Escribe el nombre de un carácter para encontrar todos los que lo contengan."
+
+#: src/widgets/help_dialog.rs:47
+msgid "Type, or paste, a single character to find it directly."
+msgstr "Escribe o pega un solo carácter para encontrarlo directamente."
+
+#: src/widgets/help_dialog.rs:86
+msgid "Help"
+msgstr "Ayuda"

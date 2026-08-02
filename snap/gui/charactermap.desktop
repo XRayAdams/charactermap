@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.1.0+1
+Name=Character Map
+GenericName=Character Map
+Comment=Character Map for Linux
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=Fonts, Font, Character, Character Map;
+Icon=${SNAP}/meta/gui/charactermap.png
+Exec=charactermap
+StartupWMClass=charactermap

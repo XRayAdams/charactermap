@@ -1,0 +1,18 @@
+Package: charactermap
+Version: 1.1.0+1
+Section: utils
+Architecture: amd64
+Priority: optional
+Depends: libgtk-4-1, libadwaita-1-0
+Maintainer: Konstantin Adamov <xrayadamo@gmail.com>
+Description: Character Map
+ A character map / special-characters viewer for Linux.
+ .
+ Features:
+ * Browse installed fonts and see which Unicode blocks each one supports
+ * Filter Unicode blocks to only those a font actually covers
+ * Browse characters in a virtualized grid, grouped by Unicode block
+ * Search characters by name, hex, or decimal code
+ * Jump straight to a Unicode block
+ * Preview characters large, in the selected font
+ * Collect and copy characters to the clipboard

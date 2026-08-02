@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.1.0+1
+Name=Character Map
+GenericName=Character Map
+Comment=Character Map
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=Lorem, Ipsum, Lorem Ipsum, Generator;
+StartupWMClass=charactermap
+Exec=/usr/bin/charactermap
+TryExec=/usr/bin/charactermap
+Icon=app.rayadams.charactermap

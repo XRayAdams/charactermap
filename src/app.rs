@@ -13,6 +13,7 @@ use std::time::Instant;
 
 use crate::helpers::actions::{AboutAction, WindowActionGroup, create_about_action};
 use crate::widgets::{HelpAction, create_help_action};
+use crate::tr;
 use crate::helpers::character_names::CharacterNames;
 use crate::helpers::static_data::{APP_NAME, CELL_SIZE, GRID_FONT_SIZE, LABEL_FONT_SIZE, SPACING_MEDIUM, SPACING_SMALL};
 use crate::helpers::utils::{apply_font_preview, bp_with_setters, 
@@ -443,8 +444,8 @@ impl SimpleComponent for App {
     menu! {
         main_menu: {
             section! {
-                "_Help" => HelpAction,
-                "_About" => AboutAction,
+                &tr!("_Help") => HelpAction,
+                &tr!("_About") => AboutAction,
             }
         }
     }
@@ -468,7 +469,7 @@ impl SimpleComponent for App {
 
                     #[wrap(Some)]
                     set_sidebar = &adw::NavigationPage {
-                        set_title: "Fonts",
+                        set_title: &tr!("Fonts"),
                         #[wrap(Some)]
                         set_child = &adw::ToolbarView {
                             add_top_bar = &adw::HeaderBar {
@@ -488,7 +489,7 @@ impl SimpleComponent for App {
 
                                     #[name = "font_search_entry"]
                                     gtk::SearchEntry {
-                                        set_placeholder_text: Some("Search fonts…"),
+                                        set_placeholder_text: Some(&tr!("Search fonts…")),
                                         set_hexpand: true,
                                     },
 
@@ -500,7 +501,7 @@ impl SimpleComponent for App {
                                         #[name = "font_preview_off_button"]
                                         gtk::ToggleButton {
                                             set_icon_name: "format-text-plaintext-symbolic",
-                                            set_tooltip_text: Some("Show plain font names"),
+                                            set_tooltip_text: Some(&tr!("Show plain font names")),
                                             #[watch]
                                             set_active: !model.render_font_preview,
                                             connect_toggled[sender] => move |btn| {
@@ -513,7 +514,7 @@ impl SimpleComponent for App {
                                         #[name = "font_preview_on_button"]
                                         gtk::ToggleButton {
                                             set_icon_name: "format-text-italic-symbolic",
-                                            set_tooltip_text: Some("Preview names using each font"),
+                                            set_tooltip_text: Some(&tr!("Preview names using each font")),
                                             set_group: Some(&font_preview_off_button),
                                             #[watch]
                                             set_active: model.render_font_preview,
@@ -558,14 +559,14 @@ impl SimpleComponent for App {
                                     set_margin_top: SPACING_MEDIUM,
 
                                     gtk::Label {
-                                        set_label: "Filter Unicode pages",
+                                        set_label: &tr!("Filter Unicode pages"),
                                         set_xalign: 0.0,
                                         set_hexpand: true,
                                     },
 
                                     gtk::Switch {
                                         set_valign: gtk::Align::Center,
-                                        set_tooltip_text: Some("Show only Unicode blocks the selected font supports"),
+                                        set_tooltip_text: Some(&tr!("Show only Unicode blocks the selected font supports")),
                                         #[watch]
                                         set_active: model.filter_unicode_pages,
                                         connect_active_notify[sender] => move |sw| {
@@ -587,7 +588,7 @@ impl SimpleComponent for App {
                                 set_title_widget = if model.is_search_visible { 
                                     #[name = "search_entry"]
                                     gtk::SearchEntry {
-                                        set_placeholder_text: Some("Single letter or character name"),
+                                        set_placeholder_text: Some(&tr!("Single letter or character name")),
                                         set_hexpand: true,
                                         connect_search_changed[sender] => move |entry| {
                                             sender.input(Messages::SearchChanged(entry.text().to_string()));
@@ -679,7 +680,7 @@ impl SimpleComponent for App {
                                     set_margin_end: SPACING_SMALL,
                                     set_margin_top: SPACING_SMALL,
                                     set_margin_bottom: SPACING_SMALL,
-                                    set_label: Some("Character Information"),
+                                    set_label: Some(&tr!("Character Information")),
 
                                     #[wrap(Some)]
                                     set_child = &gtk::Box {
@@ -695,7 +696,7 @@ impl SimpleComponent for App {
                                             #[name = "jump_to_set_button"]
                                             gtk::MenuButton {
                                                 set_valign: gtk::Align::Center,
-                                                set_label: "Jump to Unicode Set",
+                                                set_label: &tr!("Jump to Unicode Set"),
 
                                                 #[wrap(Some)]
                                                 set_popover = &gtk::Popover {
@@ -723,7 +724,7 @@ impl SimpleComponent for App {
                                             },
 
                                             gtk::Entry {
-                                                set_placeholder_text: Some("double click character to add here"),
+                                                set_placeholder_text: Some(&tr!("double click character to add here")),
                                                 set_icon_from_icon_name[Some("edit-clear-symbolic")]: gtk::EntryIconPosition::Secondary,
                                                 set_icon_activatable[true]: gtk::EntryIconPosition::Secondary,
                                                 #[watch]
@@ -748,7 +749,7 @@ impl SimpleComponent for App {
                                                 set_spacing: SPACING_SMALL,
 
                                                 gtk::Label {
-                                                    set_label: "Hex:",
+                                                    set_label: &tr!("Hex:"),
                                                     set_valign: gtk::Align::Center,
                                                 },
 
@@ -766,7 +767,7 @@ impl SimpleComponent for App {
                                                 },
 
                                                 gtk::Button {
-                                                    set_label: "Find",
+                                                    set_label: &tr!("Find"),
                                                     set_valign: gtk::Align::Center,
                                                     #[watch]
                                                     set_sensitive: !model.hex_value.is_empty(),
@@ -781,7 +782,7 @@ impl SimpleComponent for App {
                                                 set_spacing: SPACING_SMALL,
 
                                                 gtk::Label {
-                                                    set_label: "Dec:",
+                                                    set_label: &tr!("Dec:"),
                                                     set_valign: gtk::Align::Center,
                                                 },
 
@@ -799,7 +800,7 @@ impl SimpleComponent for App {
                                                 },
 
                                                 gtk::Button {
-                                                    set_label: "Find",
+                                                    set_label: &tr!("Find"),
                                                     set_valign: gtk::Align::Center,
                                                     #[watch]
                                                     set_sensitive: !model.dec_value.is_empty(),
