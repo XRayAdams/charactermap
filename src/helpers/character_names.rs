@@ -10,6 +10,8 @@
 
 use super::character_names_data::{NAMES, RANGES};
 
+use crate::unicode::UnicodeEntry;
+
 // Jamo short-name tables used to derive Hangul syllable names
 // (see the Unicode Standard, "Hangul Syllable Name Generation").
 const JAMO_LEADING: [&str; 19] = [
@@ -69,6 +71,55 @@ impl CharacterNames {
             .iter()
             .find(|(start, end, _)| code >= *start && code <= *end)
             .map(|(_, _, label)| range_name(label, code))
+    }
+
+    /// Finds up to `max_results` displayable characters within `sections`
+    /// whose name contains `query` (case-insensitive).
+    ///
+    /// This deliberately does NOT enumerate every codepoint in `sections`
+    /// (as naively calling `name()` per codepoint would) -- most of the
+    /// Unicode range is covered by a handful of huge algorithmically-named
+    /// `RANGES` (CJK ideographs, private use, ...)
+    pub fn search(&self, query: &str, sections: &[UnicodeEntry], max_results: usize) -> Vec<char> {
+        let query_lower = query.to_lowercase();
+        let mut matches = Vec::new();
+
+        for section in sections {
+            let (start, end) = (section.start_index, section.end_index);
+
+            let lo = NAMES.partition_point(|&(code, _)| code < start);
+            let hi = NAMES.partition_point(|&(code, _)| code <= end);
+            for &(code, name) in &NAMES[lo..hi] {
+                let Some(ch) = char::from_u32(code).filter(|ch| !ch.is_control()) else {
+                    continue;
+                };
+                if name.to_lowercase().contains(&query_lower) {
+                    matches.push(ch);
+                    if matches.len() >= max_results {
+                        return matches;
+                    }
+                }
+            }
+
+            for &(range_start, range_end, label) in RANGES {
+                let overlap_start = start.max(range_start);
+                let overlap_end = end.min(range_end);
+                if overlap_start > overlap_end || !label.to_lowercase().contains(&query_lower) {
+                    continue;
+                }
+                for code in overlap_start..=overlap_end {
+                    let Some(ch) = char::from_u32(code).filter(|ch| !ch.is_control()) else {
+                        continue;
+                    };
+                    matches.push(ch);
+                    if matches.len() >= max_results {
+                        return matches;
+                    }
+                }
+            }
+        }
+
+        matches
     }
 }
 

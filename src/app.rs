@@ -357,26 +357,11 @@ impl App {
     /// name contains `query` (case-insensitive). Scans at most
     /// `MAX_SEARCH_RESULTS` matches.
     fn refresh_search_results(&mut self, query: &str) {
-        let query_lower = query.to_lowercase();
-        let mut matches = Vec::new();
-
-        'outer: for section in &self.unicode_set.filtered_unicode_sections {
-            for code in section.start_index..=section.end_index {
-                let Some(ch) = char::from_u32(code).filter(|ch| !ch.is_control()) else {
-                    continue;
-                };
-                let is_match = self
-                    .character_names
-                    .name(ch)
-                    .is_some_and(|name| name.to_lowercase().contains(&query_lower));
-                if is_match {
-                    matches.push(ch);
-                    if matches.len() >= MAX_SEARCH_RESULTS {
-                        break 'outer;
-                    }
-                }
-            }
-        }
+        let matches = self.character_names.search(
+            query,
+            &self.unicode_set.filtered_unicode_sections,
+            MAX_SEARCH_RESULTS,
+        );
 
         self.is_showing_search_results = true;
         self.section_positions.clear();
