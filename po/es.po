@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-08-01 19:47-0700\n"
+"POT-Creation-Date: 2026-08-01 20:27-0700\n"
 "PO-Revision-Date: 2026-08-01 19:23-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,63 +17,68 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/app.rs:447
+#: src/app.rs:384
+#, rust-format
+msgid "Search results ({})"
+msgstr "Resultados de búsqueda ({})"
+
+#: src/app.rs:452
 msgid "_Help"
 msgstr "A_yuda"
 
-#: src/app.rs:448
+#: src/app.rs:453
 msgid "_About"
 msgstr "_Acerca de"
 
-#: src/app.rs:472
+#: src/app.rs:477
 msgid "Fonts"
 msgstr "Fuentes"
 
-#: src/app.rs:492
+#: src/app.rs:497
 msgid "Search fonts…"
 msgstr "Buscar fuentes…"
 
-#: src/app.rs:504
+#: src/app.rs:509
 msgid "Show plain font names"
 msgstr "Mostrar nombres de fuente sin formato"
 
-#: src/app.rs:517
+#: src/app.rs:522
 msgid "Preview names using each font"
 msgstr "Previsualizar los nombres usando cada fuente"
 
-#: src/app.rs:562
+#: src/app.rs:567
 msgid "Filter Unicode pages"
 msgstr "Filtrar páginas Unicode"
 
-#: src/app.rs:569
+#: src/app.rs:574
 msgid "Show only Unicode blocks the selected font supports"
 msgstr "Mostrar solo los bloques Unicode admitidos por la fuente seleccionada"
 
-#: src/app.rs:591
+#: src/app.rs:596
 msgid "Single letter or character name"
 msgstr "Una sola letra o nombre de carácter"
 
-#: src/app.rs:683
+#: src/app.rs:688
 msgid "Character Information"
 msgstr "Información del carácter"
 
-#: src/app.rs:699
+#: src/app.rs:704
 msgid "Jump to Unicode Set"
 msgstr "Ir a un conjunto Unicode"
 
-#: src/app.rs:727
+#: src/app.rs:732
 msgid "double click character to add here"
 msgstr "haz doble clic en un carácter para añadirlo aquí"
 
-#: src/app.rs:752
+#: src/app.rs:757
 msgid "Hex:"
 msgstr "Hex:"
 
-#: src/app.rs:770 src/app.rs:803
+#: src/app.rs:775 src/app.rs:808
 msgid "Find"
 msgstr "Buscar"
 
-#: src/app.rs:785
+#: src/app.rs:790
 msgid "Dec:"
 msgstr "Dec:"
 

@@ -9,23 +9,25 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 use std::rc::Rc;
-use std::time::Instant;
 
 use crate::helpers::actions::{AboutAction, WindowActionGroup, create_about_action};
-use crate::widgets::{HelpAction, create_help_action};
-use crate::tr;
 use crate::helpers::character_names::CharacterNames;
-use crate::helpers::static_data::{APP_NAME, CELL_SIZE, GRID_FONT_SIZE, LABEL_FONT_SIZE, SPACING_MEDIUM, SPACING_SMALL};
-use crate::helpers::utils::{apply_font_preview, bp_with_setters, 
-    build_search_result_store, build_unicode_grid_factory, build_unicode_store, collect_cell_labels, 
-    compute_positions_boundaries, font_attr_list, font_covers_range, grid_geometry, update_sticky_header};
+use crate::helpers::static_data::{
+    APP_NAME, CELL_SIZE, GRID_FONT_SIZE, LABEL_FONT_SIZE, SPACING_MEDIUM, SPACING_SMALL,
+};
+use crate::helpers::utils::{
+    apply_font_preview, bp_with_setters, build_search_result_store, build_unicode_grid_factory,
+    build_unicode_store, collect_cell_labels, compute_positions_boundaries, font_attr_list,
+    font_covers_range, grid_geometry, update_sticky_header,
+};
+use crate::tr;
 use crate::unicode::{UnicodeEntry, UnicodeSet, raw_offset_to_filtered_index};
+use crate::widgets::{HelpAction, create_help_action};
 
 /// Caps how many characters a name search can display, so a very broad
 /// query (e.g. a common substring shared by thousands of CJK/algorithmic
 /// names) can't make the grid balloon to an unusable size.
 const MAX_SEARCH_RESULTS: usize = 500;
-    
 
 #[derive(Serialize, Deserialize)]
 struct AppSettings {
@@ -161,10 +163,9 @@ impl App {
             let mut font_desc = gtk4::pango::FontDescription::new();
             font_desc.set_family(&font_name);
             let font = context.load_font(&font_desc);
-            
-            let start_time = Instant::now();
 
-            let result: Vec<UnicodeEntry> = self.unicode_set
+            let result: Vec<UnicodeEntry> = self
+                .unicode_set
                 .unicode_sections
                 .iter()
                 .filter(|entry| {
@@ -174,13 +175,6 @@ impl App {
                 })
                 .cloned()
                 .collect();
-            let elapsed = start_time.elapsed();
-            println!(
-                "refresh_unicode_sections: font={} filtered {} blocks in {:?}",
-                font_name,
-                result.len(),
-                elapsed
-            );
 
             result
         } else {
@@ -381,7 +375,8 @@ impl App {
         }
 
         if let Some(header) = &self.sticky_header {
-            header.set_label(&format!("Search results ({})", matches.len()));
+            let label = tr!("Search results ({})").replace("{}", &matches.len().to_string());
+            header.set_label(&label);
         }
 
         if let Some(grid_view) = &self.unicode_grid_view {
@@ -399,7 +394,10 @@ impl App {
             return;
         }
 
-        let query = self.search_entry.as_ref().map(|entry| entry.text().to_string());
+        let query = self
+            .search_entry
+            .as_ref()
+            .map(|entry| entry.text().to_string());
         if let Some(query) = query.filter(|query| query.chars().count() >= 2) {
             self.refresh_search_results(&query);
         }
@@ -584,12 +582,12 @@ impl SimpleComponent for App {
 
                     #[wrap(Some)]
                     set_content = &adw::NavigationPage {
-
+                    set_title: APP_NAME,
                         #[wrap(Some)]
                         set_child = &adw::ToolbarView {
                             add_top_bar = &adw::HeaderBar {
                                 #[wrap(Some)]
-                                set_title_widget = if model.is_search_visible { 
+                                set_title_widget = if model.is_search_visible {
                                     #[name = "search_entry"]
                                     gtk::SearchEntry {
                                         set_placeholder_text: Some(&tr!("Single letter or character name")),
@@ -603,7 +601,7 @@ impl SimpleComponent for App {
                                         set_title: APP_NAME,
                                     }
                                 },
-                            
+
                                 pack_start = &gtk4::Button {
                                     set_icon_name: "sidebar-show-symbolic",
                                     set_can_focus: false,
@@ -630,9 +628,9 @@ impl SimpleComponent for App {
                                         set_direction: gtk::ArrowType::Down,
                                         set_can_focus: false,
                                     },
-                                    
+
                                 },
-                                
+
                             },
 
                             #[wrap(Some)]
@@ -954,7 +952,7 @@ impl SimpleComponent for App {
         let selection = gtk::SingleSelection::new(None::<gio::ListStore>);
         selection.set_autoselect(false);
         selection.set_can_unselect(true);
-        
+
         widgets.unicode_grid_view.set_model(Some(&selection));
         model.unicode_selection = Some(selection.clone());
 
@@ -1162,7 +1160,7 @@ impl SimpleComponent for App {
                 // the search box still shows the query.
                 self.rerun_search_if_active();
 
-                // Clear the grid's visual selection highlight 
+                // Clear the grid's visual selection highlight
                 if let Some(selection) = &self.unicode_selection {
                     selection.set_selected(gtk::INVALID_LIST_POSITION);
                 }
@@ -1239,9 +1237,8 @@ impl SimpleComponent for App {
                 } else if self.is_showing_search_results {
                     self.restore_browse_grid();
                 }
-
             }
-            Messages::SearchChanged(search) =>  {
+            Messages::SearchChanged(search) => {
                 let len = search.chars().count();
                 if len <= 1 {
                     if self.is_showing_search_results {
@@ -1257,4 +1254,3 @@ impl SimpleComponent for App {
         }
     }
 }
-
