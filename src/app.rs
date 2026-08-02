@@ -12,6 +12,7 @@ use std::rc::Rc;
 use std::time::Instant;
 
 use crate::helpers::actions::{AboutAction, WindowActionGroup, create_about_action};
+use crate::widgets::{HelpAction, create_help_action};
 use crate::helpers::character_names::CharacterNames;
 use crate::helpers::static_data::{APP_NAME, CELL_SIZE, GRID_FONT_SIZE, LABEL_FONT_SIZE, SPACING_MEDIUM, SPACING_SMALL};
 use crate::helpers::utils::{apply_font_preview, bp_with_setters, 
@@ -442,6 +443,7 @@ impl SimpleComponent for App {
     menu! {
         main_menu: {
             section! {
+                "_Help" => HelpAction,
                 "_About" => AboutAction,
             }
         }
@@ -1132,9 +1134,11 @@ impl SimpleComponent for App {
 
         let about_action =
             create_about_action(widgets.main_window.clone(), Self::get_app_version());
+        let help_action = create_help_action(widgets.main_window.clone());
 
         let mut window_actions = RelmActionGroup::<WindowActionGroup>::new();
         window_actions.add_action(about_action);
+        window_actions.add_action(help_action);
         window_actions.register_for_widget(&widgets.main_window);
 
         ComponentParts { model, widgets }
