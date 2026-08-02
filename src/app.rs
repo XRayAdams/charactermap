@@ -395,6 +395,10 @@ impl App {
     /// characters are covered, so a search box left open must be refreshed
     /// rather than silently reverting to the browse grid mid-query.
     fn rerun_search_if_active(&mut self) {
+        if !self.is_search_visible {
+            return;
+        }
+
         let query = self.search_entry.as_ref().map(|entry| entry.text().to_string());
         if let Some(query) = query.filter(|query| query.chars().count() >= 2) {
             self.refresh_search_results(&query);
