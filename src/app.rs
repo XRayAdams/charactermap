@@ -12,12 +12,18 @@ use std::rc::Rc;
 use std::time::Instant;
 
 use crate::helpers::actions::{AboutAction, WindowActionGroup, create_about_action};
+use crate::widgets::{HelpAction, create_help_action};
 use crate::helpers::character_names::CharacterNames;
 use crate::helpers::static_data::{APP_NAME, CELL_SIZE, GRID_FONT_SIZE, LABEL_FONT_SIZE, SPACING_MEDIUM, SPACING_SMALL};
 use crate::helpers::utils::{apply_font_preview, bp_with_setters, 
-    build_unicode_grid_factory, build_unicode_store, collect_cell_labels, 
+    build_search_result_store, build_unicode_grid_factory, build_unicode_store, collect_cell_labels, 
     compute_positions_boundaries, font_attr_list, font_covers_range, grid_geometry, update_sticky_header};
 use crate::unicode::{UnicodeEntry, UnicodeSet, raw_offset_to_filtered_index};
+
+/// Caps how many characters a name search can display, so a very broad
+/// query (e.g. a common substring shared by thousands of CJK/algorithmic
+/// names) can't make the grid balloon to an unusable size.
+const MAX_SEARCH_RESULTS: usize = 500;
     
 
 #[derive(Serialize, Deserialize)]
@@ -66,6 +72,16 @@ pub struct App {
     hex_entry: Option<gtk::Entry>,
     dec_entry: Option<gtk::Entry>,
     search_entry: Option<gtk::SearchEntry>,
+    /// Whether the character grid is currently showing name-search results
+    /// instead of the normal font-filtered blocks.
+    is_showing_search_results: bool,
+    /// Snapshot of the last-built browse (non-search) grid model plus the
+    /// state it goes with, so leaving search can restore it instantly
+    /// instead of recomputing font coverage and rebuilding everything.
+    browse_store: Option<gio::ListModel>,
+    browse_section_positions: HashMap<String, u32>,
+    browse_block_boundaries: Vec<(u32, String)>,
+    browse_header: String,
 }
 
 #[derive(Debug)]
@@ -129,6 +145,13 @@ impl App {
         let Some(font_list) = self.font_list.clone() else {
             return;
         };
+        // Any call to this function means "show the normal font-filtered
+        // grid" -- if search results were showing, force the model rebuild
+        // below even if the filtered block ranges themselves haven't changed
+        // (they may legitimately be identical to before search started).
+        let restoring_from_search = self.is_showing_search_results;
+        self.is_showing_search_results = false;
+
         let context = font_list.pango_context();
         let font_name = self.selected_font.clone();
 
@@ -186,6 +209,12 @@ impl App {
                 .unwrap_or_default();
             *self.block_boundaries.borrow_mut() = boundaries;
 
+            // Cache this browse state so leaving search later can restore it
+            // by simple assignment, without recomputing any of the above.
+            self.browse_section_positions = self.section_positions.clone();
+            self.browse_block_boundaries = self.block_boundaries.borrow().clone();
+            self.browse_header = first_block.clone();
+
             // Rebuilding the grid (`set_model`) re-realizes every cell and
             // costs time proportional to the number of characters shown, so it
             // is only worth doing when the visible set of characters actually
@@ -200,12 +229,14 @@ impl App {
                 .map(|entry| (entry.start_index, entry.end_index))
                 .collect();
 
-            if new_ranges != self.displayed_ranges {
+            if restoring_from_search || new_ranges != self.displayed_ranges {
                 self.displayed_ranges = new_ranges;
 
                 if let Some(selection) = &self.unicode_selection {
                     let store = build_unicode_store(&self.unicode_set.filtered_unicode_sections);
-                    selection.set_model(Some(&store));
+                    let model = store.upcast::<gio::ListModel>();
+                    selection.set_model(Some(&model));
+                    self.browse_store = Some(model);
                 }
 
                 if let Some(header) = &self.sticky_header {
@@ -306,6 +337,8 @@ impl App {
                 self.hex_value.clear();
                 self.dec_value.clear();
                 self.character_name.clear();
+                self.dec_entry.as_ref().map(|entry| entry.set_text(""));
+                self.hex_entry.as_ref().map(|entry| entry.set_text(""));
             }
         }
     }
@@ -319,6 +352,86 @@ impl App {
             }
         }
     }
+
+    /// Switches the character grid to show every displayable character
+    /// (within the currently filtered/font-covered unicode blocks) whose
+    /// name contains `query` (case-insensitive). Scans at most
+    /// `MAX_SEARCH_RESULTS` matches.
+    fn refresh_search_results(&mut self, query: &str) {
+        let matches = self.character_names.search(
+            query,
+            &self.unicode_set.filtered_unicode_sections,
+            MAX_SEARCH_RESULTS,
+        );
+
+        self.is_showing_search_results = true;
+        self.section_positions.clear();
+        self.block_boundaries.borrow_mut().clear();
+
+        // The previously selected character no longer has any meaning
+        // against the search-result model, so clear its preview.
+        self.selected_character = None;
+        self.update_character_preview();
+
+        if let Some(selection) = &self.unicode_selection {
+            let store = build_search_result_store(&matches);
+            selection.set_model(Some(&store));
+            selection.set_selected(gtk::INVALID_LIST_POSITION);
+        }
+
+        if let Some(header) = &self.sticky_header {
+            header.set_label(&format!("Search results ({})", matches.len()));
+        }
+
+        if let Some(grid_view) = &self.unicode_grid_view {
+            grid_view.scroll_to(0, gtk::ListScrollFlags::empty(), None);
+        }
+    }
+
+    /// Re-runs the active name search (if any) against the current
+    /// `filtered_unicode_sections` -- used after the font or the "filter
+    /// unicode pages" setting changes, both of which can change which
+    /// characters are covered, so a search box left open must be refreshed
+    /// rather than silently reverting to the browse grid mid-query.
+    fn rerun_search_if_active(&mut self) {
+        let query = self.search_entry.as_ref().map(|entry| entry.text().to_string());
+        if let Some(query) = query.filter(|query| query.chars().count() >= 2) {
+            self.refresh_search_results(&query);
+        }
+    }
+
+    /// Restores the grid to whatever was showing before search started.
+    /// Unlike `refresh_unicode_sections`, this never touches font coverage
+    /// or rebuilds anything -- the cached browse model/positions/boundaries
+    /// are still exactly what they were, since search never mutates them --
+    /// so switching back is a handful of cheap assignments, not a rebuild.
+    fn restore_browse_grid(&mut self) {
+        if !self.is_showing_search_results {
+            return;
+        }
+        self.is_showing_search_results = false;
+
+        // Same reasoning as entering search: the selection belonged to the
+        // search-result model, not the restored browse model.
+        self.selected_character = None;
+        self.update_character_preview();
+
+        if let (Some(selection), Some(model)) = (&self.unicode_selection, &self.browse_store) {
+            selection.set_model(Some(model));
+            selection.set_selected(gtk::INVALID_LIST_POSITION);
+        }
+
+        self.section_positions = self.browse_section_positions.clone();
+        *self.block_boundaries.borrow_mut() = self.browse_block_boundaries.clone();
+
+        if let Some(header) = &self.sticky_header {
+            header.set_label(&self.browse_header);
+        }
+
+        if let Some(grid_view) = &self.unicode_grid_view {
+            grid_view.scroll_to(0, gtk::ListScrollFlags::empty(), None);
+        }
+    }
 }
 
 #[relm4::component(pub)]
@@ -330,6 +443,7 @@ impl SimpleComponent for App {
     menu! {
         main_menu: {
             section! {
+                "_Help" => HelpAction,
                 "_About" => AboutAction,
             }
         }
@@ -809,6 +923,11 @@ impl SimpleComponent for App {
             hex_entry: None,
             dec_entry: None,
             search_entry: None,
+            is_showing_search_results: false,
+            browse_store: None,
+            browse_section_positions: HashMap::new(),
+            browse_block_boundaries: Vec::new(),
+            browse_header: String::new(),
         };
 
         let widgets = view_output!();
@@ -1015,9 +1134,11 @@ impl SimpleComponent for App {
 
         let about_action =
             create_about_action(widgets.main_window.clone(), Self::get_app_version());
+        let help_action = create_help_action(widgets.main_window.clone());
 
         let mut window_actions = RelmActionGroup::<WindowActionGroup>::new();
         window_actions.add_action(about_action);
+        window_actions.add_action(help_action);
         window_actions.register_for_widget(&widgets.main_window);
 
         ComponentParts { model, widgets }
@@ -1030,6 +1151,11 @@ impl SimpleComponent for App {
                 self.selected_character = None;
                 self.refresh_unicode_sections();
                 self.update_character_preview();
+
+                // A name search was active: re-run it under the new font
+                // instead of silently reverting to the browse grid while
+                // the search box still shows the query.
+                self.rerun_search_if_active();
 
                 // Clear the grid's visual selection highlight 
                 if let Some(selection) = &self.unicode_selection {
@@ -1055,6 +1181,7 @@ impl SimpleComponent for App {
                 self.filter_unicode_pages = enabled;
                 self.save_config();
                 self.refresh_unicode_sections();
+                self.rerun_search_if_active();
             }
             Messages::JumpToUnicodeSet(description) => {
                 self.scroll_to_unicode_set(&description, None);
@@ -1100,18 +1227,26 @@ impl SimpleComponent for App {
             Messages::ShowHideSearch => {
                 self.is_search_visible = !self.is_search_visible;
 
-                if self.is_search_visible && let Some(search_entry) = &self.search_entry {
+                if self.is_search_visible {
+                    if let Some(search_entry) = &self.search_entry {
                         search_entry.grab_focus();
+                    }
+                } else if self.is_showing_search_results {
+                    self.restore_browse_grid();
                 }
 
             }
             Messages::SearchChanged(search) =>  {
-                if search.chars().count() == 1 {
+                let len = search.chars().count();
+                if len <= 1 {
+                    if self.is_showing_search_results {
+                        self.restore_browse_grid();
+                    }
                     if let Some(code) = search.chars().next().map(|ch| ch as u32) {
                         self.find_char(code);
                     }
                 } else {
-                    // search for character names
+                    self.refresh_search_results(&search);
                 }
             }
         }

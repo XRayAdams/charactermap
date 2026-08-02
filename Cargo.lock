@@ -86,26 +86,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72f5acc6cb2ba439de613abc23857ec3d78374d8ed5ac84e9d11336e87da8649"
 
 [[package]]
-name = "bytemuck"
-version = "1.25.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95832e849adfb21180ccb6826a99da14e5d266ae5c2e668e1602cf234f153797"
-dependencies = [
- "bytemuck_derive",
-]
-
-[[package]]
-name = "bytemuck_derive"
-version = "1.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f65693059b6b9c588b9f62fed1cedbf0a8b805631457ea162d68f0de186f3de5"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.119",
-]
-
-[[package]]
 name = "cairo-rs"
 version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -162,7 +142,6 @@ dependencies = [
  "gettext-rs",
  "gtk4",
  "libadwaita",
- "read-fonts",
  "relm4",
  "relm4-components",
  "relm4-macros",
@@ -257,15 +236,6 @@ dependencies = [
  "futures-core",
  "futures-sink",
  "spin",
-]
-
-[[package]]
-name = "font-types"
-version = "0.12.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a7299a780854a6d391be2ae1c8521c9368471b559dbfd6a8dbd9f407eaff100"
-dependencies = [
- "bytemuck",
 ]
 
 [[package]]
@@ -883,17 +853,6 @@ name = "r-efi"
 version = "6.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf"
-
-[[package]]
-name = "read-fonts"
-version = "0.42.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c69341f5f744623061a258e9d06a0213783a89ec23b6efb88a1c0c4ed285559"
-dependencies = [
- "bytemuck",
- "font-types",
- "once_cell",
-]
 
 [[package]]
 name = "regex"

@@ -1,7 +1,7 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use libadwaita as adw;
-use gtk4::{glib::{self, object::{Cast, IsA, ObjectExt}, value::ToValue}, pango::prelude::FontExt, prelude::{ListItemExt, WidgetExt}};
+use gtk4::{gio, glib::{self, object::{Cast, IsA, ObjectExt}, value::ToValue}, pango::prelude::FontExt, prelude::{ListItemExt, WidgetExt}};
 
 use crate::{helpers::static_data::{CELL_POSITION_KEY, CELL_SIZE}, unicode::{UnicodeCharModel, UnicodeEntry, char_list_model::displayable_count}};
 
@@ -225,6 +225,19 @@ pub fn grid_geometry(grid_view: &gtk4::GridView) -> Option<(u32, f64)> {
 /// change.
 pub fn build_unicode_store(sections: &[UnicodeEntry]) -> UnicodeCharModel {
     UnicodeCharModel::new(sections)
+}
+
+/// Builds an eager `gio::ListStore` of the given characters, in order.
+/// Used for the (typically much smaller) name-search result grid, where a
+/// sparse, arbitrary subset of codepoints can't be described as block
+/// ranges, so the analytical `UnicodeCharModel` doesn't apply.
+pub fn build_search_result_store(chars: &[char]) -> gio::ListStore {
+    let store = gio::ListStore::new::<gtk4::StringObject>();
+    let mut buf = [0u8; 4];
+    for &ch in chars {
+        store.append(&gtk4::StringObject::new(ch.encode_utf8(&mut buf)));
+    }
+    store
 }
 
 /// Computes, for the given (filtered) blocks, a map of block description ->
