@@ -35,6 +35,10 @@ parts:
     build-snaps:
       - rustup
     override-pull: |
+      # The gnome extension injects an LD_LIBRARY_PATH pointing at the GNOME
+      # SDK's own libc, which crashes the rustup snap with a glibc symbol
+      # lookup error; rustup itself doesn't need the GNOME SDK libraries.
+      unset LD_LIBRARY_PATH
       rustup default stable
 
   charactermap:
