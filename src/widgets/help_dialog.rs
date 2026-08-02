@@ -9,6 +9,7 @@ use relm4::actions::RelmAction;
 
 use crate::helpers::actions::WindowActionGroup;
 use crate::helpers::static_data::{SPACING_MEDIUM, SPACING_SMALL};
+use crate::{N_, tr};
 
 relm4::new_stateless_action!(pub HelpAction, WindowActionGroup, "help");
 
@@ -21,29 +22,30 @@ struct HelpSection {
 
 const HELP_SECTIONS: &[HelpSection] = &[
     HelpSection {
-        title: "Font List",
+        title: N_!("Font List"),
         lines: &[
-            "Use the arrow keys to move the selection.",
-            "Start typing to find a font by name.",
+            N_!("Use the arrow keys to move the selection."),
+            N_!("Start typing to find a font by name."),
         ],
     },
     HelpSection {
-        title: "Grid",
+        title: N_!("Grid"),
         lines: &[
-            "Use the arrow keys to move the selection.",
-            "Double-click, or press Enter, to add the selected character to the collection box.",
+            N_!("Use the arrow keys to move the selection."),
+            N_!("Double-click, or press Enter, to add the selected character to the collection box."),
+            N_!("If a character is not present in the selected font, it will be shown as a tofu box."),
         ],
     },
     HelpSection {
-        title: "Hex and Dec Entries",
-        lines: &["Enter a hex value, a decimal value, or a character, then press Enter to find it."],
+        title: N_!("Hex and Dec Entries"),
+        lines: &[N_!("Enter a hex value, a decimal value, or a character, then press Enter to find it.")],
     },
     HelpSection {
-        title: "Search",
+        title: N_!("Search"),
         lines: &[
-            "Click the search icon to open the search bar.",
-            "Type a character's name to find every character whose name contains it.",
-            "Type, or paste, a single character to find it directly.",
+            N_!("Click the search icon to open the search bar."),
+            N_!("Type a character's name to find every character whose name contains it."),
+            N_!("Type, or paste, a single character to find it directly."),
         ],
     },
 ];
@@ -57,14 +59,15 @@ fn build_content() -> gtk4::Widget {
     content.set_margin_end(SPACING_MEDIUM);
 
     for section in HELP_SECTIONS {
-        let heading = gtk4::Label::new(Some(section.title));
+        let heading = gtk4::Label::new(Some(&tr!(section.title)));
         heading.set_xalign(0.0);
         heading.add_css_class("heading");
         heading.set_margin_top(SPACING_SMALL);
         content.append(&heading);
 
         for line in section.lines {
-            let label = gtk4::Label::new(Some(&format!("•\u{a0}{line}")));
+            let translated_line = tr!(*line);
+            let label = gtk4::Label::new(Some(&format!("•\u{a0}{translated_line}")));
             label.set_xalign(0.0);
             label.set_wrap(true);
             content.append(&label);
@@ -81,15 +84,17 @@ fn build_content() -> gtk4::Widget {
 
 pub fn create_help_action(parent: adw::ApplicationWindow) -> RelmAction<HelpAction> {
     RelmAction::<HelpAction>::new_stateless(move |_| {
+        let title = tr!("Help");
+
         let header = adw::HeaderBar::new();
-        header.set_title_widget(Some(&adw::WindowTitle::new("Help", "")));
+        header.set_title_widget(Some(&adw::WindowTitle::new(&title, "")));
 
         let toolbar_view = adw::ToolbarView::new();
         toolbar_view.add_top_bar(&header);
         toolbar_view.set_content(Some(&build_content()));
 
         let dialog = adw::Dialog::builder()
-            .title("Help")
+            .title(title.as_str())
             .content_width(420)
             .content_height(480)
             .child(&toolbar_view)

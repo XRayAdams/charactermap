@@ -1,0 +1,9 @@
+A character map / special-characters viewer for Linux.
+
+* Browse installed fonts and see which Unicode blocks each one supports
+* Filter Unicode blocks to only those a font actually covers
+* Browse characters in a virtualized grid, grouped by Unicode block
+* Search characters by name, hex, or decimal code
+* Jump straight to a Unicode block
+* Preview characters large, in the selected font
+* Collect and copy characters to the clipboard

@@ -1,0 +1,135 @@
+# charactermap translation template.
+# Copyright (C) 2026 Konstantin Adamov
+# This file is distributed under the same license as the charactermap package.
+# Konstantin Adamov <xrayadamo@gmail.com>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: charactermap 1.1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
+"POT-Creation-Date: 2026-08-01 19:47-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/app.rs:447
+msgid "_Help"
+msgstr ""
+
+#: src/app.rs:448
+msgid "_About"
+msgstr ""
+
+#: src/app.rs:472
+msgid "Fonts"
+msgstr ""
+
+#: src/app.rs:492
+msgid "Search fonts…"
+msgstr ""
+
+#: src/app.rs:504
+msgid "Show plain font names"
+msgstr ""
+
+#: src/app.rs:517
+msgid "Preview names using each font"
+msgstr ""
+
+#: src/app.rs:562
+msgid "Filter Unicode pages"
+msgstr ""
+
+#: src/app.rs:569
+msgid "Show only Unicode blocks the selected font supports"
+msgstr ""
+
+#: src/app.rs:591
+msgid "Single letter or character name"
+msgstr ""
+
+#: src/app.rs:683
+msgid "Character Information"
+msgstr ""
+
+#: src/app.rs:699
+msgid "Jump to Unicode Set"
+msgstr ""
+
+#: src/app.rs:727
+msgid "double click character to add here"
+msgstr ""
+
+#: src/app.rs:752
+msgid "Hex:"
+msgstr ""
+
+#: src/app.rs:770 src/app.rs:803
+msgid "Find"
+msgstr ""
+
+#: src/app.rs:785
+msgid "Dec:"
+msgstr ""
+
+#: src/widgets/help_dialog.rs:25
+msgid "Font List"
+msgstr ""
+
+#: src/widgets/help_dialog.rs:27 src/widgets/help_dialog.rs:34
+msgid "Use the arrow keys to move the selection."
+msgstr ""
+
+#: src/widgets/help_dialog.rs:28
+msgid "Start typing to find a font by name."
+msgstr ""
+
+#: src/widgets/help_dialog.rs:32
+msgid "Grid"
+msgstr ""
+
+#: src/widgets/help_dialog.rs:35
+msgid ""
+"Double-click, or press Enter, to add the selected character to the "
+"collection box."
+msgstr ""
+
+#: src/widgets/help_dialog.rs:36
+msgid ""
+"If a character is not present in the selected font, it will be shown as a "
+"tofu box."
+msgstr ""
+
+#: src/widgets/help_dialog.rs:40
+msgid "Hex and Dec Entries"
+msgstr ""
+
+#: src/widgets/help_dialog.rs:41
+msgid ""
+"Enter a hex value, a decimal value, or a character, then press Enter to find "
+"it."
+msgstr ""
+
+#: src/widgets/help_dialog.rs:44
+msgid "Search"
+msgstr ""
+
+#: src/widgets/help_dialog.rs:46
+msgid "Click the search icon to open the search bar."
+msgstr ""
+
+#: src/widgets/help_dialog.rs:47
+msgid "Type a character's name to find every character whose name contains it."
+msgstr ""
+
+#: src/widgets/help_dialog.rs:48
+msgid "Type, or paste, a single character to find it directly."
+msgstr ""
+
+#: src/widgets/help_dialog.rs:87
+msgid "Help"
+msgstr ""

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>charactermap.desktop</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>Character Map</name>
+  <summary>A character map / special-characters viewer for Linux.</summary>
+  <description>
+    <p>A character map / special-characters viewer for Linux.</p>
+    <p>Features:</p>
+    <ul>
+      <li>Browse installed fonts and see which Unicode blocks each one supports</li>
+      <li>Filter Unicode blocks to only those a font actually covers</li>
+      <li>Browse characters in a virtualized grid, grouped by Unicode block</li>
+      <li>Search characters by name, hex, or decimal code</li>
+      <li>Jump straight to a Unicode block</li>
+      <li>Preview characters large, in the selected font</li>
+      <li>Collect and copy characters to the clipboard</li>
+    </ul>
+  </description>
+  <url type="homepage">https://github.com/XRayAdams/charactermap</url>
+  <content_rating type="oars-1.1"><category>Age 3+</category></content_rating>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/XRayAdams/charactermap/refs/heads/master/screenshots/screenshot01.png</image>
+      <caption>Main window UI</caption>
+    </screenshot>
+    <screenshot >
+      <image>https://raw.githubusercontent.com/XRayAdams/charactermap/refs/heads/master/screenshots/screenshot02.png</image>
+      <caption>Main window UI</caption>
+    </screenshot>
+    <screenshot >
+      <image>https://raw.githubusercontent.com/XRayAdams/charactermap/refs/heads/master/screenshots/screenshot03.png</image>
+      <caption>Collapsed Sidebar</caption>
+    </screenshot>
+  </screenshots>
+  <languages>
+    <lang percentage="100">en</lang>
+  </languages>
+</component>

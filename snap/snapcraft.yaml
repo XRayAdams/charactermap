@@ -1,0 +1,65 @@
+name: charactermap
+version: 1.1.0+1
+description: A character map / special-characters viewer for Linux.
+contact: xrayadamo@gmail.com
+icon: snap/gui/charactermap.png
+confinement: strict
+base: core24
+grade: stable
+license: MIT
+source-code: https://github.com/XRayAdams/charactermap
+issues: https://github.com/XRayAdams/charactermap/issues
+website: https://www.rayadams.app
+
+platforms:
+  amd64:
+  arm64:
+    
+apps:
+  charactermap:
+    command: bin/charactermap
+    common-id: app.rayadams.charactermap
+    extensions: [gnome]
+    plugs:
+      - home
+      - desktop
+      - desktop-legacy
+      - wayland
+      - x11
+
+adopt-info: charactermap
+
+parts:
+  charactermap:
+    plugin: rust
+    source: .
+    rust-channel: stable
+    parse-info: [snap/app.rayadams.charactermap.metainfo.xml]
+    build-packages:
+      - pkg-config
+      - libgtk-4-dev
+      - libadwaita-1-dev
+      - gettext
+  
+  translations:
+    plugin: nil
+    source: po
+    build-packages:
+      - gettext
+    after: [charactermap]
+    override-build: |
+      for po_file in *.po; do
+        if [ -f "$po_file" ]; then
+          lang=$(basename "$po_file" .po)
+          locale_dir="$CRAFT_PART_INSTALL/usr/share/locale/$lang/LC_MESSAGES"
+          mkdir -p "$locale_dir"
+          msgfmt -o "$locale_dir/charactermap.mo" "$po_file"
+          echo "Compiled translation for $lang"
+        fi
+      done
+  
+  static-assets:
+    plugin: dump
+    source: assets
+    organize:
+      '*': assets/
