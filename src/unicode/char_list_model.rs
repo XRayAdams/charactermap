@@ -1,7 +1,6 @@
 // Copyright (c) 2026 Konstantin Adamov. Licensed under MIT.
 //
-// Custom `gio::ListModel` backed directly by the (small) list of unicode
-// block ranges
+// Custom `gio::ListModel` backed directly by unicode block ranges.
 use gtk4::{gio, glib, subclass::prelude::*};
 
 use super::UnicodeEntry;
@@ -139,9 +138,8 @@ glib::wrapper! {
 }
 
 impl UnicodeCharModel {
-    /// Builds a model for the given (already filtered) blocks, in order.
-    /// O(number of blocks), NOT O(number of characters) -- no codepoint is
-    /// ever enumerated at construction time, only counted analytically.
+    /// Builds a model for the given (already filtered) blocks. O(number of
+    /// blocks) -- no codepoint is enumerated at construction time.
     pub fn new(sections: &[UnicodeEntry]) -> Self {
         let model: Self = glib::Object::new();
 
@@ -231,9 +229,8 @@ mod tests {
         assert_eq!(displayable_count(0x0000, 0x0000), 0);
     }
 
-    /// Diagnostic: validate the analytical count/mapping against the real
-    /// production block list (no GTK/GObject involved -- pure logic), to
-    /// catch any real-data edge case a synthetic test might miss.
+    /// Validates the analytical count/mapping against the real production
+    /// block list to catch edge cases synthetic tests might miss.
     #[test]
     fn matches_brute_force_over_real_unicode_set() {
         let sections = crate::unicode::UnicodeSet::new().unicode_sections;

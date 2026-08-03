@@ -1,12 +1,8 @@
 // Copyright (c) 2026 Konstantin Adamov. Licensed under MIT.
 
-//! Look up official Unicode names for characters.
-//!
-//! Names come from a compact table generated from the Unicode Character
-//! Database (see `tools/generate_char_names.py` and `character_names_data.rs`).
-//! Directly assigned characters are looked up by binary search; algorithmically
-//! named ranges (CJK ideographs, Hangul syllables, ...) are derived on demand
-//! following the rules in the Unicode Standard.
+//! Look up official Unicode names for characters, from a table generated
+//! from the Unicode Character Database (see `tools/generate_char_names.py`).
+//! Algorithmic ranges (CJK ideographs, Hangul syllables) are derived on demand.
 
 use super::character_names_data::{NAMES, RANGES};
 
@@ -74,12 +70,8 @@ impl CharacterNames {
     }
 
     /// Finds up to `max_results` displayable characters within `sections`
-    /// whose name contains `query` (case-insensitive).
-    ///
-    /// This deliberately does NOT enumerate every codepoint in `sections`
-    /// (as naively calling `name()` per codepoint would) -- most of the
-    /// Unicode range is covered by a handful of huge algorithmically-named
-    /// `RANGES` (CJK ideographs, private use, ...)
+    /// whose name contains `query`. Avoids enumerating every codepoint by
+    /// checking named `RANGES` (CJK, private use, ...) by label instead.
     pub fn search(&self, query: &str, sections: &[UnicodeEntry], max_results: usize) -> Vec<char> {
         let query_lower = query.to_lowercase();
         let mut matches = Vec::new();
