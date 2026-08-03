@@ -1,6 +1,6 @@
 %define _name charactermap
 %define _version 1.1.3
-%define _release 4
+%define _release 5
 %define debug_package %{nil}
 
 Name: %{_name}
@@ -44,7 +44,7 @@ done
 install -D -m 644 %{SOURCE1} %{buildroot}/usr/share/applications/%{_name}.desktop
 
 # Copy the application icon
-install -D -m 644 %{SOURCE2} %{buildroot}/usr/share/icons/hicolor/256x256/apps/%{_name}.png
+install -D -m 644 %{SOURCE2} %{buildroot}/usr/share/icons/hicolor/512x512/apps/%{_name}.png
 
 # Copy meta info
 install -D -m 644 %{SOURCE3} %{buildroot}%{_datadir}/metainfo/%{name}.metainfo.xml
@@ -52,7 +52,7 @@ install -D -m 644 %{SOURCE3} %{buildroot}%{_datadir}/metainfo/%{name}.metainfo.x
 %{_bindir}/%{_name}
 /usr/share/locale/*/LC_MESSAGES/charactermap.mo
 /usr/share/applications/%{_name}.desktop
-/usr/share/icons/hicolor/256x256/apps/%{_name}.png
+/usr/share/icons/hicolor/512x512/apps/%{_name}.png
 %{_datadir}/metainfo/%{name}.metainfo.xml
 
 %changelog

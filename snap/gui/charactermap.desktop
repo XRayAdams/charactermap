@@ -1,5 +1,5 @@
 [Desktop Entry]
-Version=1.1.3+4
+Version=1.1.3+5
 Name=Character Map
 Name[de]=Zeichentabelle
 Name[fr]=Table des caractères
@@ -36,4 +36,4 @@ Categories=Utility;
 Keywords=Fonts, Font, Character, Character Map;
 Icon=${SNAP}/meta/gui/charactermap.png
 Exec=charactermap
-StartupWMClass=charactermap
+StartupWMClass=app.rayadams.charactermap
