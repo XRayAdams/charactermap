@@ -24,9 +24,7 @@ use crate::tr;
 use crate::unicode::{UnicodeEntry, UnicodeSet, raw_offset_to_filtered_index};
 use crate::widgets::{HelpAction, create_help_action};
 
-/// Caps how many characters a name search can display, so a very broad
-/// query (e.g. a common substring shared by thousands of CJK/algorithmic
-/// names) can't make the grid balloon to an unusable size.
+/// Caps how many characters a name search can display.
 const MAX_SEARCH_RESULTS: usize = 500;
 
 #[derive(Serialize, Deserialize)]
@@ -41,34 +39,24 @@ pub struct App {
     is_search_visible: bool,
     fonts: Vec<String>,
     render_font_preview: bool,
-    /// When on, the character grid only shows unicode blocks the selected font
-    /// actually covers; when off, all blocks are shown (which also makes font
-    /// switching much faster, as the grid model no longer changes).
+    /// When on, only shows unicode blocks the selected font covers.
     filter_unicode_pages: bool,
     font_list: Option<gtk::ListBox>,
     unicode_set: UnicodeSet,
     unicode_grid_view: Option<gtk::GridView>,
-    /// Mirrors `unicode_grid_view`, kept in sync wherever that field is
-    /// (re)assigned. The scroll-position handler (a plain GTK signal
-    /// closure, connected once in `init` and with no access to `self`) reads
-    /// the grid view through this shared cell instead of a stale captured
-    /// clone, so it keeps working after the REBUILD path replaces the grid
-    /// view widget.
+    /// Shared handle to `unicode_grid_view`, so signal closures stay valid
+    /// after the REBUILD path replaces the grid view widget.
     grid_view_handle: Rc<RefCell<Option<gtk::GridView>>>,
-    /// Parent of `unicode_grid_view`; the REBUILD path replaces the grid view
-    /// itself (not just its model) here, since GTK never shrinks a
-    /// `GtkGridView`'s recycled-widget pool back down after scrolling, and
-    /// swapping the model of the SAME view/selection object doesn't release
-    /// it either -- only dropping the widget instance does.
+    /// Parent of `unicode_grid_view`; the REBUILD path swaps the whole
+    /// widget here (see `replace_grid_view` for why).
     unicode_scroller: Option<gtk::ScrolledWindow>,
     /// The grid's native single-selection model; its inner store is swapped on
     /// font change. GTK draws the selection highlight and handles keyboard nav.
     unicode_selection: Option<gtk::SingleSelection>,
     unicode_set_list: Option<gtk::ListBox>,
     section_positions: HashMap<String, u32>,
-    /// Codepoint ranges of the blocks currently loaded into the grid model.
-    /// Lets us skip the expensive `set_model` rebuild when a font change
-    /// doesn't change which characters are shown (e.g. with filtering off).
+    /// Codepoint ranges currently loaded into the grid model, used to skip
+    /// rebuilding when a font change doesn't affect what's shown.
     displayed_ranges: Vec<(u32, u32)>,
     selected_character: Option<char>,
     hex_value: String,
@@ -78,9 +66,8 @@ pub struct App {
     /// cell; updated in place on font change so recycled cells pick it up.
     cell_attrs: Rc<RefCell<gtk4::pango::AttrList>>,
     char_label_attrs: Rc<RefCell<gtk4::pango::AttrList>>,
-    /// Flat-position -> unicode-block-description boundaries (sorted ascending
-    /// by start position), used to resolve the sticky "current block" header
-    /// from the top-visible cell during scrolling.
+    /// Flat-position -> unicode-block boundaries, used to resolve the
+    /// sticky "current block" header from the top-visible cell.
     block_boundaries: Rc<RefCell<Vec<(u32, String)>>>,
     sticky_header: Option<gtk::Label>,
     character_names: CharacterNames,
@@ -91,9 +78,8 @@ pub struct App {
     /// Whether the character grid is currently showing name-search results
     /// instead of the normal font-filtered blocks.
     is_showing_search_results: bool,
-    /// Snapshot of the last-built browse (non-search) grid model plus the
-    /// state it goes with, so leaving search can restore it instantly
-    /// instead of recomputing font coverage and rebuilding everything.
+    /// Cached browse-grid model/state, so leaving search restores it
+    /// instantly instead of recomputing everything.
     browse_store: Option<gio::ListModel>,
     browse_section_positions: HashMap<String, u32>,
     browse_block_boundaries: Vec<(u32, String)>,
@@ -118,10 +104,8 @@ pub enum Messages {
     SearchChanged(String),
 }
 
-/// Wires up "selecting a cell updates the character preview" on a grid
-/// selection model. Pulled out so a freshly-recreated `SingleSelection` (see
-/// the REBUILD path in `refresh_unicode_sections`) can be wired the same way
-/// as the one built in `init`.
+/// Wires "selecting a cell updates the character preview" on a grid
+/// selection model (reused for freshly-rebuilt selections).
 fn connect_grid_selection_changed(selection: &gtk::SingleSelection, sender: ComponentSender<App>) {
     selection.connect_selection_changed(move |selection, _, _| {
         if let Some(ch) = selection
@@ -134,10 +118,8 @@ fn connect_grid_selection_changed(selection: &gtk::SingleSelection, sender: Comp
     });
 }
 
-/// Builds a fresh, freshly-configured character `GridView` (mirrors the one
-/// declared in the `view!` macro), so the REBUILD path in
-/// `refresh_unicode_sections` can replace the whole widget rather than just
-/// its model -- see the doc comment on `App::unicode_scroller`.
+/// Builds a fresh character `GridView` (mirrors the one in `view!`), used
+/// by the REBUILD path to replace the whole widget, not just its model.
 fn build_unicode_grid_view(sender: ComponentSender<App>) -> gtk::GridView {
     let grid_view = gtk::GridView::builder()
         .min_columns(1)
@@ -203,10 +185,8 @@ impl App {
         let Some(font_list) = self.font_list.clone() else {
             return;
         };
-        // Any call to this function means "show the normal font-filtered
-        // grid" -- if search results were showing, force the model rebuild
-        // below even if the filtered block ranges themselves haven't changed
-        // (they may legitimately be identical to before search started).
+        // Force a rebuild if search results were showing, even if the
+        // filtered ranges themselves are unchanged.
         let restoring_from_search = self.is_showing_search_results;
         self.is_showing_search_results = false;
 
@@ -244,10 +224,8 @@ impl App {
         *self.char_label_attrs.borrow_mut() = font_attr_list(&font_name, Some(LABEL_FONT_SIZE));
 
         if let Some(mut grid_view) = self.unicode_grid_view.clone() {
-            // Positions/boundaries mirror the model order (covered blocks in
-            // ascending order, each contributing its non-control chars).
-            // Update them BEFORE swapping the model so the factory's `bind`
-            // callback resolves the correct block for every cell.
+            // Update positions/boundaries BEFORE swapping the model so the
+            // factory's `bind` callback resolves the correct block.
             let (positions, boundaries) =
                 compute_positions_boundaries(&self.unicode_set.filtered_unicode_sections);
 
@@ -265,13 +243,8 @@ impl App {
             self.browse_block_boundaries = self.block_boundaries.borrow().clone();
             self.browse_header = first_block.clone();
 
-            // Rebuilding the grid (`set_model`) re-realizes every cell and
-            // costs time proportional to the number of characters shown, so it
-            // is only worth doing when the visible set of characters actually
-            // changes. With filtering off (and between two fonts of identical
-            // coverage) the character set is unchanged, so we skip the rebuild
-            // entirely and just repaint the already-realized cells in the new
-            // font — making those switches near-instant.
+            // Only rebuild when the visible character set actually changes;
+            // otherwise just repaint realized cells in the new font.
             let new_ranges: Vec<(u32, u32)> = self
                 .unicode_set
                 .filtered_unicode_sections
@@ -330,12 +303,9 @@ impl App {
         }
     }
 
-    /// Swaps in a new grid model by replacing the whole `GridView` widget,
-    /// not just its model -- GTK never shrinks a `GtkGridView`'s recycled-
-    /// widget pool back down once it's grown from scrolling, and swapping
-    /// the model of the SAME view/selection doesn't release it either, only
-    /// dropping the widget instance does. Used for font changes as well as
-    /// entering/leaving search, since both replace what the grid displays.
+    /// Swaps in a new grid model by replacing the whole `GridView` widget
+    /// (GTK never shrinks a grown recycled-widget pool otherwise). Used for
+    /// font changes and entering/leaving search.
     fn replace_grid_view(&mut self, model: gio::ListModel, sender: &ComponentSender<Self>) {
         let Some(scroller) = self.unicode_scroller.clone() else {
             return;
@@ -369,12 +339,9 @@ impl App {
             return;
         };
 
-        // Align the block to the TOP of the viewport rather than using
-        // `scroll_to` (which only scrolls the item just into view, landing it at
-        // the bottom edge). The sticky header tracks the top row, so the target
-        // block must be at the top for the header to agree. The column count and
-        // row pitch are MEASURED from the realized cells (GridView adds its own
-        // spacing, so they can't be derived from CELL_SIZE).
+        // Align the block to the viewport TOP (not just scrolled into view)
+        // so the sticky header agrees. Column count/row pitch are measured
+        // from realized cells, not derived from CELL_SIZE.
         if let Some(vadjustment) = grid_view.vadjustment() {
             let (columns, row_pitch) = grid_geometry(grid_view).unwrap_or_else(|| {
                 (
@@ -388,9 +355,8 @@ impl App {
             vadjustment.set_value(target.clamp(vadjustment.lower(), max));
         }
 
-        // The scroll-driven header update reads the realized cells' positions,
-        // which aren't updated yet at the jump target, so set the header
-        // directly to the block we just jumped to for immediate feedback.
+        // Set the header directly for immediate feedback; realized cells
+        // haven't updated their positions yet at the jump target.
         if let Some(header) = &self.sticky_header {
             header.set_label(description);
         }
@@ -435,10 +401,8 @@ impl App {
         }
     }
 
-    /// Switches the character grid to show every displayable character
-    /// (within the currently filtered/font-covered unicode blocks) whose
-    /// name contains `query` (case-insensitive). Scans at most
-    /// `MAX_SEARCH_RESULTS` matches.
+    /// Switches the grid to show displayable characters (within the current
+    /// filtered/covered blocks) whose name matches `query`.
     fn refresh_search_results(&mut self, query: &str, sender: &ComponentSender<Self>) {
         let matches = self.character_names.search(
             query,
@@ -473,11 +437,8 @@ impl App {
         }
     }
 
-    /// Re-runs the active name search (if any) against the current
-    /// `filtered_unicode_sections` -- used after the font or the "filter
-    /// unicode pages" setting changes, both of which can change which
-    /// characters are covered, so a search box left open must be refreshed
-    /// rather than silently reverting to the browse grid mid-query.
+    /// Re-runs the active name search after a font or filter change, since
+    /// those can change which characters are covered.
     fn rerun_search_if_active(&mut self, sender: &ComponentSender<Self>) {
         if !self.is_search_visible {
             return;
@@ -492,12 +453,8 @@ impl App {
         }
     }
 
-    /// Restores the grid to whatever was showing before search started.
-    /// The cached browse model/positions/boundaries are still exactly what
-    /// they were, since search never mutates them, but showing that model
-    /// again still means replacing the whole `GridView` (see
-    /// `replace_grid_view`) -- reusing the search's `GridView` instance would
-    /// carry over its bloated recycled-widget pool from scrolling.
+    /// Restores the grid to what was showing before search, replacing the
+    /// widget so search's bloated recycled-widget pool isn't reused.
     fn restore_browse_grid(&mut self, sender: &ComponentSender<Self>) {
         if !self.is_showing_search_results {
             return;
@@ -1043,9 +1000,8 @@ impl SimpleComponent for App {
             build_unicode_grid_factory(model.cell_attrs.clone(), model.block_boundaries.clone());
         widgets.unicode_grid_view.set_factory(Some(&grid_factory));
 
-        // Use GTK's native single-selection: the GridView highlights the
-        // selected cell and handles keyboard navigation itself. The store is
-        // (re)built and swapped in by `refresh_unicode_sections` on font change.
+        // GTK's native single-selection highlights the cell and handles
+        // keyboard nav; the store is swapped in on font change.
         let selection = gtk::SingleSelection::new(None::<gio::ListStore>);
         selection.set_autoselect(false);
         selection.set_can_unselect(true);
@@ -1119,12 +1075,9 @@ impl SimpleComponent for App {
             }
         });
 
-        // Type-ahead: while the font list has keyboard focus, typing letters
-        // accumulates a prefix and jumps the selection to the first (visible)
-        // row starting with it. The prefix resets after a short pause between
-        // keystrokes (so typing "arial" quickly narrows down to "Arial"
-        // instead of restarting on every letter), or immediately if the
-        // selection changes some other way (e.g. clicking a different row).
+        // Type-ahead: typing while the font list has focus accumulates a
+        // prefix and jumps to the first matching row; the prefix resets
+        // after a pause or on any other selection change.
         let type_ahead_buffer = Rc::new(RefCell::new(String::new()));
         let type_ahead_reset: Rc<RefCell<Option<glib::SourceId>>> = Rc::new(RefCell::new(None));
         // Set for the duration of the `select_row` call inside the type-ahead
@@ -1140,11 +1093,8 @@ impl SimpleComponent for App {
                 if selecting.get() {
                     return;
                 }
-                // The selection changed for a reason other than our own
-                // type-ahead jump (e.g. a mouse click) -- start the next
-                // search from scratch. Only cancel the timeout if it hasn't
-                // already fired (it clears itself to `None` when it does),
-                // since removing an already-fired source panics.
+                // Selection changed for a reason other than our type-ahead
+                // jump -- reset the search prefix.
                 if let Some(source) = reset_source.borrow_mut().take() {
                     source.remove();
                 }
@@ -1159,9 +1109,8 @@ impl SimpleComponent for App {
             let reset_source = type_ahead_reset.clone();
             let selecting = type_ahead_selecting.clone();
             move |_, keyval, _keycode, state| {
-                // Let modified keys (Ctrl/Alt) and non-printable keys (arrows,
-                // Tab, Enter, Backspace, ...) fall through to normal handling
-                // instead of being captured as search text.
+                // Let modified/non-printable keys fall through to normal
+                // handling instead of being captured as search text.
                 if state.intersects(
                     gtk4::gdk::ModifierType::CONTROL_MASK | gtk4::gdk::ModifierType::ALT_MASK,
                 ) {
@@ -1171,9 +1120,7 @@ impl SimpleComponent for App {
                     return glib::Propagation::Proceed;
                 };
 
-                // Cancel the pending reset only if it hasn't already fired
-                // (it clears itself to `None` when it does, since removing an
-                // already-fired/self source panics).
+                // Cancel the pending reset if it hasn't already fired.
                 if let Some(source) = reset_source.borrow_mut().take() {
                     source.remove();
                 }
@@ -1187,9 +1134,7 @@ impl SimpleComponent for App {
                         let reset_source = reset_source.clone();
                         move || {
                             buffer.borrow_mut().clear();
-                            // The source has now fired (and GLib has already
-                            // removed it); forget it so a later keystroke
-                            // doesn't try to remove it again and panic.
+                            // Already fired/removed by GLib; forget it.
                             *reset_source.borrow_mut() = None;
                         }
                     },
@@ -1244,9 +1189,7 @@ impl SimpleComponent for App {
                 self.refresh_unicode_sections(&sender);
                 self.update_character_preview();
 
-                // A name search was active: re-run it under the new font
-                // instead of silently reverting to the browse grid while
-                // the search box still shows the query.
+                // Re-run an active search under the new font.
                 self.rerun_search_if_active(&sender);
 
                 // Clear the grid's visual selection highlight

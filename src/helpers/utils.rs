@@ -73,13 +73,9 @@ pub fn collect_cell_labels(widget: &gtk4::Widget, out: &mut Vec<gtk4::Inscriptio
 }
 
 
-/// Updates the sticky "current block" header to the unicode block that owns
-/// the top-most currently-visible grid cell.
-///
-/// `GtkGridView` implements `GtkScrollable`, so it is allocated only the
-/// viewport size and positions its realized children relative to the visible
-/// area — the top edge of the viewport is therefore always `y == 0` in the
-/// grid view's own coordinate space (it is NOT the absolute scroll offset).
+/// Updates the sticky "current block" header to the block that owns the
+/// top-most visible grid cell. `GridView`'s own coordinate space always has
+/// `y == 0` at the viewport top, not the absolute scroll offset.
 pub fn update_sticky_header(
     grid_view: &gtk4::GridView,
     boundaries: &[(u32, String)],
@@ -92,19 +88,10 @@ pub fn update_sticky_header(
     let mut labels = Vec::new();
     collect_cell_labels(grid_view.upcast_ref::<gtk4::Widget>(), &mut labels);
 
-    // The GridView scrolls its own children, so `compute_point` returns each
-    // cell's y RELATIVE TO THE VISIBLE VIEWPORT (top edge = 0). Find the
-    // geometrically TOP-MOST cell that is at least half visible and use its
-    // model position to resolve the block.
-    //
-    // Two pitfalls are guarded against here:
-    //  * GridView keeps a pool of recycled, *unmapped* cell widgets in its
-    //    widget tree; those report stale positions and bogus (0,0) coordinates.
-    //    They must be skipped or they hijack the result and show a wrong,
-    //    far-earlier block. Hence the `is_mapped()` and viewport-bounds checks.
-    //  * Selecting by geometry (smallest y) rather than smallest position
-    //    avoids a partially-scrolled-off row (smaller position, above the top)
-    //    winning and dragging the header back to the previous block.
+    // Find the geometrically top-most, at-least-half-visible realized cell
+    // and use its model position to resolve the block. Skip unmapped
+    // (recycled/pooled) cells, and break ties by smallest position, so a
+    // block boundary straddling a row resolves deterministically.
     let viewport_height = grid_view.height() as f32;
     let mut best: Option<(f32, u32)> = None;
 
@@ -121,9 +108,8 @@ pub fn update_sticky_header(
         let y = point.y();
         let height = label.height() as f32;
 
-        // Must be at least half visible from the top (a row almost fully
-        // scrolled off can't win) and actually inside the viewport, not in the
-        // bottom recycling buffer.
+        // Must be at least half visible and inside the viewport (not in the
+        // bottom recycling buffer).
         if y + height * 0.5 <= 0.0 || y >= viewport_height {
             continue;
         }
@@ -134,9 +120,7 @@ pub fn update_sticky_header(
             continue;
         };
 
-        // Pick the top-most cell (smallest y); on ties within the same row,
-        // prefer the left-most (smallest position) so a block boundary that
-        // straddles a row resolves deterministically.
+        // Pick the top-most cell; ties within a row prefer the left-most.
         let replace = match best {
             None => true,
             Some((best_y, best_pos)) => {
@@ -157,12 +141,9 @@ pub fn update_sticky_header(
 }
 
 
-/// Measures the character grid's ACTUAL layout from its currently-realized
-/// cells: the number of columns and the row pitch (vertical distance between
-/// consecutive rows, in px). `GtkGridView` derives its column count and adds
-/// inter-cell spacing itself, so neither can be reliably guessed from
-/// `CELL_SIZE` — they must be read back from real cell geometry. Returns
-/// `None` if too few cells are realized to measure.
+/// Measures the grid's actual column count and row pitch (px) from its
+/// realized cells, since `GtkGridView` computes both itself. Returns `None`
+/// if too few cells are realized to measure.
 pub fn grid_geometry(grid_view: &gtk4::GridView) -> Option<(u32, f64)> {
     let mut cells = Vec::new();
     collect_cell_labels(grid_view.upcast_ref(), &mut cells);
@@ -218,11 +199,8 @@ pub fn grid_geometry(grid_view: &gtk4::GridView) -> Option<(u32, f64)> {
 
 
 
-/// Builds the character grid's flat data store for the given (filtered)
-/// blocks: a lazy `UnicodeCharModel` that resolves each displayable codepoint
-/// on demand instead of eagerly allocating a `GtkStringObject` for all of
-/// them up front. Swapped into the grid's `SingleSelection` on every font
-/// change.
+/// Builds the grid's flat data store: a lazy `UnicodeCharModel` that
+/// resolves codepoints on demand instead of eager allocation.
 pub fn build_unicode_store(sections: &[UnicodeEntry]) -> UnicodeCharModel {
     UnicodeCharModel::new(sections)
 }
@@ -240,11 +218,8 @@ pub fn build_search_result_store(chars: &[char]) -> gio::ListStore {
     store
 }
 
-/// Computes, for the given (filtered) blocks, a map of block description ->
-/// flat start position and the sorted list of flat start-position -> block
-/// description boundaries. These mirror the filtered order in the grid (covered
-/// blocks in ascending order, each contributing its non-control chars) and are
-/// derived purely from the section list, without touching the model.
+/// Computes block description -> flat start position, and the sorted list
+/// of flat-position -> block boundaries, mirroring the grid's model order.
 pub fn compute_positions_boundaries(
     sections: &[UnicodeEntry],
 ) -> (HashMap<String, u32>, Vec<(u32, String)>) {
@@ -267,10 +242,8 @@ pub fn compute_positions_boundaries(
     (positions, boundaries)
 }
 
-/// Builds the (created-once, reused-forever) factory that renders each grid
-/// cell as a single fixed-size character `Label`. `GtkGridView` handles the
-/// column layout and virtualization; each cell just shows one character in
-/// the currently selected font (via the shared `cell_attrs`).
+/// Builds the factory that renders each grid cell as a fixed-size character
+/// label in the currently selected font (via the shared `cell_attrs`).
 pub fn build_unicode_grid_factory(
     cell_attrs: Rc<RefCell<gtk4::pango::AttrList>>,
     block_boundaries: Rc<RefCell<Vec<(u32, String)>>>,
@@ -282,13 +255,9 @@ pub fn build_unicode_grid_factory(
             return;
         };
 
-        // GtkInscription (not GtkLabel) renders text in a FIXED area and
-        // never resizes to its content. GtkGridView sizes every cell to the
-        // largest natural size among realized cells, so a Label whose glyph
-        // is wider/taller than CELL_SIZE (color emoji, CJK, fallback fonts)
-        // would make every cell grow and the columns reflow while
-        // scrolling. Pinning nat-chars/nat-lines to 1 keeps the natural
-        // size below the CELL_SIZE request, so all cells stay CELL_SIZE.
+        // GtkInscription (not GtkLabel) has a fixed render area and never
+        // resizes to glyph content, preventing columns from reflowing when
+        // wide glyphs (emoji, CJK) are realized.
         let label = gtk4::Inscription::builder()
             .width_request(CELL_SIZE)
             .height_request(CELL_SIZE)
@@ -336,9 +305,8 @@ pub fn build_unicode_grid_factory(
             label.set_data::<u32>(CELL_POSITION_KEY, position);
         }
 
-        // Shade cells by their unicode block's parity so adjacent blocks are
-        // visually distinguishable (bands can change mid-row where a block
-        // starts, since blocks aren't row-aligned in a flat grid).
+        // Shade cells by block parity so adjacent blocks are visually
+        // distinguishable (bands can change mid-row).
         let block_alt = {
             let boundaries = block_boundaries.borrow();
             boundaries
@@ -358,4 +326,3 @@ pub fn build_unicode_grid_factory(
 
     factory
 }
-
