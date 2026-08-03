@@ -1,4 +1,4 @@
-A character map / special-characters viewer for Linux.
+A character map and special-characters viewer for Linux, helping you browse installed fonts and quickly find any character you need.
 
 * Browse installed fonts and see which Unicode blocks each one supports
 * Filter Unicode blocks to only those a font actually covers

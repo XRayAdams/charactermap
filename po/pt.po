@@ -7,10 +7,10 @@ msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
 "POT-Creation-Date: 2026-08-01 20:27-0700\n"
-"PO-Revision-Date: 2026-08-01 19:23-0700\n"
+"PO-Revision-Date: 2026-08-02 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
-"Language: es\n"
+"Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,31 +19,31 @@ msgstr ""
 #: src/app.rs:384
 #, rust-format
 msgid "Search results ({})"
-msgstr "Resultados de búsqueda ({})"
+msgstr "Resultados da pesquisa ({})"
 
 #: src/app.rs:452
 msgid "_Help"
-msgstr "A_yuda"
+msgstr "_Ajuda"
 
 #: src/app.rs:453
 msgid "_About"
-msgstr "_Acerca de"
+msgstr "_Sobre"
 
 #: src/app.rs:477
 msgid "Fonts"
-msgstr "Fuentes"
+msgstr "Fontes"
 
 #: src/app.rs:497
 msgid "Search fonts…"
-msgstr "Buscar fuentes…"
+msgstr "Pesquisar fontes…"
 
 #: src/app.rs:509
 msgid "Show plain font names"
-msgstr "Mostrar nombres de fuente sin formato"
+msgstr "Mostrar nomes de fontes simples"
 
 #: src/app.rs:522
 msgid "Preview names using each font"
-msgstr "Previsualizar los nombres usando cada fuente"
+msgstr "Pré-visualizar nomes usando cada fonte"
 
 #: src/app.rs:567
 msgid "Filter Unicode pages"
@@ -51,23 +51,23 @@ msgstr "Filtrar páginas Unicode"
 
 #: src/app.rs:574
 msgid "Show only Unicode blocks the selected font supports"
-msgstr "Mostrar solo los bloques Unicode admitidos por la fuente seleccionada"
+msgstr "Mostrar apenas os blocos Unicode suportados pela fonte selecionada"
 
 #: src/app.rs:596
 msgid "Single letter or character name"
-msgstr "Una sola letra o nombre de carácter"
+msgstr "Uma única letra ou nome de caractere"
 
 #: src/app.rs:688
 msgid "Character Information"
-msgstr "Información del carácter"
+msgstr "Informação do caractere"
 
 #: src/app.rs:704
 msgid "Jump to Unicode Set"
-msgstr "Ir a un conjunto Unicode"
+msgstr "Ir para um conjunto Unicode"
 
 #: src/app.rs:732
 msgid "double click character to add here"
-msgstr "haz doble clic en un carácter para añadirlo aquí"
+msgstr "clique duas vezes no caractere para adicioná-lo aqui"
 
 #: src/app.rs:757
 msgid "Hex:"
@@ -75,7 +75,7 @@ msgstr "Hex:"
 
 #: src/app.rs:775 src/app.rs:808
 msgid "Find"
-msgstr "Buscar"
+msgstr "Localizar"
 
 #: src/app.rs:790
 msgid "Dec:"
@@ -83,65 +83,66 @@ msgstr "Dec:"
 
 #: src/widgets/help_dialog.rs:25
 msgid "Font List"
-msgstr "Lista de fuentes"
+msgstr "Lista de fontes"
 
 #: src/widgets/help_dialog.rs:27 src/widgets/help_dialog.rs:34
 msgid "Use the arrow keys to move the selection."
-msgstr "Usa las teclas de flecha para mover la selección."
+msgstr "Use as teclas de seta para mover a seleção."
 
 #: src/widgets/help_dialog.rs:28
 msgid "Start typing to find a font by name."
-msgstr "Empieza a escribir para buscar una fuente por su nombre."
+msgstr "Comece a digitar para encontrar uma fonte pelo nome."
 
 #: src/widgets/help_dialog.rs:32
 msgid "Grid"
-msgstr "Cuadrícula"
+msgstr "Grade"
 
 #: src/widgets/help_dialog.rs:35
 msgid ""
 "Double-click, or press Enter, to add the selected character to the "
 "collection box."
 msgstr ""
-"Haz doble clic, o pulsa Intro, para añadir el carácter seleccionado al "
-"cuadro de recopilación."
+"Clique duas vezes, ou pressione Enter, para adicionar o caractere "
+"selecionado à caixa de coleta."
 
 #: src/widgets/help_dialog.rs:36
 msgid ""
 "If a character is not present in the selected font, it will be shown as a "
 "tofu box."
 msgstr ""
-"Si un carácter no está presente en la fuente seleccionada, se mostrará como "
-"un cuadro tofu."
+"Se um caractere não estiver presente na fonte selecionada, ele será "
+"exibido como uma caixa tofu."
 
 #: src/widgets/help_dialog.rs:40
 msgid "Hex and Dec Entries"
-msgstr "Campos hexadecimal y decimal"
+msgstr "Campos hexadecimal e decimal"
 
 #: src/widgets/help_dialog.rs:41
 msgid ""
 "Enter a hex value, a decimal value, or a character, then press Enter to find "
 "it."
 msgstr ""
-"Introduce un valor hexadecimal, un valor decimal o un carácter, y pulsa "
-"Intro para encontrarlo."
+"Digite um valor hexadecimal, um valor decimal ou um caractere e pressione "
+"Enter para encontrá-lo."
 
 #: src/widgets/help_dialog.rs:44
 msgid "Search"
-msgstr "Buscar"
+msgstr "Pesquisar"
 
 #: src/widgets/help_dialog.rs:46
 msgid "Click the search icon to open the search bar."
-msgstr "Haz clic en el icono de búsqueda para abrir la barra de búsqueda."
+msgstr "Clique no ícone de pesquisa para abrir a barra de pesquisa."
 
 #: src/widgets/help_dialog.rs:47
 msgid "Type a character's name to find every character whose name contains it."
 msgstr ""
-"Escribe el nombre de un carácter para encontrar todos los que lo contengan."
+"Digite o nome de um caractere para encontrar todos os caracteres cujo nome "
+"o contenha."
 
 #: src/widgets/help_dialog.rs:48
 msgid "Type, or paste, a single character to find it directly."
-msgstr "Escribe o pega un solo carácter para encontrarlo directamente."
+msgstr "Digite, ou cole, um único caractere para encontrá-lo diretamente."
 
 #: src/widgets/help_dialog.rs:87
 msgid "Help"
-msgstr "Ayuda"
+msgstr "Ajuda"

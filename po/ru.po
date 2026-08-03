@@ -7,141 +7,141 @@ msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
 "POT-Creation-Date: 2026-08-01 20:27-0700\n"
-"PO-Revision-Date: 2026-08-01 19:23-0700\n"
+"PO-Revision-Date: 2026-08-02 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
-"Language: es\n"
+"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: src/app.rs:384
 #, rust-format
 msgid "Search results ({})"
-msgstr "Resultados de búsqueda ({})"
+msgstr "Результаты поиска ({})"
 
 #: src/app.rs:452
 msgid "_Help"
-msgstr "A_yuda"
+msgstr "_Справка"
 
 #: src/app.rs:453
 msgid "_About"
-msgstr "_Acerca de"
+msgstr "_О программе"
 
 #: src/app.rs:477
 msgid "Fonts"
-msgstr "Fuentes"
+msgstr "Шрифты"
 
 #: src/app.rs:497
 msgid "Search fonts…"
-msgstr "Buscar fuentes…"
+msgstr "Поиск шрифтов…"
 
 #: src/app.rs:509
 msgid "Show plain font names"
-msgstr "Mostrar nombres de fuente sin formato"
+msgstr "Показывать обычные названия шрифтов"
 
 #: src/app.rs:522
 msgid "Preview names using each font"
-msgstr "Previsualizar los nombres usando cada fuente"
+msgstr "Предпросмотр названий с использованием каждого шрифта"
 
 #: src/app.rs:567
 msgid "Filter Unicode pages"
-msgstr "Filtrar páginas Unicode"
+msgstr "Фильтровать страницы Юникода"
 
 #: src/app.rs:574
 msgid "Show only Unicode blocks the selected font supports"
-msgstr "Mostrar solo los bloques Unicode admitidos por la fuente seleccionada"
+msgstr "Показывать только блоки Юникода, поддерживаемые выбранным шрифтом"
 
 #: src/app.rs:596
 msgid "Single letter or character name"
-msgstr "Una sola letra o nombre de carácter"
+msgstr "Одна буква или имя символа"
 
 #: src/app.rs:688
 msgid "Character Information"
-msgstr "Información del carácter"
+msgstr "Информация о символе"
 
 #: src/app.rs:704
 msgid "Jump to Unicode Set"
-msgstr "Ir a un conjunto Unicode"
+msgstr "Перейти к набору Юникода"
 
 #: src/app.rs:732
 msgid "double click character to add here"
-msgstr "haz doble clic en un carácter para añadirlo aquí"
+msgstr "дважды щёлкните символ, чтобы добавить его сюда"
 
 #: src/app.rs:757
 msgid "Hex:"
-msgstr "Hex:"
+msgstr "Шестн.:"
 
 #: src/app.rs:775 src/app.rs:808
 msgid "Find"
-msgstr "Buscar"
+msgstr "Найти"
 
 #: src/app.rs:790
 msgid "Dec:"
-msgstr "Dec:"
+msgstr "Дес.:"
 
 #: src/widgets/help_dialog.rs:25
 msgid "Font List"
-msgstr "Lista de fuentes"
+msgstr "Список шрифтов"
 
 #: src/widgets/help_dialog.rs:27 src/widgets/help_dialog.rs:34
 msgid "Use the arrow keys to move the selection."
-msgstr "Usa las teclas de flecha para mover la selección."
+msgstr "Используйте клавиши со стрелками для перемещения выделения."
 
 #: src/widgets/help_dialog.rs:28
 msgid "Start typing to find a font by name."
-msgstr "Empieza a escribir para buscar una fuente por su nombre."
+msgstr "Начните вводить текст, чтобы найти шрифт по названию."
 
 #: src/widgets/help_dialog.rs:32
 msgid "Grid"
-msgstr "Cuadrícula"
+msgstr "Сетка"
 
 #: src/widgets/help_dialog.rs:35
 msgid ""
 "Double-click, or press Enter, to add the selected character to the "
 "collection box."
 msgstr ""
-"Haz doble clic, o pulsa Intro, para añadir el carácter seleccionado al "
-"cuadro de recopilación."
+"Дважды щёлкните или нажмите Enter, чтобы добавить выбранный символ в поле "
+"сбора."
 
 #: src/widgets/help_dialog.rs:36
 msgid ""
 "If a character is not present in the selected font, it will be shown as a "
 "tofu box."
 msgstr ""
-"Si un carácter no está presente en la fuente seleccionada, se mostrará como "
-"un cuadro tofu."
+"Если символ отсутствует в выбранном шрифте, он будет показан как пустой "
+"прямоугольник (тофу)."
 
 #: src/widgets/help_dialog.rs:40
 msgid "Hex and Dec Entries"
-msgstr "Campos hexadecimal y decimal"
+msgstr "Шестнадцатеричное и десятичное поля"
 
 #: src/widgets/help_dialog.rs:41
 msgid ""
 "Enter a hex value, a decimal value, or a character, then press Enter to find "
 "it."
 msgstr ""
-"Introduce un valor hexadecimal, un valor decimal o un carácter, y pulsa "
-"Intro para encontrarlo."
+"Введите шестнадцатеричное значение, десятичное значение или символ, затем "
+"нажмите Enter, чтобы найти его."
 
 #: src/widgets/help_dialog.rs:44
 msgid "Search"
-msgstr "Buscar"
+msgstr "Поиск"
 
 #: src/widgets/help_dialog.rs:46
 msgid "Click the search icon to open the search bar."
-msgstr "Haz clic en el icono de búsqueda para abrir la barra de búsqueda."
+msgstr "Нажмите на значок поиска, чтобы открыть панель поиска."
 
 #: src/widgets/help_dialog.rs:47
 msgid "Type a character's name to find every character whose name contains it."
 msgstr ""
-"Escribe el nombre de un carácter para encontrar todos los que lo contengan."
+"Введите имя символа, чтобы найти все символы, имя которых его содержит."
 
 #: src/widgets/help_dialog.rs:48
 msgid "Type, or paste, a single character to find it directly."
-msgstr "Escribe o pega un solo carácter para encontrarlo directamente."
+msgstr "Введите или вставьте один символ, чтобы найти его напрямую."
 
 #: src/widgets/help_dialog.rs:87
 msgid "Help"
-msgstr "Ayuda"
+msgstr "Справка"

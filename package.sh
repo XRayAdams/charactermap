@@ -16,8 +16,8 @@ elif [ "$MACHINE_ARCH" == "x86_64" ]; then
 fi
 
 # Clean and build app in release mode
-#cargo clean
-#cargo build --release
+cargo clean
+cargo build --release
 
 APP_NAME=$(grep -E '^\s*name = ' "$CARGO_FILE" | head -n1 | cut -d ' ' -f 3 | tr -d '"')
 APP_VERSION_LONG=$(grep -E '^\s*version = ' "$CARGO_FILE" | head -n1 | cut -d ' ' -f 3 | tr -d '"')
