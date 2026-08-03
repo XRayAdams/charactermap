@@ -1,12 +1,12 @@
 %define _name charactermap
-%define _version 1.1.0
-%define _release 1
+%define _version 1.1.3
+%define _release 4
 %define debug_package %{nil}
 
 Name: %{_name}
 Version: %{_version}
 Release: %{_release}
-Summary: Lorem Ipsum Generator
+Summary: Character Map
 License: MIT
 Group: Applications/Utilities
 URL: https://github.com/XRayAdams/charactermap
@@ -21,7 +21,7 @@ Source3: app.rayadams.charactermap.metainfo.xml
 Requires: gtk4, libadwaita, libstdc++
 
 %description
-A simple and free utility to generate standard Lorem Ipsum text
+A character map and special-characters viewer for Linux, helping you browse installed fonts and quickly find any character you need.
 
 %prep
 %setup -q -n release
