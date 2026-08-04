@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-08-01 20:27-0700\n"
+"POT-Creation-Date: 2026-08-03 19:04-0700\n"
 "PO-Revision-Date: 2026-08-02 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,70 +16,74 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: src/app.rs:384
+#: src/app.rs:433
 #, rust-format
 msgid "Search results ({})"
 msgstr "Arama sonuçları ({})"
 
-#: src/app.rs:452
+#: src/app.rs:501
 msgid "_Help"
 msgstr "_Yardım"
 
-#: src/app.rs:453
+#: src/app.rs:502
 msgid "_About"
 msgstr "_Hakkında"
 
-#: src/app.rs:477
+#: src/app.rs:526
 msgid "Fonts"
 msgstr "Yazı Tipleri"
 
-#: src/app.rs:497
+#: src/app.rs:546
 msgid "Search fonts…"
 msgstr "Yazı tiplerinde ara…"
 
-#: src/app.rs:509
+#: src/app.rs:558
 msgid "Show plain font names"
 msgstr "Düz yazı tipi adlarını göster"
 
-#: src/app.rs:522
+#: src/app.rs:571
 msgid "Preview names using each font"
 msgstr "Adları her yazı tipiyle önizle"
 
-#: src/app.rs:567
+#: src/app.rs:616
 msgid "Filter Unicode pages"
 msgstr "Unicode sayfalarını filtrele"
 
-#: src/app.rs:574
+#: src/app.rs:623
 msgid "Show only Unicode blocks the selected font supports"
 msgstr "Yalnızca seçili yazı tipinin desteklediği Unicode bloklarını göster"
 
-#: src/app.rs:596
+#: src/app.rs:645
 msgid "Single letter or character name"
 msgstr "Tek harf veya karakter adı"
 
-#: src/app.rs:688
+#: src/app.rs:734
 msgid "Character Information"
 msgstr "Karakter Bilgisi"
 
-#: src/app.rs:704
+#: src/app.rs:750
 msgid "Jump to Unicode Set"
 msgstr "Unicode Kümesine Git"
 
-#: src/app.rs:732
+#: src/app.rs:778
 msgid "double click character to add here"
 msgstr "buraya eklemek için karaktere çift tıklayın"
 
-#: src/app.rs:757
+#: src/app.rs:803
 msgid "Hex:"
 msgstr "Onaltılık:"
 
-#: src/app.rs:775 src/app.rs:808
+#: src/app.rs:821 src/app.rs:854
 msgid "Find"
 msgstr "Bul"
 
-#: src/app.rs:790
+#: src/app.rs:836
 msgid "Dec:"
 msgstr "Ondalık:"
+
+#: src/app.rs:1203
+msgid "Copied to clipboard"
+msgstr "Panoya kopyalandı"
 
 #: src/widgets/help_dialog.rs:25
 msgid "Font List"
@@ -106,42 +110,45 @@ msgstr ""
 "tuşuna basın."
 
 #: src/widgets/help_dialog.rs:36
+msgid "Press Ctrl+C to copy the selected character to the clipboard."
+msgstr "Seçili karakteri panoya kopyalamak için Ctrl+C tuşlarına basın."
+
+#: src/widgets/help_dialog.rs:37
 msgid ""
 "If a character is not present in the selected font, it will be shown as a "
 "tofu box."
-msgstr ""
-"Bir karakter seçili yazı tipinde yoksa, tofu kutusu olarak gösterilir."
+msgstr "Bir karakter seçili yazı tipinde yoksa, tofu kutusu olarak gösterilir."
 
-#: src/widgets/help_dialog.rs:40
+#: src/widgets/help_dialog.rs:41
 msgid "Hex and Dec Entries"
 msgstr "Onaltılık ve Ondalık Alanlar"
 
-#: src/widgets/help_dialog.rs:41
+#: src/widgets/help_dialog.rs:42
 msgid ""
 "Enter a hex value, a decimal value, or a character, then press Enter to find "
 "it."
 msgstr ""
-"Bulmak için onaltılık bir değer, ondalık bir değer veya bir karakter "
-"girin, ardından Enter tuşuna basın."
+"Bulmak için onaltılık bir değer, ondalık bir değer veya bir karakter girin, "
+"ardından Enter tuşuna basın."
 
-#: src/widgets/help_dialog.rs:44
+#: src/widgets/help_dialog.rs:45
 msgid "Search"
 msgstr "Ara"
 
-#: src/widgets/help_dialog.rs:46
+#: src/widgets/help_dialog.rs:47
 msgid "Click the search icon to open the search bar."
 msgstr "Arama çubuğunu açmak için arama simgesine tıklayın."
 
-#: src/widgets/help_dialog.rs:47
+#: src/widgets/help_dialog.rs:48
 msgid "Type a character's name to find every character whose name contains it."
 msgstr ""
 "Adında belirttiğiniz metni içeren tüm karakterleri bulmak için bir "
 "karakterin adını yazın."
 
-#: src/widgets/help_dialog.rs:48
+#: src/widgets/help_dialog.rs:49
 msgid "Type, or paste, a single character to find it directly."
 msgstr "Doğrudan bulmak için tek bir karakter yazın veya yapıştırın."
 
-#: src/widgets/help_dialog.rs:87
+#: src/widgets/help_dialog.rs:88
 msgid "Help"
 msgstr "Yardım"

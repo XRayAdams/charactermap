@@ -4,154 +4,145 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: charactermap 1.1.0\n"
+"Project-Id-Version: charactermap 1.1.4\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
 "POT-Creation-Date: 2026-08-03 19:04-0700\n"
-"PO-Revision-Date: 2026-08-02 00:00-0700\n"
+"PO-Revision-Date: 2026-08-03 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
-"Language: it\n"
+"Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: src/app.rs:433
 #, rust-format
 msgid "Search results ({})"
-msgstr "Risultati della ricerca ({})"
+msgstr "검색 결과 ({})"
 
 #: src/app.rs:501
 msgid "_Help"
-msgstr "_Aiuto"
+msgstr "도움말(_H)"
 
 #: src/app.rs:502
 msgid "_About"
-msgstr "_Informazioni"
+msgstr "정보(_A)"
 
 #: src/app.rs:526
 msgid "Fonts"
-msgstr "Tipi di carattere"
+msgstr "글꼴"
 
 #: src/app.rs:546
 msgid "Search fonts…"
-msgstr "Cerca tipi di carattere…"
+msgstr "글꼴 검색…"
 
 #: src/app.rs:558
 msgid "Show plain font names"
-msgstr "Mostra i nomi dei tipi di carattere semplici"
+msgstr "일반 텍스트로 글꼴 이름 표시"
 
 #: src/app.rs:571
 msgid "Preview names using each font"
-msgstr "Anteprima dei nomi con ogni tipo di carattere"
+msgstr "각 글꼴로 이름 미리 보기"
 
 #: src/app.rs:616
 msgid "Filter Unicode pages"
-msgstr "Filtra pagine Unicode"
+msgstr "유니코드 페이지 필터링"
 
 #: src/app.rs:623
 msgid "Show only Unicode blocks the selected font supports"
-msgstr ""
-"Mostra solo i blocchi Unicode supportati dal tipo di carattere selezionato"
+msgstr "선택한 글꼴이 지원하는 유니코드 블록만 표시"
 
 #: src/app.rs:645
 msgid "Single letter or character name"
-msgstr "Singola lettera o nome del carattere"
+msgstr "한 글자 또는 문자 이름"
 
 #: src/app.rs:734
 msgid "Character Information"
-msgstr "Informazioni sul carattere"
+msgstr "문자 정보"
 
 #: src/app.rs:750
 msgid "Jump to Unicode Set"
-msgstr "Vai a un insieme Unicode"
+msgstr "유니코드 세트로 이동"
 
 #: src/app.rs:778
 msgid "double click character to add here"
-msgstr "fai doppio clic su un carattere per aggiungerlo qui"
+msgstr "문자를 더블클릭하여 여기에 추가"
 
 #: src/app.rs:803
 msgid "Hex:"
-msgstr "Hex:"
+msgstr "16진수:"
 
 #: src/app.rs:821 src/app.rs:854
 msgid "Find"
-msgstr "Trova"
+msgstr "찾기"
 
 #: src/app.rs:836
 msgid "Dec:"
-msgstr "Dec:"
+msgstr "10진수:"
 
 #: src/app.rs:1203
 msgid "Copied to clipboard"
-msgstr "Copiato negli appunti"
+msgstr "클립보드에 복사됨"
 
 #: src/widgets/help_dialog.rs:25
 msgid "Font List"
-msgstr "Elenco dei tipi di carattere"
+msgstr "글꼴 목록"
 
 #: src/widgets/help_dialog.rs:27 src/widgets/help_dialog.rs:34
 msgid "Use the arrow keys to move the selection."
-msgstr "Usa i tasti freccia per spostare la selezione."
+msgstr "화살표 키를 사용하여 선택 항목을 이동합니다."
 
 #: src/widgets/help_dialog.rs:28
 msgid "Start typing to find a font by name."
-msgstr "Inizia a digitare per trovare un tipo di carattere per nome."
+msgstr "입력을 시작하면 이름으로 글꼴을 찾을 수 있습니다."
 
 #: src/widgets/help_dialog.rs:32
 msgid "Grid"
-msgstr "Griglia"
+msgstr "그리드"
 
 #: src/widgets/help_dialog.rs:35
 msgid ""
 "Double-click, or press Enter, to add the selected character to the "
 "collection box."
-msgstr ""
-"Fai doppio clic, o premi Invio, per aggiungere il carattere selezionato al "
-"riquadro di raccolta."
+msgstr "선택한 문자를 수집 상자에 추가하려면 더블클릭하거나 Enter 키를 누르세요."
 
 #: src/widgets/help_dialog.rs:36
 msgid "Press Ctrl+C to copy the selected character to the clipboard."
-msgstr "Premi Ctrl+C per copiare il carattere selezionato negli appunti."
+msgstr "선택한 문자를 클립보드에 복사하려면 Ctrl+C를 누르세요."
 
 #: src/widgets/help_dialog.rs:37
 msgid ""
 "If a character is not present in the selected font, it will be shown as a "
 "tofu box."
-msgstr ""
-"Se un carattere non è presente nel tipo di carattere selezionato, verrà "
-"mostrato come un riquadro tofu."
+msgstr "선택한 글꼴에 문자가 없으면 두부 상자(tofu box)로 표시됩니다."
 
 #: src/widgets/help_dialog.rs:41
 msgid "Hex and Dec Entries"
-msgstr "Campi esadecimale e decimale"
+msgstr "16진수 및 10진수 입력란"
 
 #: src/widgets/help_dialog.rs:42
 msgid ""
 "Enter a hex value, a decimal value, or a character, then press Enter to find "
 "it."
-msgstr ""
-"Inserisci un valore esadecimale, un valore decimale o un carattere, quindi "
-"premi Invio per trovarlo."
+msgstr "16진수 값, 10진수 값 또는 문자를 입력한 다음 Enter 키를 눌러 찾습니다."
 
 #: src/widgets/help_dialog.rs:45
 msgid "Search"
-msgstr "Cerca"
+msgstr "검색"
 
 #: src/widgets/help_dialog.rs:47
 msgid "Click the search icon to open the search bar."
-msgstr "Fai clic sull'icona di ricerca per aprire la barra di ricerca."
+msgstr "검색 아이콘을 클릭하여 검색창을 엽니다."
 
 #: src/widgets/help_dialog.rs:48
 msgid "Type a character's name to find every character whose name contains it."
-msgstr ""
-"Digita il nome di un carattere per trovare tutti i caratteri il cui nome lo "
-"contiene."
+msgstr "문자 이름을 입력하면 해당 이름이 포함된 모든 문자를 찾습니다."
 
 #: src/widgets/help_dialog.rs:49
 msgid "Type, or paste, a single character to find it directly."
-msgstr "Digita, o incolla, un singolo carattere per trovarlo direttamente."
+msgstr "한 문자를 입력하거나 붙여넣으면 바로 찾을 수 있습니다."
 
 #: src/widgets/help_dialog.rs:88
 msgid "Help"
-msgstr "Aiuto"
+msgstr "도움말"

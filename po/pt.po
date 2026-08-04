@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-08-01 20:27-0700\n"
+"POT-Creation-Date: 2026-08-03 19:04-0700\n"
 "PO-Revision-Date: 2026-08-02 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,70 +16,74 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/app.rs:384
+#: src/app.rs:433
 #, rust-format
 msgid "Search results ({})"
 msgstr "Resultados da pesquisa ({})"
 
-#: src/app.rs:452
+#: src/app.rs:501
 msgid "_Help"
 msgstr "_Ajuda"
 
-#: src/app.rs:453
+#: src/app.rs:502
 msgid "_About"
 msgstr "_Sobre"
 
-#: src/app.rs:477
+#: src/app.rs:526
 msgid "Fonts"
 msgstr "Fontes"
 
-#: src/app.rs:497
+#: src/app.rs:546
 msgid "Search fonts…"
 msgstr "Pesquisar fontes…"
 
-#: src/app.rs:509
+#: src/app.rs:558
 msgid "Show plain font names"
 msgstr "Mostrar nomes de fontes simples"
 
-#: src/app.rs:522
+#: src/app.rs:571
 msgid "Preview names using each font"
 msgstr "Pré-visualizar nomes usando cada fonte"
 
-#: src/app.rs:567
+#: src/app.rs:616
 msgid "Filter Unicode pages"
 msgstr "Filtrar páginas Unicode"
 
-#: src/app.rs:574
+#: src/app.rs:623
 msgid "Show only Unicode blocks the selected font supports"
 msgstr "Mostrar apenas os blocos Unicode suportados pela fonte selecionada"
 
-#: src/app.rs:596
+#: src/app.rs:645
 msgid "Single letter or character name"
 msgstr "Uma única letra ou nome de caractere"
 
-#: src/app.rs:688
+#: src/app.rs:734
 msgid "Character Information"
 msgstr "Informação do caractere"
 
-#: src/app.rs:704
+#: src/app.rs:750
 msgid "Jump to Unicode Set"
 msgstr "Ir para um conjunto Unicode"
 
-#: src/app.rs:732
+#: src/app.rs:778
 msgid "double click character to add here"
 msgstr "clique duas vezes no caractere para adicioná-lo aqui"
 
-#: src/app.rs:757
+#: src/app.rs:803
 msgid "Hex:"
 msgstr "Hex:"
 
-#: src/app.rs:775 src/app.rs:808
+#: src/app.rs:821 src/app.rs:854
 msgid "Find"
 msgstr "Localizar"
 
-#: src/app.rs:790
+#: src/app.rs:836
 msgid "Dec:"
 msgstr "Dec:"
+
+#: src/app.rs:1203
+msgid "Copied to clipboard"
+msgstr "Copiado para a área de transferência"
 
 #: src/widgets/help_dialog.rs:25
 msgid "Font List"
@@ -106,18 +110,22 @@ msgstr ""
 "selecionado à caixa de coleta."
 
 #: src/widgets/help_dialog.rs:36
+msgid "Press Ctrl+C to copy the selected character to the clipboard."
+msgstr "Pressione Ctrl+C para copiar o caractere selecionado para a área de transferência."
+
+#: src/widgets/help_dialog.rs:37
 msgid ""
 "If a character is not present in the selected font, it will be shown as a "
 "tofu box."
 msgstr ""
-"Se um caractere não estiver presente na fonte selecionada, ele será "
-"exibido como uma caixa tofu."
+"Se um caractere não estiver presente na fonte selecionada, ele será exibido "
+"como uma caixa tofu."
 
-#: src/widgets/help_dialog.rs:40
+#: src/widgets/help_dialog.rs:41
 msgid "Hex and Dec Entries"
 msgstr "Campos hexadecimal e decimal"
 
-#: src/widgets/help_dialog.rs:41
+#: src/widgets/help_dialog.rs:42
 msgid ""
 "Enter a hex value, a decimal value, or a character, then press Enter to find "
 "it."
@@ -125,24 +133,24 @@ msgstr ""
 "Digite um valor hexadecimal, um valor decimal ou um caractere e pressione "
 "Enter para encontrá-lo."
 
-#: src/widgets/help_dialog.rs:44
+#: src/widgets/help_dialog.rs:45
 msgid "Search"
 msgstr "Pesquisar"
 
-#: src/widgets/help_dialog.rs:46
+#: src/widgets/help_dialog.rs:47
 msgid "Click the search icon to open the search bar."
 msgstr "Clique no ícone de pesquisa para abrir a barra de pesquisa."
 
-#: src/widgets/help_dialog.rs:47
+#: src/widgets/help_dialog.rs:48
 msgid "Type a character's name to find every character whose name contains it."
 msgstr ""
-"Digite o nome de um caractere para encontrar todos os caracteres cujo nome "
-"o contenha."
+"Digite o nome de um caractere para encontrar todos os caracteres cujo nome o "
+"contenha."
 
-#: src/widgets/help_dialog.rs:48
+#: src/widgets/help_dialog.rs:49
 msgid "Type, or paste, a single character to find it directly."
 msgstr "Digite, ou cole, um único caractere para encontrá-lo diretamente."
 
-#: src/widgets/help_dialog.rs:87
+#: src/widgets/help_dialog.rs:88
 msgid "Help"
 msgstr "Ajuda"

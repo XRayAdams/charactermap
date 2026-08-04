@@ -84,6 +84,7 @@ pub struct App {
     browse_section_positions: HashMap<String, u32>,
     browse_block_boundaries: Vec<(u32, String)>,
     browse_header: String,
+    toast_overlay: Option<adw::ToastOverlay>,
 }
 
 #[derive(Debug)]
@@ -102,6 +103,7 @@ pub enum Messages {
     FindDec,
     ShowHideSearch,
     SearchChanged(String),
+    CopySelectedCharacter,
 }
 
 /// Wires "selecting a cell updates the character preview" on a grid
@@ -700,30 +702,27 @@ impl SimpleComponent for App {
                                     set_margin_bottom: SPACING_SMALL,
                                 },
 
-                                // virtualized grid of characters (columns are
-                                // computed automatically from the width)
+                                // virtualized grid of characters, the
+                                // actual GridView child is built in init()
+                                // via `replace_grid_view`, same as font changes.
                                 #[name = "unicode_scroller"]
                                 gtk::ScrolledWindow {
                                     set_vexpand: true,
                                     set_hscrollbar_policy: gtk::PolicyType::Never,
 
-                                    #[name = "unicode_grid_view"]
-                                    gtk::GridView {
-                                        set_min_columns: 1,
-                                        set_max_columns: 100,
-                                        set_single_click_activate: false,
-                                        set_enable_rubberband: false,
-                                        connect_activate[sender] => move |grid_view, position| {
-                                            if let Some(ch) = grid_view
-                                                .model()
-                                                .and_then(|m| m.item(position))
-                                                .and_then(|item| item.downcast::<gtk::StringObject>().ok())
-                                                .and_then(|obj| obj.string().chars().next())
+                                    // Ctrl+C anywhere in the grid copies the selected character.
+                                    add_controller = gtk::EventControllerKey {
+                                        connect_key_pressed[sender] => move |_, keyval, _keycode, state| {
+                                            if state.contains(gtk4::gdk::ModifierType::CONTROL_MASK)
+                                                && matches!(keyval, gtk4::gdk::Key::c | gtk4::gdk::Key::C)
                                             {
-                                                sender.input(Messages::CharacterDoubleClicked(ch as u32));
+                                                sender.input(Messages::CopySelectedCharacter);
+                                                glib::Propagation::Stop
+                                            } else {
+                                                glib::Propagation::Proceed
                                             }
-                                        },
-                                    }
+                                        }
+                                    },
                                 },
 
                                 // bottom bar
@@ -749,6 +748,8 @@ impl SimpleComponent for App {
                                             gtk::MenuButton {
                                                 set_valign: gtk::Align::Center,
                                                 set_label: &tr!("Jump to Unicode Set"),
+                                                #[watch]
+                                                set_sensitive: !model.is_showing_search_results,
 
                                                 #[wrap(Some)]
                                                 set_popover = &gtk::Popover {
@@ -983,34 +984,23 @@ impl SimpleComponent for App {
             browse_section_positions: HashMap::new(),
             browse_block_boundaries: Vec::new(),
             browse_header: String::new(),
+            toast_overlay: None,
         };
 
         let widgets = view_output!();
 
-        model.unicode_grid_view = Some(widgets.unicode_grid_view.clone());
-        *model.grid_view_handle.borrow_mut() = Some(widgets.unicode_grid_view.clone());
         model.unicode_scroller = Some(widgets.unicode_scroller.clone());
         model.unicode_set_list = Some(widgets.unicode_set_list.clone());
         model.sticky_header = Some(widgets.sticky_header.clone());
         model.hex_entry = Some(widgets.hex_entry.clone());
         model.dec_entry = Some(widgets.dec_entry.clone());
         model.search_entry = Some(widgets.search_entry.clone());
+        model.toast_overlay = Some(widgets.toast_overlay.clone());
 
-        let grid_factory =
-            build_unicode_grid_factory(model.cell_attrs.clone(), model.block_boundaries.clone());
-        widgets.unicode_grid_view.set_factory(Some(&grid_factory));
-
-        // GTK's native single-selection highlights the cell and handles
-        // keyboard nav; the store is swapped in on font change.
-        let selection = gtk::SingleSelection::new(None::<gio::ListStore>);
-        selection.set_autoselect(false);
-        selection.set_can_unselect(true);
-
-        widgets.unicode_grid_view.set_model(Some(&selection));
-        model.unicode_selection = Some(selection.clone());
-
-        // Selecting a cell (click or keyboard) updates the character preview.
-        connect_grid_selection_changed(&selection, sender.clone());
+        // Build the initial GridView through the same path font changes use,
+        // instead of duplicating its construction as a one-off view! widget.
+        let empty_model = gio::ListStore::new::<gtk::StringObject>().upcast::<gio::ListModel>();
+        model.replace_grid_view(empty_model, &sender);
 
         // Keep the sticky "current block" header in sync with the scroll
         // position (the top-most visible cell's unicode block).
@@ -1204,6 +1194,16 @@ impl SimpleComponent for App {
             Messages::CharacterDoubleClicked(char_code) => {
                 if let Some(ch) = char::from_u32(char_code as u32) {
                     self.collected_text.push(ch);
+                }
+            }
+            Messages::CopySelectedCharacter => {
+                if let Some(ch) = self.selected_character {
+                    if let Some(scroller) = &self.unicode_scroller {
+                        scroller.clipboard().set_text(&ch.to_string());
+                    }
+                    if let Some(overlay) = &self.toast_overlay {
+                        overlay.add_toast(adw::Toast::new(&tr!("Copied to clipboard")));
+                    }
                 }
             }
             Messages::ClearCollectedText => {

@@ -4,154 +4,145 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: charactermap 1.1.0\n"
+"Project-Id-Version: charactermap 1.1.4\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
 "POT-Creation-Date: 2026-08-03 19:04-0700\n"
-"PO-Revision-Date: 2026-08-02 00:00-0700\n"
+"PO-Revision-Date: 2026-08-03 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
-"Language: it\n"
+"Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: src/app.rs:433
 #, rust-format
 msgid "Search results ({})"
-msgstr "Risultati della ricerca ({})"
+msgstr "検索結果 ({})"
 
 #: src/app.rs:501
 msgid "_Help"
-msgstr "_Aiuto"
+msgstr "ヘルプ(_H)"
 
 #: src/app.rs:502
 msgid "_About"
-msgstr "_Informazioni"
+msgstr "このアプリについて(_A)"
 
 #: src/app.rs:526
 msgid "Fonts"
-msgstr "Tipi di carattere"
+msgstr "フォント"
 
 #: src/app.rs:546
 msgid "Search fonts…"
-msgstr "Cerca tipi di carattere…"
+msgstr "フォントを検索…"
 
 #: src/app.rs:558
 msgid "Show plain font names"
-msgstr "Mostra i nomi dei tipi di carattere semplici"
+msgstr "フォント名をそのまま表示"
 
 #: src/app.rs:571
 msgid "Preview names using each font"
-msgstr "Anteprima dei nomi con ogni tipo di carattere"
+msgstr "各フォントで名前をプレビュー"
 
 #: src/app.rs:616
 msgid "Filter Unicode pages"
-msgstr "Filtra pagine Unicode"
+msgstr "Unicodeページを絞り込む"
 
 #: src/app.rs:623
 msgid "Show only Unicode blocks the selected font supports"
-msgstr ""
-"Mostra solo i blocchi Unicode supportati dal tipo di carattere selezionato"
+msgstr "選択したフォントが対応するUnicodeブロックのみ表示"
 
 #: src/app.rs:645
 msgid "Single letter or character name"
-msgstr "Singola lettera o nome del carattere"
+msgstr "1文字または文字の名前"
 
 #: src/app.rs:734
 msgid "Character Information"
-msgstr "Informazioni sul carattere"
+msgstr "文字情報"
 
 #: src/app.rs:750
 msgid "Jump to Unicode Set"
-msgstr "Vai a un insieme Unicode"
+msgstr "Unicodeセットへ移動"
 
 #: src/app.rs:778
 msgid "double click character to add here"
-msgstr "fai doppio clic su un carattere per aggiungerlo qui"
+msgstr "文字をダブルクリックしてここに追加"
 
 #: src/app.rs:803
 msgid "Hex:"
-msgstr "Hex:"
+msgstr "16進:"
 
 #: src/app.rs:821 src/app.rs:854
 msgid "Find"
-msgstr "Trova"
+msgstr "検索"
 
 #: src/app.rs:836
 msgid "Dec:"
-msgstr "Dec:"
+msgstr "10進:"
 
 #: src/app.rs:1203
 msgid "Copied to clipboard"
-msgstr "Copiato negli appunti"
+msgstr "クリップボードにコピーしました"
 
 #: src/widgets/help_dialog.rs:25
 msgid "Font List"
-msgstr "Elenco dei tipi di carattere"
+msgstr "フォント一覧"
 
 #: src/widgets/help_dialog.rs:27 src/widgets/help_dialog.rs:34
 msgid "Use the arrow keys to move the selection."
-msgstr "Usa i tasti freccia per spostare la selezione."
+msgstr "矢印キーで選択を移動します。"
 
 #: src/widgets/help_dialog.rs:28
 msgid "Start typing to find a font by name."
-msgstr "Inizia a digitare per trovare un tipo di carattere per nome."
+msgstr "入力を始めると名前でフォントを検索できます。"
 
 #: src/widgets/help_dialog.rs:32
 msgid "Grid"
-msgstr "Griglia"
+msgstr "グリッド"
 
 #: src/widgets/help_dialog.rs:35
 msgid ""
 "Double-click, or press Enter, to add the selected character to the "
 "collection box."
-msgstr ""
-"Fai doppio clic, o premi Invio, per aggiungere il carattere selezionato al "
-"riquadro di raccolta."
+msgstr "選択した文字をコレクションボックスに追加するには、ダブルクリックするかEnterキーを押します。"
 
 #: src/widgets/help_dialog.rs:36
 msgid "Press Ctrl+C to copy the selected character to the clipboard."
-msgstr "Premi Ctrl+C per copiare il carattere selezionato negli appunti."
+msgstr "選択した文字をクリップボードにコピーするには、Ctrl+Cを押します。"
 
 #: src/widgets/help_dialog.rs:37
 msgid ""
 "If a character is not present in the selected font, it will be shown as a "
 "tofu box."
-msgstr ""
-"Se un carattere non è presente nel tipo di carattere selezionato, verrà "
-"mostrato come un riquadro tofu."
+msgstr "選択したフォントにその文字が存在しない場合、豆腐(tofu)ボックスとして表示されます。"
 
 #: src/widgets/help_dialog.rs:41
 msgid "Hex and Dec Entries"
-msgstr "Campi esadecimale e decimale"
+msgstr "16進数と10進数の入力欄"
 
 #: src/widgets/help_dialog.rs:42
 msgid ""
 "Enter a hex value, a decimal value, or a character, then press Enter to find "
 "it."
-msgstr ""
-"Inserisci un valore esadecimale, un valore decimale o un carattere, quindi "
-"premi Invio per trovarlo."
+msgstr "16進数、10進数、または文字を入力し、Enterキーを押して検索します。"
 
 #: src/widgets/help_dialog.rs:45
 msgid "Search"
-msgstr "Cerca"
+msgstr "検索"
 
 #: src/widgets/help_dialog.rs:47
 msgid "Click the search icon to open the search bar."
-msgstr "Fai clic sull'icona di ricerca per aprire la barra di ricerca."
+msgstr "検索アイコンをクリックすると検索バーが開きます。"
 
 #: src/widgets/help_dialog.rs:48
 msgid "Type a character's name to find every character whose name contains it."
-msgstr ""
-"Digita il nome di un carattere per trovare tutti i caratteri il cui nome lo "
-"contiene."
+msgstr "文字の名前を入力すると、その名前を含むすべての文字が見つかります。"
 
 #: src/widgets/help_dialog.rs:49
 msgid "Type, or paste, a single character to find it directly."
-msgstr "Digita, o incolla, un singolo carattere per trovarlo direttamente."
+msgstr "1文字を入力または貼り付けると、直接検索できます。"
 
 #: src/widgets/help_dialog.rs:88
 msgid "Help"
-msgstr "Aiuto"
+msgstr "ヘルプ"
