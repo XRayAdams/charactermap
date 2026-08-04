@@ -1,0 +1,148 @@
+# charactermap translation template.
+# Copyright (C) 2026 Konstantin Adamov
+# This file is distributed under the same license as the charactermap package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: charactermap 1.1.4\n"
+"Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
+"POT-Creation-Date: 2026-08-03 19:04-0700\n"
+"PO-Revision-Date: 2026-08-03 00:00-0700\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: hi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/app.rs:433
+#, rust-format
+msgid "Search results ({})"
+msgstr "खोज परिणाम ({})"
+
+#: src/app.rs:501
+msgid "_Help"
+msgstr "सहायता (_H)"
+
+#: src/app.rs:502
+msgid "_About"
+msgstr "जानकारी (_A)"
+
+#: src/app.rs:526
+msgid "Fonts"
+msgstr "फ़ॉन्ट"
+
+#: src/app.rs:546
+msgid "Search fonts…"
+msgstr "फ़ॉन्ट खोजें…"
+
+#: src/app.rs:558
+msgid "Show plain font names"
+msgstr "सादा फ़ॉन्ट नाम दिखाएँ"
+
+#: src/app.rs:571
+msgid "Preview names using each font"
+msgstr "प्रत्येक फ़ॉन्ट में नामों का पूर्वावलोकन करें"
+
+#: src/app.rs:616
+msgid "Filter Unicode pages"
+msgstr "यूनिकोड पृष्ठ फ़िल्टर करें"
+
+#: src/app.rs:623
+msgid "Show only Unicode blocks the selected font supports"
+msgstr "केवल वे यूनिकोड ब्लॉक दिखाएँ जिन्हें चयनित फ़ॉन्ट समर्थन करता है"
+
+#: src/app.rs:645
+msgid "Single letter or character name"
+msgstr "एक अक्षर या वर्ण का नाम"
+
+#: src/app.rs:734
+msgid "Character Information"
+msgstr "वर्ण की जानकारी"
+
+#: src/app.rs:750
+msgid "Jump to Unicode Set"
+msgstr "यूनिकोड सेट पर जाएँ"
+
+#: src/app.rs:778
+msgid "double click character to add here"
+msgstr "यहाँ जोड़ने के लिए वर्ण पर डबल-क्लिक करें"
+
+#: src/app.rs:803
+msgid "Hex:"
+msgstr "हेक्स:"
+
+#: src/app.rs:821 src/app.rs:854
+msgid "Find"
+msgstr "खोजें"
+
+#: src/app.rs:836
+msgid "Dec:"
+msgstr "दशमलव:"
+
+#: src/app.rs:1203
+msgid "Copied to clipboard"
+msgstr "क्लिपबोर्ड में कॉपी किया गया"
+
+#: src/widgets/help_dialog.rs:25
+msgid "Font List"
+msgstr "फ़ॉन्ट सूची"
+
+#: src/widgets/help_dialog.rs:27 src/widgets/help_dialog.rs:34
+msgid "Use the arrow keys to move the selection."
+msgstr "चयन को स्थानांतरित करने के लिए तीर कुंजियों का उपयोग करें।"
+
+#: src/widgets/help_dialog.rs:28
+msgid "Start typing to find a font by name."
+msgstr "नाम से फ़ॉन्ट खोजने के लिए टाइप करना शुरू करें।"
+
+#: src/widgets/help_dialog.rs:32
+msgid "Grid"
+msgstr "ग्रिड"
+
+#: src/widgets/help_dialog.rs:35
+msgid ""
+"Double-click, or press Enter, to add the selected character to the "
+"collection box."
+msgstr "चयनित वर्ण को संग्रह बॉक्स में जोड़ने के लिए डबल-क्लिक करें, या एंटर दबाएँ।"
+
+#: src/widgets/help_dialog.rs:36
+msgid "Press Ctrl+C to copy the selected character to the clipboard."
+msgstr "चयनित वर्ण को क्लिपबोर्ड में कॉपी करने के लिए Ctrl+C दबाएँ।"
+
+#: src/widgets/help_dialog.rs:37
+msgid ""
+"If a character is not present in the selected font, it will be shown as a "
+"tofu box."
+msgstr "यदि कोई वर्ण चयनित फ़ॉन्ट में मौजूद नहीं है, तो उसे टोफू बॉक्स के रूप में दिखाया जाएगा।"
+
+#: src/widgets/help_dialog.rs:41
+msgid "Hex and Dec Entries"
+msgstr "हेक्स और दशमलव प्रविष्टियाँ"
+
+#: src/widgets/help_dialog.rs:42
+msgid ""
+"Enter a hex value, a decimal value, or a character, then press Enter to find "
+"it."
+msgstr "एक हेक्स मान, दशमलव मान, या वर्ण दर्ज करें, फिर उसे खोजने के लिए एंटर दबाएँ।"
+
+#: src/widgets/help_dialog.rs:45
+msgid "Search"
+msgstr "खोजें"
+
+#: src/widgets/help_dialog.rs:47
+msgid "Click the search icon to open the search bar."
+msgstr "खोज बार खोलने के लिए खोज आइकन पर क्लिक करें।"
+
+#: src/widgets/help_dialog.rs:48
+msgid "Type a character's name to find every character whose name contains it."
+msgstr "किसी वर्ण का नाम टाइप करें ताकि उस नाम वाले सभी वर्ण मिल सकें।"
+
+#: src/widgets/help_dialog.rs:49
+msgid "Type, or paste, a single character to find it directly."
+msgstr "सीधे खोजने के लिए एक वर्ण टाइप करें या पेस्ट करें।"
+
+#: src/widgets/help_dialog.rs:88
+msgid "Help"
+msgstr "सहायता"

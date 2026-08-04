@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-08-01 20:27-0700\n"
+"POT-Creation-Date: 2026-08-03 19:04-0700\n"
 "PO-Revision-Date: 2026-08-02 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -14,72 +14,77 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: src/app.rs:384
+#: src/app.rs:433
 #, rust-format
 msgid "Search results ({})"
 msgstr "Результати пошуку ({})"
 
-#: src/app.rs:452
+#: src/app.rs:501
 msgid "_Help"
 msgstr "_Довідка"
 
-#: src/app.rs:453
+#: src/app.rs:502
 msgid "_About"
 msgstr "_Про програму"
 
-#: src/app.rs:477
+#: src/app.rs:526
 msgid "Fonts"
 msgstr "Шрифти"
 
-#: src/app.rs:497
+#: src/app.rs:546
 msgid "Search fonts…"
 msgstr "Пошук шрифтів…"
 
-#: src/app.rs:509
+#: src/app.rs:558
 msgid "Show plain font names"
 msgstr "Показувати звичайні назви шрифтів"
 
-#: src/app.rs:522
+#: src/app.rs:571
 msgid "Preview names using each font"
 msgstr "Попередній перегляд назв кожним шрифтом"
 
-#: src/app.rs:567
+#: src/app.rs:616
 msgid "Filter Unicode pages"
 msgstr "Фільтрувати сторінки Юнікоду"
 
-#: src/app.rs:574
+#: src/app.rs:623
 msgid "Show only Unicode blocks the selected font supports"
 msgstr "Показувати лише блоки Юнікоду, які підтримує вибраний шрифт"
 
-#: src/app.rs:596
+#: src/app.rs:645
 msgid "Single letter or character name"
 msgstr "Одна літера або назва символу"
 
-#: src/app.rs:688
+#: src/app.rs:734
 msgid "Character Information"
 msgstr "Інформація про символ"
 
-#: src/app.rs:704
+#: src/app.rs:750
 msgid "Jump to Unicode Set"
 msgstr "Перейти до набору Юнікоду"
 
-#: src/app.rs:732
+#: src/app.rs:778
 msgid "double click character to add here"
 msgstr "двічі клацніть символ, щоб додати його сюди"
 
-#: src/app.rs:757
+#: src/app.rs:803
 msgid "Hex:"
 msgstr "Шістн.:"
 
-#: src/app.rs:775 src/app.rs:808
+#: src/app.rs:821 src/app.rs:854
 msgid "Find"
 msgstr "Знайти"
 
-#: src/app.rs:790
+#: src/app.rs:836
 msgid "Dec:"
 msgstr "Десятк.:"
+
+#: src/app.rs:1203
+msgid "Copied to clipboard"
+msgstr "Скопійовано в буфер обміну"
 
 #: src/widgets/help_dialog.rs:25
 msgid "Font List"
@@ -102,22 +107,25 @@ msgid ""
 "Double-click, or press Enter, to add the selected character to the "
 "collection box."
 msgstr ""
-"Двічі клацніть або натисніть Enter, щоб додати вибраний символ до поля "
-"збору."
+"Двічі клацніть або натисніть Enter, щоб додати вибраний символ до поля збору."
 
 #: src/widgets/help_dialog.rs:36
+msgid "Press Ctrl+C to copy the selected character to the clipboard."
+msgstr "Натисніть Ctrl+C, щоб скопіювати вибраний символ у буфер обміну."
+
+#: src/widgets/help_dialog.rs:37
 msgid ""
 "If a character is not present in the selected font, it will be shown as a "
 "tofu box."
 msgstr ""
-"Якщо символ відсутній у вибраному шрифті, він відображатиметься як "
-"порожній прямокутник (тофу)."
+"Якщо символ відсутній у вибраному шрифті, він відображатиметься як порожній "
+"прямокутник (тофу)."
 
-#: src/widgets/help_dialog.rs:40
+#: src/widgets/help_dialog.rs:41
 msgid "Hex and Dec Entries"
 msgstr "Шістнадцяткове та десяткове поля"
 
-#: src/widgets/help_dialog.rs:41
+#: src/widgets/help_dialog.rs:42
 msgid ""
 "Enter a hex value, a decimal value, or a character, then press Enter to find "
 "it."
@@ -125,23 +133,22 @@ msgstr ""
 "Введіть шістнадцяткове значення, десяткове значення або символ, а потім "
 "натисніть Enter, щоб знайти його."
 
-#: src/widgets/help_dialog.rs:44
+#: src/widgets/help_dialog.rs:45
 msgid "Search"
 msgstr "Пошук"
 
-#: src/widgets/help_dialog.rs:46
+#: src/widgets/help_dialog.rs:47
 msgid "Click the search icon to open the search bar."
 msgstr "Натисніть піктограму пошуку, щоб відкрити панель пошуку."
 
-#: src/widgets/help_dialog.rs:47
-msgid "Type a character's name to find every character whose name contains it."
-msgstr ""
-"Введіть назву символу, щоб знайти всі символи, назва яких її містить."
-
 #: src/widgets/help_dialog.rs:48
+msgid "Type a character's name to find every character whose name contains it."
+msgstr "Введіть назву символу, щоб знайти всі символи, назва яких її містить."
+
+#: src/widgets/help_dialog.rs:49
 msgid "Type, or paste, a single character to find it directly."
 msgstr "Введіть або вставте один символ, щоб знайти його безпосередньо."
 
-#: src/widgets/help_dialog.rs:87
+#: src/widgets/help_dialog.rs:88
 msgid "Help"
 msgstr "Довідка"
