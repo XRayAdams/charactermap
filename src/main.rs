@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Konstantin Adamov. Licensed under MIT.
+
 use libadwaita as adw;
 use gtk4::gio::{self, prelude::ApplicationExt};
 mod app;

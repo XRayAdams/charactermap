@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Konstantin Adamov. Licensed under MIT.
+
 use adw::prelude::*;
 use gtk4::{gio, glib, prelude::*};
 use libadwaita as adw;
@@ -780,6 +782,7 @@ impl SimpleComponent for App {
                                                 set_placeholder_text: Some(&tr!("double click character to add here")),
                                                 set_icon_from_icon_name[Some("edit-clear-symbolic")]: gtk::EntryIconPosition::Secondary,
                                                 set_icon_activatable[true]: gtk::EntryIconPosition::Secondary,
+                                                set_editable: false,
                                                 #[watch]
                                                 set_icon_sensitive[!model.collected_text.is_empty()]: gtk::EntryIconPosition::Secondary,
                                                 connect_icon_release[sender] => move |_, pos| {
@@ -863,7 +866,6 @@ impl SimpleComponent for App {
                                                 },
                                             },
                                         },
-
                                         gtk::Box {
                                             set_hexpand: true,
                                         },
