@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Konstantin Adamov. Licensed under MIT.
+
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use libadwaita as adw;
