@@ -25,8 +25,8 @@ use crate::helpers::utils::{
 use crate::tr;
 use crate::unicode::{UnicodeEntry, UnicodeSet, raw_offset_to_filtered_index};
 use crate::widgets::{HelpAction, create_help_action};
-
-/// Caps how many characters a name search can display.
+use crate::templates::{FilterSwitchRow, FontPreviewToggle, CharFindEntry};
+/// Limits how many characters a name search can display (is 500 enough?)
 const MAX_SEARCH_RESULTS: usize = 500;
 
 #[derive(Serialize, Deserialize)]
@@ -41,35 +41,34 @@ pub struct App {
     is_search_visible: bool,
     fonts: Vec<String>,
     render_font_preview: bool,
-    /// When on, only shows unicode blocks the selected font covers.
+    /// When on, only shows unicode blocks the selected font covers
     filter_unicode_pages: bool,
     font_list: Option<gtk::ListBox>,
     unicode_set: UnicodeSet,
     unicode_grid_view: Option<gtk::GridView>,
     /// Shared handle to `unicode_grid_view`, so signal closures stay valid
-    /// after the REBUILD path replaces the grid view widget.
+    /// after the REBUILD path replaces the grid view widget
     grid_view_handle: Rc<RefCell<Option<gtk::GridView>>>,
     /// Parent of `unicode_grid_view`; the REBUILD path swaps the whole
-    /// widget here (see `replace_grid_view` for why).
+    /// widget here
     unicode_scroller: Option<gtk::ScrolledWindow>,
-    /// The grid's native single-selection model; its inner store is swapped on
-    /// font change. GTK draws the selection highlight and handles keyboard nav.
+    /// The grid's native single-selection model
     unicode_selection: Option<gtk::SingleSelection>,
     unicode_set_list: Option<gtk::ListBox>,
     section_positions: HashMap<String, u32>,
     /// Codepoint ranges currently loaded into the grid model, used to skip
-    /// rebuilding when a font change doesn't affect what's shown.
+    /// rebuilding when a font change doesn't affect what's shown
     displayed_ranges: Vec<(u32, u32)>,
     selected_character: Option<char>,
     hex_value: String,
     dec_value: String,
     collected_text: String,
     /// Shared Pango attributes (selected font + size) applied to every grid
-    /// cell; updated in place on font change so recycled cells pick it up.
+    /// cell; updated in place on font change so recycled cells pick it up
     cell_attrs: Rc<RefCell<gtk4::pango::AttrList>>,
     char_label_attrs: Rc<RefCell<gtk4::pango::AttrList>>,
     /// Flat-position -> unicode-block boundaries, used to resolve the
-    /// sticky "current block" header from the top-visible cell.
+    /// sticky "current block" header from the top-visible cell
     block_boundaries: Rc<RefCell<Vec<(u32, String)>>>,
     sticky_header: Option<gtk::Label>,
     character_names: CharacterNames,
@@ -78,10 +77,10 @@ pub struct App {
     dec_entry: Option<gtk::Entry>,
     search_entry: Option<gtk::SearchEntry>,
     /// Whether the character grid is currently showing name-search results
-    /// instead of the normal font-filtered blocks.
+    /// instead of the normal font-filtered blocks
     is_showing_search_results: bool,
     /// Cached browse-grid model/state, so leaving search restores it
-    /// instantly instead of recomputing everything.
+    /// instantly instead of recomputing everything
     browse_store: Option<gio::ListModel>,
     browse_section_positions: HashMap<String, u32>,
     browse_block_boundaries: Vec<(u32, String)>,
@@ -549,15 +548,11 @@ impl SimpleComponent for App {
                                         set_hexpand: true,
                                     },
 
-                                    // segmented buttons to toggle font preview rendering
-                                    gtk::Box {
-                                        set_orientation: gtk::Orientation::Horizontal,
-                                        add_css_class: "linked",
-
-                                        #[name = "font_preview_off_button"]
-                                        gtk::ToggleButton {
-                                            set_icon_name: "format-text-plaintext-symbolic",
-                                            set_tooltip_text: Some(&tr!("Show plain font names")),
+                                    #[name = "font_preview_toggle"]
+                                    #[template]
+                                    FontPreviewToggle {
+                                        #[template_child]
+                                        font_preview_off_button {
                                             #[watch]
                                             set_active: !model.render_font_preview,
                                             connect_toggled[sender] => move |btn| {
@@ -567,11 +562,8 @@ impl SimpleComponent for App {
                                             },
                                         },
 
-                                        #[name = "font_preview_on_button"]
-                                        gtk::ToggleButton {
-                                            set_icon_name: "format-text-italic-symbolic",
-                                            set_tooltip_text: Some(&tr!("Preview names using each font")),
-                                            set_group: Some(&font_preview_off_button),
+                                        #[template_child]
+                                        font_preview_on_button {
                                             #[watch]
                                             set_active: model.render_font_preview,
                                             connect_toggled[sender] => move |btn| {
@@ -608,23 +600,13 @@ impl SimpleComponent for App {
                                     }
                                 },
 
-                                // toggle: filter grid to blocks the font covers
-                                gtk::Box {
-                                    set_orientation: gtk::Orientation::Horizontal,
-                                    set_spacing: SPACING_SMALL,
-                                    set_margin_top: SPACING_MEDIUM,
-
-                                    gtk::Label {
-                                        set_label: &tr!("Filter Unicode pages"),
-                                        set_xalign: 0.0,
-                                        set_hexpand: true,
-                                    },
-
-                                    gtk::Switch {
-                                        set_valign: gtk::Align::Center,
-                                        set_tooltip_text: Some(&tr!("Show only Unicode blocks the selected font supports")),
+                                #[template]
+                                FilterSwitchRow {
+                                    #[template_child]
+                                    switch {
                                         #[watch]
                                         set_active: model.filter_unicode_pages,
+
                                         connect_active_notify[sender] => move |sw| {
                                             sender.input(Messages::SetFilterUnicodePages(sw.is_active()));
                                         },
@@ -704,15 +686,12 @@ impl SimpleComponent for App {
                                     set_margin_bottom: SPACING_SMALL,
                                 },
 
-                                // virtualized grid of characters, the
-                                // actual GridView child is built in init()
-                                // via `replace_grid_view`, same as font changes.
+                                // virtualized grid of characters actual GridView child is built in init()
                                 #[name = "unicode_scroller"]
                                 gtk::ScrolledWindow {
                                     set_vexpand: true,
                                     set_hscrollbar_policy: gtk::PolicyType::Never,
 
-                                    // Ctrl+C anywhere in the grid copies the selected character.
                                     add_controller = gtk::EventControllerKey {
                                         connect_key_pressed[sender] => move |_, keyval, _keycode, state| {
                                             if state.contains(gtk4::gdk::ModifierType::CONTROL_MASK)
@@ -800,20 +779,16 @@ impl SimpleComponent for App {
                                                 },
                                             },
 
-                                            gtk::Box {
-                                                set_orientation: gtk::Orientation::Horizontal,
-                                                set_spacing: SPACING_SMALL,
-
-                                                gtk::Label {
+                                            #[name="hex_find"]
+                                            #[template]
+                                            CharFindEntry {
+                                                #[template_child]
+                                                label {
+                                                    #[watch]
                                                     set_label: &tr!("Hex:"),
-                                                    set_valign: gtk::Align::Center,
                                                 },
-
-                                                #[name = "hex_entry"]
-                                                gtk::Entry {
-                                                    set_width_request: 70,
-                                                    set_valign: gtk::Align::Center,
-                                                    set_max_length: 7,
+                                                #[template_child]
+                                                entry {
                                                     connect_changed[sender] => move |entry| {
                                                         sender.input(Messages::SetHexValue(entry.text().to_string()));
                                                     },
@@ -821,10 +796,8 @@ impl SimpleComponent for App {
                                                         sender.input(Messages::FindHex);
                                                     },
                                                 },
-
-                                                gtk::Button {
-                                                    set_label: &tr!("Find"),
-                                                    set_valign: gtk::Align::Center,
+                                                #[template_child]
+                                                button {
                                                     #[watch]
                                                     set_sensitive: !model.hex_value.is_empty(),
                                                     connect_clicked[sender] => move |_| {
@@ -832,32 +805,25 @@ impl SimpleComponent for App {
                                                     },
                                                 },
                                             },
-
-                                            gtk::Box {
-                                                set_orientation: gtk::Orientation::Horizontal,
-                                                set_spacing: SPACING_SMALL,
-
-                                                gtk::Label {
+                                            #[name="dec_find"]
+                                            #[template]
+                                            CharFindEntry {
+                                                #[template_child]
+                                                label {
+                                                    #[watch]
                                                     set_label: &tr!("Dec:"),
-                                                    set_valign: gtk::Align::Center,
                                                 },
-
-                                                #[name = "dec_entry"]
-                                                gtk::Entry {
-                                                    set_width_request: 70,
-                                                    set_valign: gtk::Align::Center,
-                                                    set_max_length: 7,
-                                                    connect_changed[sender] => move |entry|  {
+                                                #[template_child]
+                                                entry {
+                                                    connect_changed[sender] => move |entry| {
                                                         sender.input(Messages::SetDecValue(entry.text().to_string()));
                                                     },
                                                     connect_activate[sender] => move |_| {
                                                         sender.input(Messages::FindDec);
                                                     },
                                                 },
-
-                                                gtk::Button {
-                                                    set_label: &tr!("Find"),
-                                                    set_valign: gtk::Align::Center,
+                                                #[template_child]
+                                                button {
                                                     #[watch]
                                                     set_sensitive: !model.dec_value.is_empty(),
                                                     connect_clicked[sender] => move |_| {
@@ -994,18 +960,16 @@ impl SimpleComponent for App {
         model.unicode_scroller = Some(widgets.unicode_scroller.clone());
         model.unicode_set_list = Some(widgets.unicode_set_list.clone());
         model.sticky_header = Some(widgets.sticky_header.clone());
-        model.hex_entry = Some(widgets.hex_entry.clone());
-        model.dec_entry = Some(widgets.dec_entry.clone());
+        model.hex_entry = Some(widgets.hex_find.entry.clone());
+        model.dec_entry = Some(widgets.dec_find.entry.clone());
         model.search_entry = Some(widgets.search_entry.clone());
         model.toast_overlay = Some(widgets.toast_overlay.clone());
 
-        // Build the initial GridView through the same path font changes use,
-        // instead of duplicating its construction as a one-off view! widget.
+        // Build the initial GridView through the same path font changes use
         let empty_model = gio::ListStore::new::<gtk::StringObject>().upcast::<gio::ListModel>();
         model.replace_grid_view(empty_model, &sender);
 
-        // Keep the sticky "current block" header in sync with the scroll
-        // position (the top-most visible cell's unicode block).
+        // Keep the sticky "current block" header in sync with the scroll position
         widgets
             .unicode_scroller
             .vadjustment()
@@ -1069,12 +1033,9 @@ impl SimpleComponent for App {
 
         // Type-ahead: typing while the font list has focus accumulates a
         // prefix and jumps to the first matching row; the prefix resets
-        // after a pause or on any other selection change.
+        // after a pause or on any other selection change
         let type_ahead_buffer = Rc::new(RefCell::new(String::new()));
         let type_ahead_reset: Rc<RefCell<Option<glib::SourceId>>> = Rc::new(RefCell::new(None));
-        // Set for the duration of the `select_row` call inside the type-ahead
-        // handler itself, so the `row-selected` listener below (which clears
-        // the buffer on any OTHER selection change) knows to leave it alone.
         let type_ahead_selecting = Rc::new(std::cell::Cell::new(false));
 
         widgets.font_list.connect_row_selected({
@@ -1086,7 +1047,7 @@ impl SimpleComponent for App {
                     return;
                 }
                 // Selection changed for a reason other than our type-ahead
-                // jump -- reset the search prefix.
+                // jump, reset the search
                 if let Some(source) = reset_source.borrow_mut().take() {
                     source.remove();
                 }
@@ -1181,10 +1142,9 @@ impl SimpleComponent for App {
                 self.refresh_unicode_sections(&sender);
                 self.update_character_preview();
 
-                // Re-run an active search under the new font.
                 self.rerun_search_if_active(&sender);
 
-                // Clear the grid's visual selection highlight
+                // Clear the grid's visual selection
                 if let Some(selection) = &self.unicode_selection {
                     selection.set_selected(gtk::INVALID_LIST_POSITION);
                 }
@@ -1219,6 +1179,9 @@ impl SimpleComponent for App {
                 self.save_config();
                 self.refresh_unicode_sections(&sender);
                 self.rerun_search_if_active(&sender);
+                
+                self.selected_character = None;
+                self.update_character_preview();
             }
             Messages::JumpToUnicodeSet(description) => {
                 self.scroll_to_unicode_set(&description, None);

@@ -4,6 +4,7 @@ use libadwaita as adw;
 use gtk4::gio::{self, prelude::ApplicationExt};
 mod app;
 mod helpers;
+mod templates;
 mod unicode;
 mod widgets;
 use app::App;
