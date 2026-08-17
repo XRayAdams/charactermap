@@ -1,6 +1,6 @@
 %define _name charactermap
 %define _version 1.1.7
-%define _release 11
+%define _release 13
 %define debug_package %{nil}
 
 Name: %{_name}
@@ -17,17 +17,20 @@ Source0: %{_name}-%{_version}.tar.gz
 Source1: app.rayadams.charactermap.desktop
 Source2: app.rayadams.charactermap.png
 Source3: app.rayadams.charactermap.metainfo.xml
+Source4: LICENSE
+Source5: README.txt
 
-Requires: gtk4, libadwaita, libstdc++
+Requires: gtk4
 
 %description
-A character map and special-characters viewer for Linux, helping you browse installed fonts and quickly find any character you need.
+Browse installed fonts and find special characters with this
+Linux character map viewer.
 
 %prep
 %setup -q -n release
 
 %build
-# This section is intentionally left blank as we are packaging a pre-compiled Flutter application.
+# This section is intentionally left blank as we are packaging a pre-compiled application.
 
 %install
 rm -rf %{buildroot}
@@ -48,12 +51,22 @@ install -D -m 644 %{SOURCE2} %{buildroot}/usr/share/icons/hicolor/512x512/apps/%
 
 # Copy meta info
 install -D -m 644 %{SOURCE3} %{buildroot}%{_datadir}/metainfo/%{name}.metainfo.xml
-%files
+
+# Copy license file
+install -D -m 644 %{SOURCE4} %{buildroot}%{_datadir}/licenses/%{_name}/LICENSE
+
+# Copy documentation
+install -D -m 644 %{SOURCE5} %{buildroot}%{_datadir}/doc/%{_name}/README.txt
+
+%find_lang %{_name}
+
+%files -f %{_name}.lang
 %{_bindir}/%{_name}
-/usr/share/locale/*/LC_MESSAGES/charactermap.mo
 /usr/share/applications/%{_name}.desktop
 /usr/share/icons/hicolor/512x512/apps/%{_name}.png
 %{_datadir}/metainfo/%{name}.metainfo.xml
+%license %{_datadir}/licenses/%{_name}/LICENSE
+%doc %{_datadir}/doc/%{_name}/README.txt
 
 %changelog
 *loghere

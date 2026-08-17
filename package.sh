@@ -84,6 +84,8 @@ sed "s/^*loghere$/* $CHANGE_DATE/" "packaging/$APP_NAME.spec" > "$RPM_BUILD_ROOT
 sed -e "s/Icon=$APP_ID/Icon=$APP_NAME/" -e "s/^\(Exec\|TryExec\)=.*$/\1=$APP_NAME/" "packaging/gui/$APP_ID.desktop"  > "$RPM_BUILD_ROOT/SOURCES/$APP_ID.desktop"
 cp packaging/gui/"$APP_ID".png "$RPM_BUILD_ROOT/SOURCES/"
 cp packaging/"$APP_ID".metainfo.xml "$RPM_BUILD_ROOT/SOURCES/"
+cp LICENSE "$RPM_BUILD_ROOT/SOURCES/"
+cp packaging/README.txt "$RPM_BUILD_ROOT/SOURCES/"
 
 # Package the application files into a tarball
 pushd target || exit
