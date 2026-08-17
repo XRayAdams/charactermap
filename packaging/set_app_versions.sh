@@ -7,9 +7,7 @@ echo "Setting app version in all relevant files..."
 # --- Configuration ---
 CARGO_FILE="Cargo.toml"
 DEBIAN_CONTROL_FILE="packaging/control"
-DEBIAN_DESKTOP_FILE="packaging/gui/app.rayadams.charactermap.desktop"
 SNAP_YAML_FILE="snap/snapcraft.yaml"
-SNAP_DESKTOP_FILE="snap/gui/charactermap.desktop"
 RPM_FILE="packaging/charactermap.spec"
 MACHINE_ARCH=$(uname -m)
 DEBIAN_CONTROL_FILE_ARCH="amd64"
@@ -35,16 +33,8 @@ if [ ! -f "$DEBIAN_CONTROL_FILE" ]; then
     echo "Error: File not found: $DEBIAN_CONTROL_FILE"
     exit 1
 fi
-if [ ! -f "$DEBIAN_DESKTOP_FILE" ]; then
-    echo "Error: File not found: $DEBIAN_DESKTOP_FILE"
-    exit 1
-fi
 if [ ! -f "$SNAP_YAML_FILE" ]; then
     echo "Error: File not found: $SNAP_YAML_FILE"
-    exit 1
-fi
-if [ ! -f "$SNAP_DESKTOP_FILE" ]; then
-    echo "Error: File not found: $SNAP_DESKTOP_FILE"
     exit 1
 fi
 if [ ! -f "$RPM_FILE" ]; then
@@ -75,10 +65,7 @@ APP_BUILD=$(echo "$APP_VERSION" | cut -d'+' -f2)
 sed -i "s/^\(\s*Version:\s*\).*\$/\1$APP_VERSION/" "$DEBIAN_CONTROL_FILE"
 sed -i "s/^\(\s*Architecture:\s*\).*\$/\1$DEBIAN_CONTROL_FILE_ARCH/" "$DEBIAN_CONTROL_FILE"
 
-sed -i "s/^\(\s*Version=\s*\).*\$/\1$APP_VERSION/" "$DEBIAN_DESKTOP_FILE"
-
 sed -i "s/^\(\s*version:\s*\).*\$/\1$APP_VERSION/" "$SNAP_YAML_FILE"
-sed -i "s/^\(\s*Version=\s*\).*\$/\1$APP_VERSION/" "$SNAP_DESKTOP_FILE"
 
 # Update version in RPM spec file
 sed -i "s/^\(\s*%define _version \s*\).*\$/\1$APP_VERSION_SHORT/" "$RPM_FILE"
