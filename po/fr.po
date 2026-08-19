@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-08-03 19:04-0700\n"
+"POT-Creation-Date: 2026-08-18 19:16-0700\n"
 "PO-Revision-Date: 2026-08-02 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,76 +16,76 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: src/app.rs:433
+#: src/app.rs:446
 #, rust-format
 msgid "Search results ({})"
 msgstr "Résultats de recherche ({})"
 
-#: src/app.rs:501
+#: src/app.rs:514
 msgid "_Help"
 msgstr "_Aide"
 
-#: src/app.rs:502
+#: src/app.rs:515
 msgid "_About"
 msgstr "À _propos"
 
-#: src/app.rs:526
+#: src/app.rs:539
 msgid "Fonts"
 msgstr "Polices"
 
-#: src/app.rs:546
+#: src/app.rs:559
 msgid "Search fonts…"
 msgstr "Rechercher des polices…"
 
-#: src/app.rs:558
-msgid "Show plain font names"
-msgstr "Afficher les noms de police en texte brut"
+#: src/app.rs:641
+msgid "Single letter or character name"
+msgstr "Une seule lettre ou un nom de caractère"
 
-#: src/app.rs:571
-msgid "Preview names using each font"
-msgstr "Aperçu des noms avec chaque police"
+#: src/app.rs:727
+msgid "Character Information"
+msgstr "Informations sur le caractère"
 
-#: src/app.rs:616
+#: src/app.rs:743
+msgid "Jump to Unicode Set"
+msgstr "Aller à un ensemble Unicode"
+
+#: src/app.rs:773
+msgid "double click character to add here"
+msgstr "double-cliquez sur un caractère pour l'ajouter ici"
+
+#: src/app.rs:800
+msgid "Hex:"
+msgstr "Hex :"
+
+#: src/app.rs:826
+msgid "Dec:"
+msgstr "Déc :"
+
+#: src/app.rs:1181
+msgid "Copied to clipboard"
+msgstr "Copié dans le presse-papiers"
+
+#: src/templates/char_find_entry.rs:31
+msgid "Find"
+msgstr "Rechercher"
+
+#: src/templates/filter_switch.rs:21
 msgid "Filter Unicode pages"
 msgstr "Filtrer les pages Unicode"
 
-#: src/app.rs:623
+#: src/templates/filter_switch.rs:27
 msgid "Show only Unicode blocks the selected font supports"
 msgstr ""
 "Afficher uniquement les blocs Unicode pris en charge par la police "
 "sélectionnée"
 
-#: src/app.rs:645
-msgid "Single letter or character name"
-msgstr "Une seule lettre ou un nom de caractère"
+#: src/templates/font_preview_toggle.rs:19
+msgid "Show plain font names"
+msgstr "Afficher les noms de police en texte brut"
 
-#: src/app.rs:734
-msgid "Character Information"
-msgstr "Informations sur le caractère"
-
-#: src/app.rs:750
-msgid "Jump to Unicode Set"
-msgstr "Aller à un ensemble Unicode"
-
-#: src/app.rs:778
-msgid "double click character to add here"
-msgstr "double-cliquez sur un caractère pour l'ajouter ici"
-
-#: src/app.rs:803
-msgid "Hex:"
-msgstr "Hex :"
-
-#: src/app.rs:821 src/app.rs:854
-msgid "Find"
-msgstr "Rechercher"
-
-#: src/app.rs:836
-msgid "Dec:"
-msgstr "Déc :"
-
-#: src/app.rs:1203
-msgid "Copied to clipboard"
-msgstr "Copié dans le presse-papiers"
+#: src/templates/font_preview_toggle.rs:25
+msgid "Preview names using each font"
+msgstr "Aperçu des noms avec chaque police"
 
 #: src/widgets/help_dialog.rs:25
 msgid "Font List"
@@ -113,15 +113,17 @@ msgstr ""
 
 #: src/widgets/help_dialog.rs:36
 msgid "Press Ctrl+C to copy the selected character to the clipboard."
-msgstr "Appuyez sur Ctrl+C pour copier le caractère sélectionné dans le presse-papiers."
+msgstr ""
+"Appuyez sur Ctrl+C pour copier le caractère sélectionné dans le presse-"
+"papiers."
 
 #: src/widgets/help_dialog.rs:37
 msgid ""
 "If a character is not present in the selected font, it will be shown as a "
-"tofu box."
+"tofu box with a different background."
 msgstr ""
 "Si un caractère n'est pas présent dans la police sélectionnée, il sera "
-"affiché sous forme de carré tofu."
+"affiché sous forme de carré tofu avec un arrière-plan différent."
 
 #: src/widgets/help_dialog.rs:41
 msgid "Hex and Dec Entries"

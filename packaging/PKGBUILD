@@ -1,7 +1,7 @@
 # Maintainer: Konstantin Adamov <xrayadamo@gmail.com>
 pkgname=charactermap
-pkgver=1.1.7
-pkgrel=13
+pkgver=1.1.8
+pkgrel=19
 pkgdesc="A character map / special-characters viewer for Linux."
 arch=('x86_64' 'aarch64')
 url="https://github.com/XRayAdams/charactermap"
@@ -36,7 +36,7 @@ package() {
   install -Dm644 "packaging/gui/app.rayadams.charactermap.png" "${pkgdir}/usr/share/icons/hicolor/512x512/apps/app.rayadams.charactermap.png"
   
   # Metainfo
-  install -Dm644 "packaging/app.rayadams.charactermap.metainfo.xml" -t "${pkgdir}/usr/share/metainfo/"
+  install -Dm644 "snap/app.rayadams.charactermap.metainfo.xml" -t "${pkgdir}/usr/share/metainfo/"
   
   # License
   install -Dm644 "LICENSE" -t "${pkgdir}/usr/share/licenses/${pkgname}/"
