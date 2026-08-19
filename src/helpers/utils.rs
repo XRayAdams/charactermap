@@ -76,8 +76,7 @@ pub fn collect_cell_labels(widget: &gtk4::Widget, out: &mut Vec<gtk4::Inscriptio
 
 
 /// Updates the sticky "current block" header to the block that owns the
-/// top-most visible grid cell. `GridView`'s own coordinate space always has
-/// `y == 0` at the viewport top, not the absolute scroll offset.
+/// top-most visible grid cell
 pub fn update_sticky_header(
     grid_view: &gtk4::GridView,
     boundaries: &[(u32, String)],
@@ -202,15 +201,12 @@ pub fn grid_geometry(grid_view: &gtk4::GridView) -> Option<(u32, f64)> {
 
 
 /// Builds the grid's flat data store: a lazy `UnicodeCharModel` that
-/// resolves codepoints on demand instead of eager allocation.
+/// resolves codepoints on demand
 pub fn build_unicode_store(sections: &[UnicodeEntry]) -> UnicodeCharModel {
     UnicodeCharModel::new(sections)
 }
 
 /// Builds an eager `gio::ListStore` of the given characters, in order.
-/// Used for the (typically much smaller) name-search result grid, where a
-/// sparse, arbitrary subset of codepoints can't be described as block
-/// ranges, so the analytical `UnicodeCharModel` doesn't apply.
 pub fn build_search_result_store(chars: &[char]) -> gio::ListStore {
     let store = gio::ListStore::new::<gtk4::StringObject>();
     let mut buf = [0u8; 4];
@@ -249,6 +245,7 @@ pub fn compute_positions_boundaries(
 pub fn build_unicode_grid_factory(
     cell_attrs: Rc<RefCell<gtk4::pango::AttrList>>,
     block_boundaries: Rc<RefCell<Vec<(u32, String)>>>,
+    loaded_font: Rc<RefCell<Option<gtk4::pango::Font>>>,
 ) -> gtk4::SignalListItemFactory {
     let factory = gtk4::SignalListItemFactory::new();
 
@@ -324,7 +321,27 @@ pub fn build_unicode_grid_factory(
         } else if label.has_css_class("block-alt") {
             label.remove_css_class("block-alt");
         }
+
+        // Shade cells the selected font has no glyph for
+        apply_no_glyph_class(&label, &loaded_font.borrow());
     });
 
     factory
+}
+
+/// Toggles the "no-glyph" CSS class on a cell based on whether `font` has a
+/// glyph 
+pub fn apply_no_glyph_class(label: &gtk4::Inscription, font: &Option<gtk4::pango::Font>) {
+    let ch = label.text().and_then(|text| text.chars().next());
+    let no_glyph = match (font, ch) {
+        (Some(font), Some(ch)) => !font.has_char(ch),
+        _ => false,
+    };
+    if no_glyph {
+        if !label.has_css_class("no-glyph") {
+            label.add_css_class("no-glyph");
+        }
+    } else if label.has_css_class("no-glyph") {
+        label.remove_css_class("no-glyph");
+    }
 }

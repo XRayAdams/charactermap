@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.4\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-08-03 19:04-0700\n"
+"POT-Creation-Date: 2026-08-18 19:16-0700\n"
 "PO-Revision-Date: 2026-08-10 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,74 +17,74 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2);\n"
 
-#: src/app.rs:433
+#: src/app.rs:446
 #, rust-format
 msgid "Search results ({})"
 msgstr "Rezultatele căutării ({})"
 
-#: src/app.rs:501
+#: src/app.rs:514
 msgid "_Help"
 msgstr "_Ajutor"
 
-#: src/app.rs:502
+#: src/app.rs:515
 msgid "_About"
 msgstr "_Despre"
 
-#: src/app.rs:526
+#: src/app.rs:539
 msgid "Fonts"
 msgstr "Fonturi"
 
-#: src/app.rs:546
+#: src/app.rs:559
 msgid "Search fonts…"
 msgstr "Căutare fonturi…"
 
-#: src/app.rs:558
-msgid "Show plain font names"
-msgstr "Afișează numele simple ale fonturilor"
-
-#: src/app.rs:571
-msgid "Preview names using each font"
-msgstr "Previzualizează numele folosind fiecare font"
-
-#: src/app.rs:616
-msgid "Filter Unicode pages"
-msgstr "Filtrează paginile Unicode"
-
-#: src/app.rs:623
-msgid "Show only Unicode blocks the selected font supports"
-msgstr "Afișează doar blocurile Unicode acceptate de fontul selectat"
-
-#: src/app.rs:645
+#: src/app.rs:641
 msgid "Single letter or character name"
 msgstr "O singură literă sau numele caracterului"
 
-#: src/app.rs:734
+#: src/app.rs:727
 msgid "Character Information"
 msgstr "Informații despre caracter"
 
-#: src/app.rs:750
+#: src/app.rs:743
 msgid "Jump to Unicode Set"
 msgstr "Salt la setul Unicode"
 
-#: src/app.rs:778
+#: src/app.rs:773
 msgid "double click character to add here"
 msgstr "faceți dublu clic pe un caracter pentru a-l adăuga aici"
 
-#: src/app.rs:803
+#: src/app.rs:800
 msgid "Hex:"
 msgstr "Hex:"
 
-#: src/app.rs:821 src/app.rs:854
-msgid "Find"
-msgstr "Caută"
-
-#: src/app.rs:836
+#: src/app.rs:826
 msgid "Dec:"
 msgstr "Zec:"
 
-#: src/app.rs:1203
+#: src/app.rs:1181
 msgid "Copied to clipboard"
 msgstr "Copiat în clipboard"
+
+#: src/templates/char_find_entry.rs:31
+msgid "Find"
+msgstr "Caută"
+
+#: src/templates/filter_switch.rs:21
+msgid "Filter Unicode pages"
+msgstr "Filtrează paginile Unicode"
+
+#: src/templates/filter_switch.rs:27
+msgid "Show only Unicode blocks the selected font supports"
+msgstr "Afișează doar blocurile Unicode acceptate de fontul selectat"
+
+#: src/templates/font_preview_toggle.rs:19
+msgid "Show plain font names"
+msgstr "Afișează numele simple ale fonturilor"
+
+#: src/templates/font_preview_toggle.rs:25
+msgid "Preview names using each font"
+msgstr "Previzualizează numele folosind fiecare font"
 
 #: src/widgets/help_dialog.rs:25
 msgid "Font List"
@@ -117,10 +117,10 @@ msgstr "Apăsați Ctrl+C pentru a copia caracterul selectat în clipboard."
 #: src/widgets/help_dialog.rs:37
 msgid ""
 "If a character is not present in the selected font, it will be shown as a "
-"tofu box."
+"tofu box with a different background."
 msgstr ""
 "Dacă un caracter nu este prezent în fontul selectat, acesta va fi afișat ca "
-"un dreptunghi gol (tofu)."
+"un dreptunghi gol (tofu) cu un fundal diferit."
 
 #: src/widgets/help_dialog.rs:41
 msgid "Hex and Dec Entries"
@@ -131,8 +131,8 @@ msgid ""
 "Enter a hex value, a decimal value, or a character, then press Enter to find "
 "it."
 msgstr ""
-"Introduceți o valoare hexazecimală, o valoare zecimală sau un caracter, "
-"apoi apăsați Enter pentru a-l găsi."
+"Introduceți o valoare hexazecimală, o valoare zecimală sau un caracter, apoi "
+"apăsați Enter pentru a-l găsi."
 
 #: src/widgets/help_dialog.rs:45
 msgid "Search"
@@ -140,7 +140,8 @@ msgstr "Căutare"
 
 #: src/widgets/help_dialog.rs:47
 msgid "Click the search icon to open the search bar."
-msgstr "Faceți clic pe pictograma de căutare pentru a deschide bara de căutare."
+msgstr ""
+"Faceți clic pe pictograma de căutare pentru a deschide bara de căutare."
 
 #: src/widgets/help_dialog.rs:48
 msgid "Type a character's name to find every character whose name contains it."

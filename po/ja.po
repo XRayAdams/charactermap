@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.4\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-08-03 19:04-0700\n"
+"POT-Creation-Date: 2026-08-18 19:16-0700\n"
 "PO-Revision-Date: 2026-08-03 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,74 +16,74 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/app.rs:433
+#: src/app.rs:446
 #, rust-format
 msgid "Search results ({})"
 msgstr "検索結果 ({})"
 
-#: src/app.rs:501
+#: src/app.rs:514
 msgid "_Help"
 msgstr "ヘルプ(_H)"
 
-#: src/app.rs:502
+#: src/app.rs:515
 msgid "_About"
 msgstr "このアプリについて(_A)"
 
-#: src/app.rs:526
+#: src/app.rs:539
 msgid "Fonts"
 msgstr "フォント"
 
-#: src/app.rs:546
+#: src/app.rs:559
 msgid "Search fonts…"
 msgstr "フォントを検索…"
 
-#: src/app.rs:558
-msgid "Show plain font names"
-msgstr "フォント名をそのまま表示"
-
-#: src/app.rs:571
-msgid "Preview names using each font"
-msgstr "各フォントで名前をプレビュー"
-
-#: src/app.rs:616
-msgid "Filter Unicode pages"
-msgstr "Unicodeページを絞り込む"
-
-#: src/app.rs:623
-msgid "Show only Unicode blocks the selected font supports"
-msgstr "選択したフォントが対応するUnicodeブロックのみ表示"
-
-#: src/app.rs:645
+#: src/app.rs:641
 msgid "Single letter or character name"
 msgstr "1文字または文字の名前"
 
-#: src/app.rs:734
+#: src/app.rs:727
 msgid "Character Information"
 msgstr "文字情報"
 
-#: src/app.rs:750
+#: src/app.rs:743
 msgid "Jump to Unicode Set"
 msgstr "Unicodeセットへ移動"
 
-#: src/app.rs:778
+#: src/app.rs:773
 msgid "double click character to add here"
 msgstr "文字をダブルクリックしてここに追加"
 
-#: src/app.rs:803
+#: src/app.rs:800
 msgid "Hex:"
 msgstr "16進:"
 
-#: src/app.rs:821 src/app.rs:854
-msgid "Find"
-msgstr "検索"
-
-#: src/app.rs:836
+#: src/app.rs:826
 msgid "Dec:"
 msgstr "10進:"
 
-#: src/app.rs:1203
+#: src/app.rs:1181
 msgid "Copied to clipboard"
 msgstr "クリップボードにコピーしました"
+
+#: src/templates/char_find_entry.rs:31
+msgid "Find"
+msgstr "検索"
+
+#: src/templates/filter_switch.rs:21
+msgid "Filter Unicode pages"
+msgstr "Unicodeページを絞り込む"
+
+#: src/templates/filter_switch.rs:27
+msgid "Show only Unicode blocks the selected font supports"
+msgstr "選択したフォントが対応するUnicodeブロックのみ表示"
+
+#: src/templates/font_preview_toggle.rs:19
+msgid "Show plain font names"
+msgstr "フォント名をそのまま表示"
+
+#: src/templates/font_preview_toggle.rs:25
+msgid "Preview names using each font"
+msgstr "各フォントで名前をプレビュー"
 
 #: src/widgets/help_dialog.rs:25
 msgid "Font List"
@@ -105,7 +105,9 @@ msgstr "グリッド"
 msgid ""
 "Double-click, or press Enter, to add the selected character to the "
 "collection box."
-msgstr "選択した文字をコレクションボックスに追加するには、ダブルクリックするかEnterキーを押します。"
+msgstr ""
+"選択した文字をコレクションボックスに追加するには、ダブルクリックするかEnter"
+"キーを押します。"
 
 #: src/widgets/help_dialog.rs:36
 msgid "Press Ctrl+C to copy the selected character to the clipboard."
@@ -114,8 +116,10 @@ msgstr "選択した文字をクリップボードにコピーするには、Ctr
 #: src/widgets/help_dialog.rs:37
 msgid ""
 "If a character is not present in the selected font, it will be shown as a "
-"tofu box."
-msgstr "選択したフォントにその文字が存在しない場合、豆腐(tofu)ボックスとして表示されます。"
+"tofu box with a different background."
+msgstr ""
+"選択したフォントにその文字が存在しない場合、背景色が異なる豆腐(tofu)ボックス"
+"として表示されます。"
 
 #: src/widgets/help_dialog.rs:41
 msgid "Hex and Dec Entries"

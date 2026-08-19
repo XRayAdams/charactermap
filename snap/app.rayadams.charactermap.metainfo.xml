@@ -186,6 +186,10 @@
       <image>https://raw.githubusercontent.com/XRayAdams/charactermap/refs/heads/master/screenshots/screenshot03.png</image>
       <caption>Character name search</caption>
     </screenshot>
+    <screenshot >
+      <image>https://raw.githubusercontent.com/XRayAdams/charactermap/refs/heads/master/screenshots/screenshot04.png</image>
+      <caption>Unsupported glyphs cells</caption>
+    </screenshot>
   </screenshots>
   <languages>
     <lang percentage="100">en</lang>

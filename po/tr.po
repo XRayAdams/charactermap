@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-08-03 19:04-0700\n"
+"POT-Creation-Date: 2026-08-18 19:16-0700\n"
 "PO-Revision-Date: 2026-08-02 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,74 +16,74 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: src/app.rs:433
+#: src/app.rs:446
 #, rust-format
 msgid "Search results ({})"
 msgstr "Arama sonuçları ({})"
 
-#: src/app.rs:501
+#: src/app.rs:514
 msgid "_Help"
 msgstr "_Yardım"
 
-#: src/app.rs:502
+#: src/app.rs:515
 msgid "_About"
 msgstr "_Hakkında"
 
-#: src/app.rs:526
+#: src/app.rs:539
 msgid "Fonts"
 msgstr "Yazı Tipleri"
 
-#: src/app.rs:546
+#: src/app.rs:559
 msgid "Search fonts…"
 msgstr "Yazı tiplerinde ara…"
 
-#: src/app.rs:558
-msgid "Show plain font names"
-msgstr "Düz yazı tipi adlarını göster"
-
-#: src/app.rs:571
-msgid "Preview names using each font"
-msgstr "Adları her yazı tipiyle önizle"
-
-#: src/app.rs:616
-msgid "Filter Unicode pages"
-msgstr "Unicode sayfalarını filtrele"
-
-#: src/app.rs:623
-msgid "Show only Unicode blocks the selected font supports"
-msgstr "Yalnızca seçili yazı tipinin desteklediği Unicode bloklarını göster"
-
-#: src/app.rs:645
+#: src/app.rs:641
 msgid "Single letter or character name"
 msgstr "Tek harf veya karakter adı"
 
-#: src/app.rs:734
+#: src/app.rs:727
 msgid "Character Information"
 msgstr "Karakter Bilgisi"
 
-#: src/app.rs:750
+#: src/app.rs:743
 msgid "Jump to Unicode Set"
 msgstr "Unicode Kümesine Git"
 
-#: src/app.rs:778
+#: src/app.rs:773
 msgid "double click character to add here"
 msgstr "buraya eklemek için karaktere çift tıklayın"
 
-#: src/app.rs:803
+#: src/app.rs:800
 msgid "Hex:"
 msgstr "Onaltılık:"
 
-#: src/app.rs:821 src/app.rs:854
-msgid "Find"
-msgstr "Bul"
-
-#: src/app.rs:836
+#: src/app.rs:826
 msgid "Dec:"
 msgstr "Ondalık:"
 
-#: src/app.rs:1203
+#: src/app.rs:1181
 msgid "Copied to clipboard"
 msgstr "Panoya kopyalandı"
+
+#: src/templates/char_find_entry.rs:31
+msgid "Find"
+msgstr "Bul"
+
+#: src/templates/filter_switch.rs:21
+msgid "Filter Unicode pages"
+msgstr "Unicode sayfalarını filtrele"
+
+#: src/templates/filter_switch.rs:27
+msgid "Show only Unicode blocks the selected font supports"
+msgstr "Yalnızca seçili yazı tipinin desteklediği Unicode bloklarını göster"
+
+#: src/templates/font_preview_toggle.rs:19
+msgid "Show plain font names"
+msgstr "Düz yazı tipi adlarını göster"
+
+#: src/templates/font_preview_toggle.rs:25
+msgid "Preview names using each font"
+msgstr "Adları her yazı tipiyle önizle"
 
 #: src/widgets/help_dialog.rs:25
 msgid "Font List"
@@ -116,8 +116,10 @@ msgstr "Seçili karakteri panoya kopyalamak için Ctrl+C tuşlarına basın."
 #: src/widgets/help_dialog.rs:37
 msgid ""
 "If a character is not present in the selected font, it will be shown as a "
-"tofu box."
-msgstr "Bir karakter seçili yazı tipinde yoksa, tofu kutusu olarak gösterilir."
+"tofu box with a different background."
+msgstr ""
+"Bir karakter seçili yazı tipinde yoksa, farklı bir arka planla tofu kutusu "
+"olarak gösterilir."
 
 #: src/widgets/help_dialog.rs:41
 msgid "Hex and Dec Entries"

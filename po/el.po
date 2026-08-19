@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-08-03 19:04-0700\n"
+"POT-Creation-Date: 2026-08-18 19:16-0700\n"
 "PO-Revision-Date: 2026-08-02 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,75 +16,75 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/app.rs:433
+#: src/app.rs:446
 #, rust-format
 msgid "Search results ({})"
 msgstr "Αποτελέσματα αναζήτησης ({})"
 
-#: src/app.rs:501
+#: src/app.rs:514
 msgid "_Help"
 msgstr "_Βοήθεια"
 
-#: src/app.rs:502
+#: src/app.rs:515
 msgid "_About"
 msgstr "_Πληροφορίες"
 
-#: src/app.rs:526
+#: src/app.rs:539
 msgid "Fonts"
 msgstr "Γραμματοσειρές"
 
-#: src/app.rs:546
+#: src/app.rs:559
 msgid "Search fonts…"
 msgstr "Αναζήτηση γραμματοσειρών…"
 
-#: src/app.rs:558
-msgid "Show plain font names"
-msgstr "Εμφάνιση απλών ονομάτων γραμματοσειράς"
+#: src/app.rs:641
+msgid "Single letter or character name"
+msgstr "Ένα γράμμα ή όνομα χαρακτήρα"
 
-#: src/app.rs:571
-msgid "Preview names using each font"
-msgstr "Προεπισκόπηση ονομάτων με κάθε γραμματοσειρά"
+#: src/app.rs:727
+msgid "Character Information"
+msgstr "Πληροφορίες χαρακτήρα"
 
-#: src/app.rs:616
+#: src/app.rs:743
+msgid "Jump to Unicode Set"
+msgstr "Μετάβαση σε σύνολο Unicode"
+
+#: src/app.rs:773
+msgid "double click character to add here"
+msgstr "κάντε διπλό κλικ στον χαρακτήρα για να τον προσθέσετε εδώ"
+
+#: src/app.rs:800
+msgid "Hex:"
+msgstr "Δεκ.εξ.:"
+
+#: src/app.rs:826
+msgid "Dec:"
+msgstr "Δεκ.:"
+
+#: src/app.rs:1181
+msgid "Copied to clipboard"
+msgstr "Αντιγράφηκε στο πρόχειρο"
+
+#: src/templates/char_find_entry.rs:31
+msgid "Find"
+msgstr "Εύρεση"
+
+#: src/templates/filter_switch.rs:21
 msgid "Filter Unicode pages"
 msgstr "Φιλτράρισμα σελίδων Unicode"
 
-#: src/app.rs:623
+#: src/templates/filter_switch.rs:27
 msgid "Show only Unicode blocks the selected font supports"
 msgstr ""
 "Εμφάνιση μόνο των μπλοκ Unicode που υποστηρίζει η επιλεγμένη γραμματοσειρά"
 
-#: src/app.rs:645
-msgid "Single letter or character name"
-msgstr "Ένα γράμμα ή όνομα χαρακτήρα"
+#: src/templates/font_preview_toggle.rs:19
+msgid "Show plain font names"
+msgstr "Εμφάνιση απλών ονομάτων γραμματοσειράς"
 
-#: src/app.rs:734
-msgid "Character Information"
-msgstr "Πληροφορίες χαρακτήρα"
-
-#: src/app.rs:750
-msgid "Jump to Unicode Set"
-msgstr "Μετάβαση σε σύνολο Unicode"
-
-#: src/app.rs:778
-msgid "double click character to add here"
-msgstr "κάντε διπλό κλικ στον χαρακτήρα για να τον προσθέσετε εδώ"
-
-#: src/app.rs:803
-msgid "Hex:"
-msgstr "Δεκ.εξ.:"
-
-#: src/app.rs:821 src/app.rs:854
-msgid "Find"
-msgstr "Εύρεση"
-
-#: src/app.rs:836
-msgid "Dec:"
-msgstr "Δεκ.:"
-
-#: src/app.rs:1203
-msgid "Copied to clipboard"
-msgstr "Αντιγράφηκε στο πρόχειρο"
+#: src/templates/font_preview_toggle.rs:25
+msgid "Preview names using each font"
+msgstr "Προεπισκόπηση ονομάτων με κάθε γραμματοσειρά"
 
 #: src/widgets/help_dialog.rs:25
 msgid "Font List"
@@ -113,15 +113,16 @@ msgstr ""
 
 #: src/widgets/help_dialog.rs:36
 msgid "Press Ctrl+C to copy the selected character to the clipboard."
-msgstr "Πατήστε Ctrl+C για να αντιγράψετε τον επιλεγμένο χαρακτήρα στο πρόχειρο."
+msgstr ""
+"Πατήστε Ctrl+C για να αντιγράψετε τον επιλεγμένο χαρακτήρα στο πρόχειρο."
 
 #: src/widgets/help_dialog.rs:37
 msgid ""
 "If a character is not present in the selected font, it will be shown as a "
-"tofu box."
+"tofu box with a different background."
 msgstr ""
 "Αν ένας χαρακτήρας δεν υπάρχει στην επιλεγμένη γραμματοσειρά, θα εμφανιστεί "
-"ως πλαίσιο tofu."
+"ως πλαίσιο tofu με διαφορετικό φόντο."
 
 #: src/widgets/help_dialog.rs:41
 msgid "Hex and Dec Entries"

@@ -34,7 +34,7 @@ const HELP_SECTIONS: &[HelpSection] = &[
             N_!("Use the arrow keys to move the selection."),
             N_!("Double-click, or press Enter, to add the selected character to the collection box."),
             N_!("Press Ctrl+C to copy the selected character to the clipboard."),
-            N_!("If a character is not present in the selected font, it will be shown as a tofu box."),
+            N_!("If a character is not present in the selected font, it will be shown as a tofu box with a different background."),
         ],
     },
     HelpSection {

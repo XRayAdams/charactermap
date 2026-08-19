@@ -18,9 +18,10 @@ use crate::helpers::static_data::{
     APP_NAME, CELL_SIZE, GRID_FONT_SIZE, LABEL_FONT_SIZE, SPACING_MEDIUM, SPACING_SMALL,
 };
 use crate::helpers::utils::{
-    apply_font_preview, bp_with_setters, build_search_result_store, build_unicode_grid_factory,
-    build_unicode_store, collect_cell_labels, compute_positions_boundaries, font_attr_list,
-    font_covers_range, grid_geometry, update_sticky_header,
+    apply_font_preview, apply_no_glyph_class, bp_with_setters, build_search_result_store,
+    build_unicode_grid_factory, build_unicode_store, collect_cell_labels,
+    compute_positions_boundaries, font_attr_list, font_covers_range, grid_geometry,
+    update_sticky_header,
 };
 use crate::tr;
 use crate::unicode::{UnicodeEntry, UnicodeSet, raw_offset_to_filtered_index};
@@ -67,6 +68,9 @@ pub struct App {
     /// cell; updated in place on font change so recycled cells pick it up
     cell_attrs: Rc<RefCell<gtk4::pango::AttrList>>,
     char_label_attrs: Rc<RefCell<gtk4::pango::AttrList>>,
+    /// Currently selected font, loaded once per font change so grid cells
+    /// can check per-character glyph coverage without reloading it
+    loaded_font: Rc<RefCell<Option<gtk4::pango::Font>>>,
     /// Flat-position -> unicode-block boundaries, used to resolve the
     /// sticky "current block" header from the top-visible cell
     block_boundaries: Rc<RefCell<Vec<(u32, String)>>>,
@@ -196,18 +200,21 @@ impl App {
         let context = font_list.pango_context();
         let font_name = self.selected_font.clone();
 
+        // Loaded unconditionally (not just when filtering is on) so grid
+        // cells can check per-character glyph coverage either way.
+        let mut font_desc = gtk4::pango::FontDescription::new();
+        font_desc.set_family(&font_name);
+        let loaded_font = context.load_font(&font_desc);
+        *self.loaded_font.borrow_mut() = loaded_font.clone();
+
         self.unicode_set.filtered_unicode_sections = if self.filter_unicode_pages {
             // Keep only the blocks the selected font actually covers.
-            let mut font_desc = gtk4::pango::FontDescription::new();
-            font_desc.set_family(&font_name);
-            let font = context.load_font(&font_desc);
-
             let result: Vec<UnicodeEntry> = self
                 .unicode_set
                 .unicode_sections
                 .iter()
                 .filter(|entry| {
-                    font.as_ref().is_some_and(|font| {
+                    loaded_font.as_ref().is_some_and(|font| {
                         font_covers_range(font, entry.start_index, entry.end_index)
                     })
                 })
@@ -216,8 +223,8 @@ impl App {
 
             result
         } else {
-            // No coverage filtering: show every block (unsupported glyphs
-            // render as tofu boxes, but font switching is near-instant).
+            // No coverage filtering: show every block (uncovered glyphs are
+            // now shaded via the "no-glyph" cell CSS class instead).
             self.unicode_set.unicode_sections.clone()
         };
 
@@ -280,8 +287,10 @@ impl App {
                 collect_cell_labels(grid_view.upcast_ref(), &mut cells);
 
                 let attrs = self.cell_attrs.borrow();
+                let font = self.loaded_font.borrow();
                 for cell in &cells {
                     cell.set_attributes(Some(&attrs));
+                    apply_no_glyph_class(cell, &font);
                 }
             }
         }
@@ -320,8 +329,11 @@ impl App {
         connect_grid_selection_changed(&new_selection, sender.clone());
 
         let new_grid_view = build_unicode_grid_view(sender.clone());
-        let new_factory =
-            build_unicode_grid_factory(self.cell_attrs.clone(), self.block_boundaries.clone());
+        let new_factory = build_unicode_grid_factory(
+            self.cell_attrs.clone(),
+            self.block_boundaries.clone(),
+            self.loaded_font.clone(),
+        );
         new_grid_view.set_factory(Some(&new_factory));
         new_grid_view.set_model(Some(&new_selection));
 
@@ -900,7 +912,8 @@ impl SimpleComponent for App {
             let provider = gtk4::CssProvider::new();
             provider.load_from_string(
                 ".unicode-cell { border-radius: 6px; background-color: alpha(currentColor, 0.08); }\n\
-                 .unicode-cell.block-alt { background-color: alpha(currentColor, 0.16); }",
+                 .unicode-cell.block-alt { background-color: alpha(currentColor, 0.16); }\n\
+                 .unicode-cell.no-glyph { background-color: alpha(currentColor, 0.03); color: alpha(currentColor, 0.32); }",
             );
             gtk4::style_context_add_provider_for_display(
                 &display,
@@ -940,6 +953,7 @@ impl SimpleComponent for App {
             collected_text: String::new(),
             cell_attrs: Rc::new(RefCell::new(gtk4::pango::AttrList::new())),
             char_label_attrs: Rc::new(RefCell::new(gtk4::pango::AttrList::new())),
+            loaded_font: Rc::new(RefCell::new(None)),
             block_boundaries: Rc::new(RefCell::new(Vec::new())),
             sticky_header: None,
             character_names: CharacterNames::new(),

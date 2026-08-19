@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.4\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-08-03 19:04-0700\n"
+"POT-Creation-Date: 2026-08-18 19:16-0700\n"
 "PO-Revision-Date: 2026-08-03 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,74 +16,74 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/app.rs:433
+#: src/app.rs:446
 #, rust-format
 msgid "Search results ({})"
 msgstr "खोज परिणाम ({})"
 
-#: src/app.rs:501
+#: src/app.rs:514
 msgid "_Help"
 msgstr "सहायता (_H)"
 
-#: src/app.rs:502
+#: src/app.rs:515
 msgid "_About"
 msgstr "जानकारी (_A)"
 
-#: src/app.rs:526
+#: src/app.rs:539
 msgid "Fonts"
 msgstr "फ़ॉन्ट"
 
-#: src/app.rs:546
+#: src/app.rs:559
 msgid "Search fonts…"
 msgstr "फ़ॉन्ट खोजें…"
 
-#: src/app.rs:558
-msgid "Show plain font names"
-msgstr "सादा फ़ॉन्ट नाम दिखाएँ"
-
-#: src/app.rs:571
-msgid "Preview names using each font"
-msgstr "प्रत्येक फ़ॉन्ट में नामों का पूर्वावलोकन करें"
-
-#: src/app.rs:616
-msgid "Filter Unicode pages"
-msgstr "यूनिकोड पृष्ठ फ़िल्टर करें"
-
-#: src/app.rs:623
-msgid "Show only Unicode blocks the selected font supports"
-msgstr "केवल वे यूनिकोड ब्लॉक दिखाएँ जिन्हें चयनित फ़ॉन्ट समर्थन करता है"
-
-#: src/app.rs:645
+#: src/app.rs:641
 msgid "Single letter or character name"
 msgstr "एक अक्षर या वर्ण का नाम"
 
-#: src/app.rs:734
+#: src/app.rs:727
 msgid "Character Information"
 msgstr "वर्ण की जानकारी"
 
-#: src/app.rs:750
+#: src/app.rs:743
 msgid "Jump to Unicode Set"
 msgstr "यूनिकोड सेट पर जाएँ"
 
-#: src/app.rs:778
+#: src/app.rs:773
 msgid "double click character to add here"
 msgstr "यहाँ जोड़ने के लिए वर्ण पर डबल-क्लिक करें"
 
-#: src/app.rs:803
+#: src/app.rs:800
 msgid "Hex:"
 msgstr "हेक्स:"
 
-#: src/app.rs:821 src/app.rs:854
-msgid "Find"
-msgstr "खोजें"
-
-#: src/app.rs:836
+#: src/app.rs:826
 msgid "Dec:"
 msgstr "दशमलव:"
 
-#: src/app.rs:1203
+#: src/app.rs:1181
 msgid "Copied to clipboard"
 msgstr "क्लिपबोर्ड में कॉपी किया गया"
+
+#: src/templates/char_find_entry.rs:31
+msgid "Find"
+msgstr "खोजें"
+
+#: src/templates/filter_switch.rs:21
+msgid "Filter Unicode pages"
+msgstr "यूनिकोड पृष्ठ फ़िल्टर करें"
+
+#: src/templates/filter_switch.rs:27
+msgid "Show only Unicode blocks the selected font supports"
+msgstr "केवल वे यूनिकोड ब्लॉक दिखाएँ जिन्हें चयनित फ़ॉन्ट समर्थन करता है"
+
+#: src/templates/font_preview_toggle.rs:19
+msgid "Show plain font names"
+msgstr "सादा फ़ॉन्ट नाम दिखाएँ"
+
+#: src/templates/font_preview_toggle.rs:25
+msgid "Preview names using each font"
+msgstr "प्रत्येक फ़ॉन्ट में नामों का पूर्वावलोकन करें"
 
 #: src/widgets/help_dialog.rs:25
 msgid "Font List"
@@ -114,8 +114,10 @@ msgstr "चयनित वर्ण को क्लिपबोर्ड म�
 #: src/widgets/help_dialog.rs:37
 msgid ""
 "If a character is not present in the selected font, it will be shown as a "
-"tofu box."
-msgstr "यदि कोई वर्ण चयनित फ़ॉन्ट में मौजूद नहीं है, तो उसे टोफू बॉक्स के रूप में दिखाया जाएगा।"
+"tofu box with a different background."
+msgstr ""
+"यदि कोई वर्ण चयनित फ़ॉन्ट में मौजूद नहीं है, तो उसे अलग पृष्ठभूमि वाले टोफू बॉक्स के रूप में "
+"दिखाया जाएगा।"
 
 #: src/widgets/help_dialog.rs:41
 msgid "Hex and Dec Entries"

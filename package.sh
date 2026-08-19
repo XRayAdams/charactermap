@@ -46,7 +46,7 @@ install -m 755 "target/release/$APP_NAME" "$PACKAGE_DIR/usr/bin/$APP_NAME"
 cp -r target/release/locale/. "$PACKAGE_DIR/usr/share/locale/"
 cp packaging/gui/$APP_ID.desktop "$PACKAGE_DIR/usr/share/applications/"
 cp packaging/gui/$APP_ID.png "$PACKAGE_DIR/usr/share/icons/"
-cp packaging/$APP_ID.metainfo.xml "$PACKAGE_DIR/usr/share/metainfo/"
+cp snap/$APP_ID.metainfo.xml "$PACKAGE_DIR/usr/share/metainfo/"
 
 # Copy control file
 mkdir -p "$PACKAGE_DIR/DEBIAN"
@@ -83,7 +83,7 @@ sed "s/^*loghere$/* $CHANGE_DATE/" "packaging/$APP_NAME.spec" > "$RPM_BUILD_ROOT
 # Copy desktop and icon files, replacing Exec and TryExec with app name , by default it has full path for debian package
 sed -e "s/Icon=$APP_ID/Icon=$APP_NAME/" -e "s/^\(Exec\|TryExec\)=.*$/\1=$APP_NAME/" "packaging/gui/$APP_ID.desktop"  > "$RPM_BUILD_ROOT/SOURCES/$APP_ID.desktop"
 cp packaging/gui/"$APP_ID".png "$RPM_BUILD_ROOT/SOURCES/"
-cp packaging/"$APP_ID".metainfo.xml "$RPM_BUILD_ROOT/SOURCES/"
+cp snap/"$APP_ID".metainfo.xml "$RPM_BUILD_ROOT/SOURCES/"
 cp LICENSE "$RPM_BUILD_ROOT/SOURCES/"
 cp packaging/README.txt "$RPM_BUILD_ROOT/SOURCES/"
 

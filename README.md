@@ -20,7 +20,15 @@ A character map / special characters viewer for Linux.
 
 ![Screenshot 2](screenshots/screenshot02.png)
 
+_Filter font names_
+
 ![Screenshot 3](screenshots/screenshot03.png)
+
+_Search by character name_
+
+![Screenshot 3](screenshots/screenshot04.png)
+
+_Unsupported glyphs have different background and foreground color to distinguish between supported and non-presented glyphs._
 
 ## Installation sources
 <a href="https://github.com/XRayAdams/charactermap/releases">
