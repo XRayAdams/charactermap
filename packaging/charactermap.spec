@@ -1,6 +1,6 @@
 %define _name charactermap
 %define _version 1.1.8
-%define _release 20
+%define _release 21
 %define debug_package %{nil}
 
 Name: %{_name}

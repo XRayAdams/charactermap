@@ -3,7 +3,8 @@
 use libadwaita as adw;
 use libadwaita::prelude::AdwDialogExt;
 use relm4::actions::{RelmAction};
-use super::static_data::APP_ID;
+use crate::tr;
+use super::static_data::{APP_ID, APP_NAME};
 
 relm4::new_action_group!(pub WindowActionGroup, "win");
 
@@ -18,7 +19,7 @@ pub fn create_about_action(parent: adw::ApplicationWindow, app_version: &str) ->
             .license_type(gtk4::License::MitX11)
             .website("https://github.com/XRayAdams/charactermap")
             .issue_url("https://github.com/XRayAdams/charactermap/issues")
-            .application_name("Character Map")
+            .application_name(&tr!(APP_NAME))
             .version(&app_version)
             .copyright("© 2026 Konstantin Adamov")
             .developers(vec!["Konstantin Adamov"])

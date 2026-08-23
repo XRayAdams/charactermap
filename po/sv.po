@@ -4,55 +4,54 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: charactermap 1.1.4\n"
+"Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
 "POT-Creation-Date: 2026-08-22 18:20-0700\n"
-"PO-Revision-Date: 2026-08-10 00:00-0700\n"
+"PO-Revision-Date: 2026-08-22 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
-"Language: ro\n"
+"Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
-"20)) ? 1 : 2);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: src/app.rs:446
 #, rust-format
 msgid "Search results ({})"
-msgstr "Rezultatele căutării ({})"
+msgstr "Sökresultat ({})"
 
 #: src/app.rs:514
 msgid "_Help"
-msgstr "_Ajutor"
+msgstr "_Hjälp"
 
 #: src/app.rs:515
 msgid "_About"
-msgstr "_Despre"
+msgstr "_Om"
 
 #: src/app.rs:539
 msgid "Fonts"
-msgstr "Fonturi"
+msgstr "Typsnitt"
 
 #: src/app.rs:559
 msgid "Search fonts…"
-msgstr "Căutare fonturi…"
+msgstr "Sök typsnitt…"
 
 #: src/app.rs:641
 msgid "Single letter or character name"
-msgstr "O singură literă sau numele caracterului"
+msgstr "Enstaka bokstav eller teckennamn"
 
 #: src/app.rs:727
 msgid "Character Information"
-msgstr "Informații despre caracter"
+msgstr "Teckeninformation"
 
 #: src/app.rs:743
 msgid "Jump to Unicode Set"
-msgstr "Salt la setul Unicode"
+msgstr "Hoppa till Unicode-uppsättning"
 
 #: src/app.rs:773
 msgid "double click character to add here"
-msgstr "faceți dublu clic pe un caracter pentru a-l adăuga aici"
+msgstr "dubbelklicka på ett tecken för att lägga till det här"
 
 #: src/app.rs:800
 msgid "Hex:"
@@ -60,103 +59,101 @@ msgstr "Hex:"
 
 #: src/app.rs:826
 msgid "Dec:"
-msgstr "Zec:"
+msgstr "Dec:"
 
 #: src/app.rs:1181
 msgid "Copied to clipboard"
-msgstr "Copiat în clipboard"
+msgstr "Kopierat till urklipp"
 
 #: src/helpers/static_data.rs:6
 msgid "Character Map"
-msgstr "Tabel de caractere"
+msgstr "Teckentabell"
 
 #: src/templates/char_find_entry.rs:31
 msgid "Find"
-msgstr "Caută"
+msgstr "Sök"
 
 #: src/templates/filter_switch.rs:21
 msgid "Filter Unicode pages"
-msgstr "Filtrează paginile Unicode"
+msgstr "Filtrera Unicode-sidor"
 
 #: src/templates/filter_switch.rs:27
 msgid "Show only Unicode blocks the selected font supports"
-msgstr "Afișează doar blocurile Unicode acceptate de fontul selectat"
+msgstr "Visa endast Unicode-block som det valda typsnittet stöder"
 
 #: src/templates/font_preview_toggle.rs:19
 msgid "Show plain font names"
-msgstr "Afișează numele simple ale fonturilor"
+msgstr "Visa vanliga typsnittsnamn"
 
 #: src/templates/font_preview_toggle.rs:25
 msgid "Preview names using each font"
-msgstr "Previzualizează numele folosind fiecare font"
+msgstr "Förhandsgranska namn med respektive typsnitt"
 
 #: src/widgets/help_dialog.rs:25
 msgid "Font List"
-msgstr "Lista fonturilor"
+msgstr "Typsnittslista"
 
 #: src/widgets/help_dialog.rs:27 src/widgets/help_dialog.rs:34
 msgid "Use the arrow keys to move the selection."
-msgstr "Folosiți tastele săgeți pentru a muta selecția."
+msgstr "Använd piltangenterna för att flytta markeringen."
 
 #: src/widgets/help_dialog.rs:28
 msgid "Start typing to find a font by name."
-msgstr "Începeți să tastați pentru a găsi un font după nume."
+msgstr "Börja skriva för att hitta ett typsnitt efter namn."
 
 #: src/widgets/help_dialog.rs:32
 msgid "Grid"
-msgstr "Grilă"
+msgstr "Rutnät"
 
 #: src/widgets/help_dialog.rs:35
 msgid ""
 "Double-click, or press Enter, to add the selected character to the "
 "collection box."
 msgstr ""
-"Faceți dublu clic sau apăsați Enter pentru a adăuga caracterul selectat în "
-"caseta de colecție."
+"Dubbelklicka, eller tryck på Retur, för att lägga till det markerade tecknet "
+"i samlingsrutan."
 
 #: src/widgets/help_dialog.rs:36
 msgid "Press Ctrl+C to copy the selected character to the clipboard."
-msgstr "Apăsați Ctrl+C pentru a copia caracterul selectat în clipboard."
+msgstr "Tryck på Ctrl+C för att kopiera det markerade tecknet till urklipp."
 
 #: src/widgets/help_dialog.rs:37
 msgid ""
 "If a character is not present in the selected font, it will be shown as a "
 "tofu box with a different background."
 msgstr ""
-"Dacă un caracter nu este prezent în fontul selectat, acesta va fi afișat ca "
-"un dreptunghi gol (tofu) cu un fundal diferit."
+"Om ett tecken inte finns i det valda typsnittet visas det som en tofu-ruta "
+"med en annan bakgrund."
 
 #: src/widgets/help_dialog.rs:41
 msgid "Hex and Dec Entries"
-msgstr "Câmpuri hexazecimal și zecimal"
+msgstr "Hex- och decimalfält"
 
 #: src/widgets/help_dialog.rs:42
 msgid ""
 "Enter a hex value, a decimal value, or a character, then press Enter to find "
 "it."
 msgstr ""
-"Introduceți o valoare hexazecimală, o valoare zecimală sau un caracter, apoi "
-"apăsați Enter pentru a-l găsi."
+"Ange ett hexvärde, ett decimalvärde eller ett tecken och tryck sedan på "
+"Retur för att hitta det."
 
 #: src/widgets/help_dialog.rs:45
 msgid "Search"
-msgstr "Căutare"
+msgstr "Sök"
 
 #: src/widgets/help_dialog.rs:47
 msgid "Click the search icon to open the search bar."
-msgstr ""
-"Faceți clic pe pictograma de căutare pentru a deschide bara de căutare."
+msgstr "Klicka på sökikonen för att öppna sökfältet."
 
 #: src/widgets/help_dialog.rs:48
 msgid "Type a character's name to find every character whose name contains it."
 msgstr ""
-"Tastați numele unui caracter pentru a găsi toate caracterele al căror nume "
-"îl conține."
+"Skriv ett teckens namn för att hitta alla tecken vars namn innehåller det."
 
 #: src/widgets/help_dialog.rs:49
 msgid "Type, or paste, a single character to find it directly."
-msgstr "Tastați sau lipiți un singur caracter pentru a-l găsi direct."
+msgstr "Skriv eller klistra in ett enda tecken för att hitta det direkt."
 
 #: src/widgets/help_dialog.rs:88
 msgid "Help"
-msgstr "Ajutor"
+msgstr "Hjälp"
