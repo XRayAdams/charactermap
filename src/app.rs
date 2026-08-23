@@ -520,7 +520,7 @@ impl SimpleComponent for App {
     view! {
         #[root]
         main_window = adw::ApplicationWindow {
-            set_title: Some("Character Map"),
+            set_title: Some(&tr!(APP_NAME)),
             set_default_size: (1100, 800),
             set_resizable: true,
 
@@ -630,7 +630,7 @@ impl SimpleComponent for App {
 
                     #[wrap(Some)]
                     set_content = &adw::NavigationPage {
-                    set_title: APP_NAME,
+                    set_title: &tr!(APP_NAME),
                         #[wrap(Some)]
                         set_child = &adw::ToolbarView {
                             add_top_bar = &adw::HeaderBar {
@@ -646,7 +646,7 @@ impl SimpleComponent for App {
                                     }
                                 } else {
                                     adw::WindowTitle {
-                                        set_title: APP_NAME,
+                                        set_title: &tr!(APP_NAME),
                                     }
                                 },
 

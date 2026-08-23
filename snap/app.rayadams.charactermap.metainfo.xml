@@ -18,6 +18,7 @@
   <name xml:lang="ro">Tabel de caractere</name>
   <name xml:lang="sk">Tabuļka znakov</name>
   <name xml:lang="nl">Tekentabel</name>
+  <name xml:lang="sv">Teckentabell</name>
   <summary>A character map / special-characters viewer for Linux.</summary>
   <summary xml:lang="de">Eine Zeichentabelle / Sonderzeichen-Anzeige für Linux.</summary>
   <summary xml:lang="fr">Une table des caractères / visionneuse de caractères spéciaux pour Linux.</summary>
@@ -34,6 +35,7 @@
   <summary xml:lang="ro">Un catalog de caractere / vizualizator de caractere speciale pentru Linux.</summary>
   <summary xml:lang="sk">Tabuļka znakov / prehliadač špeciálnych znakov pre Linux.</summary>
   <summary xml:lang="nl">Een tekentabel / speciale-tekens-viewer voor Linux.</summary>
+  <summary xml:lang="sv">En teckentabell / specialteckenvisare för Linux.</summary>
   <description>
     <p>A character map and special-characters viewer for Linux, helping you browse installed fonts and quickly find any character you need.</p>
     <p xml:lang="de">Eine Zeichentabelle / Sonderzeichen-Anzeige für Linux, mit der Sie installierte Schriftarten durchsuchen und schnell jedes benötigte Zeichen finden können.</p>
@@ -51,6 +53,7 @@
     <p xml:lang="ro">Un catalog de caractere și vizualizator de caractere speciale pentru Linux, care vă ajută să răsfoiți fonturile instalate și să găsiți rapid orice caracter aveți nevoie.</p>
     <p xml:lang="sk">Tabuļka znakov a prehliadač špeciálnych znakov pre Linux, ktorý vám pomôže prehliadať nainštalované písma a rýchlo nájsť akýkoľvek potrebný znak.</p>
     <p xml:lang="nl">Een tekentabel en speciale-tekens-viewer voor Linux, waarmee u geïnstalleerde lettertypen kunt doorzoeken en snel elk gewenst teken kunt vinden.</p>
+    <p xml:lang="sv">En teckentabell och specialteckenvisare för Linux som hjälper dig att bläddra bland installerade typsnitt och snabbt hitta det tecken du behöver.</p>
     <p>Features:</p>
     <p xml:lang="de">Funktionen:</p>
     <p xml:lang="fr">Fonctionnalités :</p>
@@ -67,6 +70,7 @@
     <p xml:lang="ro">Funcționalități:</p>
     <p xml:lang="sk">Funkcie:</p>
     <p xml:lang="nl">Functies:</p>
+    <p xml:lang="sv">Funktioner:</p>
     <ul>
       <li>Browse installed fonts and see which Unicode blocks each one supports</li>
       <li xml:lang="de">Installierte Schriftarten durchsuchen und sehen, welche Unicode-Blöcke jede unterstützt</li>
@@ -84,6 +88,7 @@
       <li xml:lang="ro">Răsfoiți fonturile instalate și vedeți ce blocuri Unicode acceptă fiecare</li>
       <li xml:lang="sk">Prehliadajte nainštalované písma a zistite, ktoré bloky Unicode každé z nich podporuje</li>
       <li xml:lang="nl">Blader door geïnstalleerde lettertypen en bekijk welke Unicode-blokken elk lettertype ondersteunt</li>
+      <li xml:lang="sv">Bläddra bland installerade typsnitt och se vilka Unicode-block varje typsnitt stöder</li>
       <li>Filter Unicode blocks to only those a font actually covers</li>
       <li xml:lang="de">Unicode-Blöcke auf die von einer Schriftart tatsächlich unterstützten beschränken</li>
       <li xml:lang="fr">Filtrer les blocs Unicode pour n'afficher que ceux réellement couverts par une police</li>
@@ -100,6 +105,7 @@
       <li xml:lang="ro">Filtrați blocurile Unicode pentru a le afișa doar pe cele acoperite efectiv de un font</li>
       <li xml:lang="sk">Filtrujte bloky Unicode tak, aby sa zobrazovali iba tie, ktoré písmo skutočne pokrýva</li>
       <li xml:lang="nl">Filter Unicode-blokken tot alleen die welke een lettertype daadwerkelijk dekt</li>
+      <li xml:lang="sv">Filtrera Unicode-block till endast de som ett typsnitt faktiskt täcker</li>
       <li>Browse characters in a virtualized grid, grouped by Unicode block</li>
       <li xml:lang="de">Zeichen in einem virtualisierten Raster durchsuchen, gruppiert nach Unicode-Block</li>
       <li xml:lang="fr">Parcourir les caractères dans une grille virtualisée, regroupés par bloc Unicode</li>
@@ -116,6 +122,7 @@
       <li xml:lang="ro">Răsfoiți caracterele într-o grilă virtualizată, grupate pe blocuri Unicode</li>
       <li xml:lang="sk">Prehliadajte znaky vo virtualizovanej mriežke, zoskupené podľa bloku Unicode</li>
       <li xml:lang="nl">Blader door tekens in een gevirtualiseerd raster, gegroepeerd per Unicode-blok</li>
+      <li xml:lang="sv">Bläddra bland tecken i ett virtualiserat rutnät, grupperade efter Unicode-block</li>
       <li>Search characters by name, hex, or decimal code</li>
       <li xml:lang="de">Zeichen nach Name, Hex- oder Dezimalcode suchen</li>
       <li xml:lang="fr">Rechercher des caractères par nom, code hexadécimal ou décimal</li>
@@ -132,6 +139,7 @@
       <li xml:lang="ro">Căutați caractere după nume, cod hexazecimal sau zecimal</li>
       <li xml:lang="sk">Vyhľadávajte znaky podľa názvu, hexadecimálneho alebo desiatkového kódu</li>
       <li xml:lang="nl">Zoek tekens op naam, hex- of decimale code</li>
+      <li xml:lang="sv">Sök tecken efter namn, hex- eller decimalkod</li>
       <li>Jump straight to a Unicode block</li>
       <li xml:lang="de">Direkt zu einem Unicode-Block springen</li>
       <li xml:lang="fr">Aller directement à un bloc Unicode</li>
@@ -148,6 +156,7 @@
       <li xml:lang="ro">Săriți direct la un bloc Unicode</li>
       <li xml:lang="sk">Preskočte priamo na blok Unicode</li>
       <li xml:lang="nl">Spring direct naar een Unicode-blok</li>
+      <li xml:lang="sv">Hoppa direkt till ett Unicode-block</li>
       <li>Preview characters large, in the selected font</li>
       <li xml:lang="de">Zeichen groß in der gewählten Schriftart anzeigen</li>
       <li xml:lang="fr">Prévisualiser les caractères en grand, dans la police sélectionnée</li>
@@ -164,6 +173,7 @@
       <li xml:lang="ro">Previzualizați caracterele mărite, în fontul selectat</li>
       <li xml:lang="sk">Zobrazte si znaky vo veľkom formáte vo vybranom písme</li>
       <li xml:lang="nl">Bekijk tekens groot, in het geselecteerde lettertype</li>
+      <li xml:lang="sv">Förhandsgranska tecken stora, i det valda typsnittet</li>
       <li>Collect and copy characters to the clipboard</li>
       <li xml:lang="de">Zeichen sammeln und in die Zwischenablage kopieren</li>
       <li xml:lang="fr">Collecter et copier des caractères dans le presse-papiers</li>
@@ -180,6 +190,7 @@
       <li xml:lang="ro">Colectați și copiați caractere în clipboard</li>
       <li xml:lang="sk">Zbierajte a kopírujte znaky do schránky</li>
       <li xml:lang="nl">Verzamel en kopieer tekens naar het klembord</li>
+      <li xml:lang="sv">Samla och kopiera tecken till urklipp</li>
     </ul>
   </description>
   <url type="homepage">https://github.com/XRayAdams/charactermap</url>
