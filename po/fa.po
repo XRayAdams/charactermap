@@ -1,0 +1,158 @@
+# charactermap translation template.
+# Copyright (C) 2026 Konstantin Adamov
+# This file is distributed under the same license as the charactermap package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: charactermap 1.1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
+"POT-Creation-Date: 2026-08-22 18:20-0700\n"
+"PO-Revision-Date: 2026-08-31 00:00-0700\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fa\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/app.rs:446
+#, rust-format
+msgid "Search results ({})"
+msgstr "نتایج جستجو ({})"
+
+#: src/app.rs:514
+msgid "_Help"
+msgstr "_راهنما"
+
+#: src/app.rs:515
+msgid "_About"
+msgstr "_درباره"
+
+#: src/app.rs:539
+msgid "Fonts"
+msgstr "قلم‌ها"
+
+#: src/app.rs:559
+msgid "Search fonts…"
+msgstr "جستجوی قلم‌ها…"
+
+#: src/app.rs:641
+msgid "Single letter or character name"
+msgstr "یک حرف یا نام نویسه"
+
+#: src/app.rs:727
+msgid "Character Information"
+msgstr "اطلاعات نویسه"
+
+#: src/app.rs:743
+msgid "Jump to Unicode Set"
+msgstr "پرش به مجموعه یونیکد"
+
+#: src/app.rs:773
+msgid "double click character to add here"
+msgstr "برای افزودن نویسه در اینجا دوبار کلیک کنید"
+
+#: src/app.rs:800
+msgid "Hex:"
+msgstr "هگز:"
+
+#: src/app.rs:826
+msgid "Dec:"
+msgstr "دهدهی:"
+
+#: src/app.rs:1181
+msgid "Copied to clipboard"
+msgstr "در کلیپ‌بورد کپی شد"
+
+#: src/helpers/static_data.rs:6
+msgid "Character Map"
+msgstr "نقشه نویسه‌ها"
+
+#: src/templates/char_find_entry.rs:31
+msgid "Find"
+msgstr "یافتن"
+
+#: src/templates/filter_switch.rs:21
+msgid "Filter Unicode pages"
+msgstr "فیلتر صفحات یونیکد"
+
+#: src/templates/filter_switch.rs:27
+msgid "Show only Unicode blocks the selected font supports"
+msgstr "فقط بلوک‌های یونیکدی را نشان بده که قلم انتخاب‌شده پشتیبانی می‌کند"
+
+#: src/templates/font_preview_toggle.rs:19
+msgid "Show plain font names"
+msgstr "نمایش نام‌های ساده قلم"
+
+#: src/templates/font_preview_toggle.rs:25
+msgid "Preview names using each font"
+msgstr "پیش‌نمایش نام‌ها با هر قلم"
+
+#: src/widgets/help_dialog.rs:25
+msgid "Font List"
+msgstr "فهرست قلم‌ها"
+
+#: src/widgets/help_dialog.rs:27 src/widgets/help_dialog.rs:34
+msgid "Use the arrow keys to move the selection."
+msgstr "برای جابه‌جایی گزینش از کلیدهای جهت‌نما استفاده کنید."
+
+#: src/widgets/help_dialog.rs:28
+msgid "Start typing to find a font by name."
+msgstr "برای یافتن قلم بر اساس نام تایپ را شروع کنید."
+
+#: src/widgets/help_dialog.rs:32
+msgid "Grid"
+msgstr "شبکه"
+
+#: src/widgets/help_dialog.rs:35
+msgid ""
+"Double-click, or press Enter, to add the selected character to the "
+"collection box."
+msgstr ""
+"برای افزودن نویسه انتخاب‌شده به جعبه مجموعه، دوبار کلیک کنید یا Enter را "
+"فشار دهید."
+
+#: src/widgets/help_dialog.rs:36
+msgid "Press Ctrl+C to copy the selected character to the clipboard."
+msgstr "برای کپی نویسه انتخاب‌شده در کلیپ‌بورد، Ctrl+C را فشار دهید."
+
+#: src/widgets/help_dialog.rs:37
+msgid ""
+"If a character is not present in the selected font, it will be shown as a "
+"tofu box with a different background."
+msgstr ""
+"اگر نویسه‌ای در قلم انتخاب‌شده وجود نداشته باشد، به‌صورت جعبه توفو با "
+"پس‌زمینه‌ای متفاوت نمایش داده می‌شود."
+
+#: src/widgets/help_dialog.rs:41
+msgid "Hex and Dec Entries"
+msgstr "ورودی‌های هگز و دهدهی"
+
+#: src/widgets/help_dialog.rs:42
+msgid ""
+"Enter a hex value, a decimal value, or a character, then press Enter to find "
+"it."
+msgstr ""
+"یک مقدار هگزادسیمال، یک مقدار دهدهی یا یک نویسه وارد کنید، سپس Enter را "
+"برای یافتن آن فشار دهید."
+
+#: src/widgets/help_dialog.rs:45
+msgid "Search"
+msgstr "جستجو"
+
+#: src/widgets/help_dialog.rs:47
+msgid "Click the search icon to open the search bar."
+msgstr "برای باز کردن نوار جستجو روی نماد جستجو کلیک کنید."
+
+#: src/widgets/help_dialog.rs:48
+msgid "Type a character's name to find every character whose name contains it."
+msgstr "نام یک نویسه را تایپ کنید تا هر نویسه‌ای که نامش شامل آن باشد پیدا شود."
+
+#: src/widgets/help_dialog.rs:49
+msgid "Type, or paste, a single character to find it directly."
+msgstr "یک نویسه را تایپ یا جای‌گذاری کنید تا مستقیماً پیدا شود."
+
+#: src/widgets/help_dialog.rs:88
+msgid "Help"
+msgstr "راهنما"

@@ -1,0 +1,158 @@
+# charactermap translation template.
+# Copyright (C) 2026 Konstantin Adamov
+# This file is distributed under the same license as the charactermap package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: charactermap 1.1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
+"POT-Creation-Date: 2026-08-22 18:20-0700\n"
+"PO-Revision-Date: 2026-08-31 00:00-0700\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: bg\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/app.rs:446
+#, rust-format
+msgid "Search results ({})"
+msgstr "Резултати от търсенето ({})"
+
+#: src/app.rs:514
+msgid "_Help"
+msgstr "_Помощ"
+
+#: src/app.rs:515
+msgid "_About"
+msgstr "_Относно"
+
+#: src/app.rs:539
+msgid "Fonts"
+msgstr "Шрифтове"
+
+#: src/app.rs:559
+msgid "Search fonts…"
+msgstr "Търсене на шрифтове…"
+
+#: src/app.rs:641
+msgid "Single letter or character name"
+msgstr "Единична буква или име на знак"
+
+#: src/app.rs:727
+msgid "Character Information"
+msgstr "Информация за знака"
+
+#: src/app.rs:743
+msgid "Jump to Unicode Set"
+msgstr "Преминаване към набор от Уникод"
+
+#: src/app.rs:773
+msgid "double click character to add here"
+msgstr "щракнете двукратно върху знак, за да го добавите тук"
+
+#: src/app.rs:800
+msgid "Hex:"
+msgstr "Хекс:"
+
+#: src/app.rs:826
+msgid "Dec:"
+msgstr "Дес:"
+
+#: src/app.rs:1181
+msgid "Copied to clipboard"
+msgstr "Копирано в клипборда"
+
+#: src/helpers/static_data.rs:6
+msgid "Character Map"
+msgstr "Таблица на знаците"
+
+#: src/templates/char_find_entry.rs:31
+msgid "Find"
+msgstr "Търсене"
+
+#: src/templates/filter_switch.rs:21
+msgid "Filter Unicode pages"
+msgstr "Филтриране на страници с Уникод"
+
+#: src/templates/filter_switch.rs:27
+msgid "Show only Unicode blocks the selected font supports"
+msgstr "Показвай само блоковете от Уникод, поддържани от избрания шрифт"
+
+#: src/templates/font_preview_toggle.rs:19
+msgid "Show plain font names"
+msgstr "Показвай обикновени имена на шрифтове"
+
+#: src/templates/font_preview_toggle.rs:25
+msgid "Preview names using each font"
+msgstr "Преглед на имената с всеки шрифт"
+
+#: src/widgets/help_dialog.rs:25
+msgid "Font List"
+msgstr "Списък с шрифтове"
+
+#: src/widgets/help_dialog.rs:27 src/widgets/help_dialog.rs:34
+msgid "Use the arrow keys to move the selection."
+msgstr "Използвайте стрелките, за да преместите избора."
+
+#: src/widgets/help_dialog.rs:28
+msgid "Start typing to find a font by name."
+msgstr "Започнете да пишете, за да намерите шрифт по име."
+
+#: src/widgets/help_dialog.rs:32
+msgid "Grid"
+msgstr "Мрежа"
+
+#: src/widgets/help_dialog.rs:35
+msgid ""
+"Double-click, or press Enter, to add the selected character to the "
+"collection box."
+msgstr ""
+"Щракнете двукратно или натиснете Enter, за да добавите избрания знак в "
+"кутията за колекция."
+
+#: src/widgets/help_dialog.rs:36
+msgid "Press Ctrl+C to copy the selected character to the clipboard."
+msgstr "Натиснете Ctrl+C, за да копирате избрания знак в клипборда."
+
+#: src/widgets/help_dialog.rs:37
+msgid ""
+"If a character is not present in the selected font, it will be shown as a "
+"tofu box with a different background."
+msgstr ""
+"Ако даден знак не присъства в избрания шрифт, той ще бъде показан като "
+"„тофу“ поле с различен фон."
+
+#: src/widgets/help_dialog.rs:41
+msgid "Hex and Dec Entries"
+msgstr "Полета за шестнайсетична и десетична стойност"
+
+#: src/widgets/help_dialog.rs:42
+msgid ""
+"Enter a hex value, a decimal value, or a character, then press Enter to find "
+"it."
+msgstr ""
+"Въведете шестнайсетична стойност, десетична стойност или знак, след което "
+"натиснете Enter, за да го намерите."
+
+#: src/widgets/help_dialog.rs:45
+msgid "Search"
+msgstr "Търсене"
+
+#: src/widgets/help_dialog.rs:47
+msgid "Click the search icon to open the search bar."
+msgstr "Щракнете върху иконата за търсене, за да отворите лентата за търсене."
+
+#: src/widgets/help_dialog.rs:48
+msgid "Type a character's name to find every character whose name contains it."
+msgstr "Въведете името на знак, за да намерите всеки знак, чието име го съдържа."
+
+#: src/widgets/help_dialog.rs:49
+msgid "Type, or paste, a single character to find it directly."
+msgstr "Въведете или поставете единичен знак, за да го намерите директно."
+
+#: src/widgets/help_dialog.rs:88
+msgid "Help"
+msgstr "Помощ"
