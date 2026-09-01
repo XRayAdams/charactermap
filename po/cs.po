@@ -1,0 +1,158 @@
+# charactermap translation template.
+# Copyright (C) 2026 Konstantin Adamov
+# This file is distributed under the same license as the charactermap package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: charactermap 1.1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
+"POT-Creation-Date: 2026-08-22 18:20-0700\n"
+"PO-Revision-Date: 2026-08-31 00:00-0700\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#: src/app.rs:446
+#, rust-format
+msgid "Search results ({})"
+msgstr "Výsledky hledání ({})"
+
+#: src/app.rs:514
+msgid "_Help"
+msgstr "_Nápověda"
+
+#: src/app.rs:515
+msgid "_About"
+msgstr "_O aplikaci"
+
+#: src/app.rs:539
+msgid "Fonts"
+msgstr "Písma"
+
+#: src/app.rs:559
+msgid "Search fonts…"
+msgstr "Hledat písma…"
+
+#: src/app.rs:641
+msgid "Single letter or character name"
+msgstr "Jedno písmeno nebo název znaku"
+
+#: src/app.rs:727
+msgid "Character Information"
+msgstr "Informace o znaku"
+
+#: src/app.rs:743
+msgid "Jump to Unicode Set"
+msgstr "Přejít na sadu Unicode"
+
+#: src/app.rs:773
+msgid "double click character to add here"
+msgstr "dvojklikem na znak jej sem přidáte"
+
+#: src/app.rs:800
+msgid "Hex:"
+msgstr "Hex:"
+
+#: src/app.rs:826
+msgid "Dec:"
+msgstr "Dec:"
+
+#: src/app.rs:1181
+msgid "Copied to clipboard"
+msgstr "Zkopírováno do schránky"
+
+#: src/helpers/static_data.rs:6
+msgid "Character Map"
+msgstr "Tabulka znaků"
+
+#: src/templates/char_find_entry.rs:31
+msgid "Find"
+msgstr "Najít"
+
+#: src/templates/filter_switch.rs:21
+msgid "Filter Unicode pages"
+msgstr "Filtrovat stránky Unicode"
+
+#: src/templates/filter_switch.rs:27
+msgid "Show only Unicode blocks the selected font supports"
+msgstr "Zobrazit pouze bloky Unicode, které vybrané písmo podporuje"
+
+#: src/templates/font_preview_toggle.rs:19
+msgid "Show plain font names"
+msgstr "Zobrazit prostá jména písem"
+
+#: src/templates/font_preview_toggle.rs:25
+msgid "Preview names using each font"
+msgstr "Náhled jmen pomocí jednotlivých písem"
+
+#: src/widgets/help_dialog.rs:25
+msgid "Font List"
+msgstr "Seznam písem"
+
+#: src/widgets/help_dialog.rs:27 src/widgets/help_dialog.rs:34
+msgid "Use the arrow keys to move the selection."
+msgstr "Pomocí kurzorových kláves přesunete výběr."
+
+#: src/widgets/help_dialog.rs:28
+msgid "Start typing to find a font by name."
+msgstr "Začněte psát pro vyhledání písma podle názvu."
+
+#: src/widgets/help_dialog.rs:32
+msgid "Grid"
+msgstr "Mřížka"
+
+#: src/widgets/help_dialog.rs:35
+msgid ""
+"Double-click, or press Enter, to add the selected character to the "
+"collection box."
+msgstr ""
+"Dvojklikem nebo stisknutím klávesy Enter přidáte vybraný znak do sběrného "
+"pole."
+
+#: src/widgets/help_dialog.rs:36
+msgid "Press Ctrl+C to copy the selected character to the clipboard."
+msgstr "Stisknutím Ctrl+C zkopírujete vybraný znak do schránky."
+
+#: src/widgets/help_dialog.rs:37
+msgid ""
+"If a character is not present in the selected font, it will be shown as a "
+"tofu box with a different background."
+msgstr ""
+"Pokud znak není ve vybraném písmu k dispozici, zobrazí se jako tofu s "
+"odlišným pozadím."
+
+#: src/widgets/help_dialog.rs:41
+msgid "Hex and Dec Entries"
+msgstr "Pole Hex a Dec"
+
+#: src/widgets/help_dialog.rs:42
+msgid ""
+"Enter a hex value, a decimal value, or a character, then press Enter to find "
+"it."
+msgstr ""
+"Zadejte hexadecimální hodnotu, desítkovou hodnotu nebo znak a stisknutím "
+"klávesy Enter jej najdete."
+
+#: src/widgets/help_dialog.rs:45
+msgid "Search"
+msgstr "Hledat"
+
+#: src/widgets/help_dialog.rs:47
+msgid "Click the search icon to open the search bar."
+msgstr "Kliknutím na ikonu hledání otevřete vyhledávací panel."
+
+#: src/widgets/help_dialog.rs:48
+msgid "Type a character's name to find every character whose name contains it."
+msgstr "Zadejte název znaku a najdete každý znak, jehož název jej obsahuje."
+
+#: src/widgets/help_dialog.rs:49
+msgid "Type, or paste, a single character to find it directly."
+msgstr "Zadejte nebo vložte jeden znak a najdete jej přímo."
+
+#: src/widgets/help_dialog.rs:88
+msgid "Help"
+msgstr "Nápověda"
