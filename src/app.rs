@@ -447,8 +447,10 @@ impl App {
             header.set_label(&label);
         }
 
-        if let Some(grid_view) = &self.unicode_grid_view {
-            grid_view.scroll_to(0, gtk::ListScrollFlags::empty(), None);
+        if !matches.is_empty() {
+            if let Some(grid_view) = &self.unicode_grid_view {
+                grid_view.scroll_to(0, gtk::ListScrollFlags::empty(), None);
+            }
         }
     }
 
