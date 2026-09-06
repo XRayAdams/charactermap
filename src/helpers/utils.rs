@@ -9,9 +9,29 @@ use crate::{helpers::static_data::{CELL_POSITION_KEY, CELL_SIZE}, unicode::{Unic
 
 
 
-/// Builds a Pango attribute list that selects the given font family (and
-/// optionally a point size), for use with `Label`/`Entry` widgets'
-/// `set_attributes`.
+/// Base codepoint if `text` is one user-perceived char (base + modifiers/ZWJ sequence)
+pub fn single_pasted_char(text: &str) -> Option<char> {
+    const ZWJ: u32 = 0x200D;
+    let mut chars = text.chars();
+    let base = chars.next()?;
+    let mut after_zwj = false;
+    for ch in chars {
+        let code = ch as u32;
+        let is_modifier = matches!(code,
+            0x0300..=0x036F | 0x1AB0..=0x1AFF | 0x1DC0..=0x1DFF | 0x20D0..=0x20FF
+            | 0xFE00..=0xFE0F | 0xE0100..=0xE01EF | 0x1F3FB..=0x1F3FF);
+        if code == ZWJ {
+            after_zwj = true;
+        } else if is_modifier || after_zwj {
+            after_zwj = false;
+        } else {
+            return None;
+        }
+    }
+    Some(base)
+}
+
+/// Builds a Pango attribute list that selects the given font family
 pub fn font_attr_list(font_name: &str, size_pt: Option<i32>) -> gtk4::pango::AttrList {
     let mut font_desc = gtk4::pango::FontDescription::new();
     font_desc.set_family(font_name);
@@ -21,14 +41,13 @@ pub fn font_attr_list(font_name: &str, size_pt: Option<i32>) -> gtk4::pango::Att
     let attrs = gtk4::pango::AttrList::new();
     attrs.insert(gtk4::pango::AttrFontDesc::new(&font_desc));
     
-    // disable fallback so that unsupported characters render as tofu boxes 
+    // disable fallback so unsupported characters render as tofu boxes
     attrs.insert(gtk4::pango::AttrInt::new_fallback(false));
 
     attrs
 }
 
-/// Returns whether the given already-loaded font has a glyph for at least
-/// one codepoint in the inclusive `start..=end` range.
+/// Whether the already-loaded font has a glyph for at least one codepoint in range
 pub fn font_covers_range(font: &gtk4::pango::Font, start: u32, end: u32) -> bool {
     (start..=end).any(|code| {
         char::from_u32(code)
@@ -37,7 +56,7 @@ pub fn font_covers_range(font: &gtk4::pango::Font, start: u32, end: u32) -> bool
     })
 }
 
-/// Returns a new `adw::Breakpoint` with the given setters applied. Used with OverlaySplitView
+/// New `adw::Breakpoint` with the given setters applied, used with OverlaySplitView
 pub fn bp_with_setters(
     bp: adw::Breakpoint,
     additions: &[(&impl IsA<glib::Object>, &str, impl ToValue)],
@@ -60,8 +79,7 @@ pub fn apply_font_preview(label: &gtk4::Label, font_name: &str, enabled: bool) {
 }
 
 
-/// Recursively collects every character-cell `Inscription` currently realized
-/// under the grid view (all `Inscription`s in the subtree are cells).
+/// Recursively collects every realized character-cell `Inscription` under the grid view
 pub fn collect_cell_labels(widget: &gtk4::Widget, out: &mut Vec<gtk4::Inscription>) {
     let mut child = widget.first_child();
     while let Some(w) = child {
@@ -75,8 +93,7 @@ pub fn collect_cell_labels(widget: &gtk4::Widget, out: &mut Vec<gtk4::Inscriptio
 }
 
 
-/// Updates the sticky "current block" header to the block that owns the
-/// top-most visible grid cell
+/// Updates the sticky "current block" header to the block owning the top-most visible cell
 pub fn update_sticky_header(
     grid_view: &gtk4::GridView,
     boundaries: &[(u32, String)],
@@ -89,15 +106,12 @@ pub fn update_sticky_header(
     let mut labels = Vec::new();
     collect_cell_labels(grid_view.upcast_ref::<gtk4::Widget>(), &mut labels);
 
-    // Find the geometrically top-most, at-least-half-visible realized cell
-    // and use its model position to resolve the block. Skip unmapped
-    // (recycled/pooled) cells, and break ties by smallest position, so a
-    // block boundary straddling a row resolves deterministically.
+    // Resolve the block from the top-most, half-visible, mapped cell (skip pooled ones)
     let viewport_height = grid_view.height() as f32;
     let mut best: Option<(f32, u32)> = None;
 
     for label in &labels {
-        // Ignore pooled/recycled cells that are not currently on screen.
+        // Ignore pooled/recycled cells that are not currently on screen
         if !label.is_mapped() {
             continue;
         }
@@ -109,8 +123,7 @@ pub fn update_sticky_header(
         let y = point.y();
         let height = label.height() as f32;
 
-        // Must be at least half visible and inside the viewport (not in the
-        // bottom recycling buffer).
+        // Must be at least half visible and inside the viewport, not the recycling buffer
         if y + height * 0.5 <= 0.0 || y >= viewport_height {
             continue;
         }
@@ -121,7 +134,7 @@ pub fn update_sticky_header(
             continue;
         };
 
-        // Pick the top-most cell; ties within a row prefer the left-most.
+        // Pick the top-most cell; ties within a row prefer the left-most
         let replace = match best {
             None => true,
             Some((best_y, best_pos)) => {
@@ -142,9 +155,7 @@ pub fn update_sticky_header(
 }
 
 
-/// Measures the grid's actual column count and row pitch (px) from its
-/// realized cells, since `GtkGridView` computes both itself. Returns `None`
-/// if too few cells are realized to measure.
+/// Measures the grid's actual column count and row pitch (px) from realized cells
 pub fn grid_geometry(grid_view: &gtk4::GridView) -> Option<(u32, f64)> {
     let mut cells = Vec::new();
     collect_cell_labels(grid_view.upcast_ref(), &mut cells);
@@ -163,8 +174,7 @@ pub fn grid_geometry(grid_view: &gtk4::GridView) -> Option<(u32, f64)> {
     }
     ys.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
 
-    // Bucket cells into rows (same y within a small tolerance), counting how
-    // many cells fall in each row.
+    // Bucket cells into rows by y (within a small tolerance), counting each row
     let mut rows: Vec<(f32, u32)> = Vec::new();
     for &y in &ys {
         match rows.last_mut() {
@@ -176,8 +186,7 @@ pub fn grid_geometry(grid_view: &gtk4::GridView) -> Option<(u32, f64)> {
         return None;
     }
 
-    // A full row has the maximum cell count; the row pitch is the smallest
-    // positive gap between consecutive rows.
+    // A full row has the max cell count; pitch is the smallest gap between rows
     let columns = rows
         .iter()
         .map(|&(_, count)| count)
@@ -200,13 +209,12 @@ pub fn grid_geometry(grid_view: &gtk4::GridView) -> Option<(u32, f64)> {
 
 
 
-/// Builds the grid's flat data store: a lazy `UnicodeCharModel` that
-/// resolves codepoints on demand
+/// Builds the grid's flat data store: a lazy `UnicodeCharModel` resolving codepoints on demand
 pub fn build_unicode_store(sections: &[UnicodeEntry]) -> UnicodeCharModel {
     UnicodeCharModel::new(sections)
 }
 
-/// Builds an eager `gio::ListStore` of the given characters, in order.
+/// Builds an eager `gio::ListStore` of the given characters, in order
 pub fn build_search_result_store(chars: &[char]) -> gio::ListStore {
     let store = gio::ListStore::new::<gtk4::StringObject>();
     let mut buf = [0u8; 4];
@@ -216,8 +224,7 @@ pub fn build_search_result_store(chars: &[char]) -> gio::ListStore {
     store
 }
 
-/// Computes block description -> flat start position, and the sorted list
-/// of flat-position -> block boundaries, mirroring the grid's model order.
+/// Computes block description -> flat start position, and flat-position -> block boundaries
 pub fn compute_positions_boundaries(
     sections: &[UnicodeEntry],
 ) -> (HashMap<String, u32>, Vec<(u32, String)>) {
@@ -240,8 +247,7 @@ pub fn compute_positions_boundaries(
     (positions, boundaries)
 }
 
-/// Builds the factory that renders each grid cell as a fixed-size character
-/// label in the currently selected font (via the shared `cell_attrs`).
+/// Builds the factory rendering each grid cell as a fixed-size label in the selected font
 pub fn build_unicode_grid_factory(
     cell_attrs: Rc<RefCell<gtk4::pango::AttrList>>,
     block_boundaries: Rc<RefCell<Vec<(u32, String)>>>,
@@ -254,9 +260,7 @@ pub fn build_unicode_grid_factory(
             return;
         };
 
-        // GtkInscription (not GtkLabel) has a fixed render area and never
-        // resizes to glyph content, preventing columns from reflowing when
-        // wide glyphs (emoji, CJK) are realized.
+        // GtkInscription has a fixed render area, unlike GtkLabel, so wide glyphs can't reflow columns
         let label = gtk4::Inscription::builder()
             .width_request(CELL_SIZE)
             .height_request(CELL_SIZE)
@@ -297,15 +301,13 @@ pub fn build_unicode_grid_factory(
         label.set_text(Some(string_obj.string().as_str()));
         label.set_attributes(Some(&cell_attrs.borrow()));
 
-        // Record this cell's flat position so the sticky-header scroll handler
-        // can map the top-visible cell back to its unicode block.
+        // Record this cell's flat position for the sticky-header scroll handler
         let position = list_item.position();
         unsafe {
             label.set_data::<u32>(CELL_POSITION_KEY, position);
         }
 
-        // Shade cells by block parity so adjacent blocks are visually
-        // distinguishable (bands can change mid-row).
+        // Shade cells by block parity so adjacent blocks are visually distinguishable
         let block_alt = {
             let boundaries = block_boundaries.borrow();
             boundaries
@@ -329,8 +331,7 @@ pub fn build_unicode_grid_factory(
     factory
 }
 
-/// Toggles the "no-glyph" CSS class on a cell based on whether `font` has a
-/// glyph 
+/// Toggles the "no-glyph" CSS class on a cell based on whether `font` has a glyph
 pub fn apply_no_glyph_class(label: &gtk4::Inscription, font: &Option<gtk4::pango::Font>) {
     let ch = label.text().and_then(|text| text.chars().next());
     let no_glyph = match (font, ch) {

@@ -21,7 +21,7 @@ use crate::helpers::utils::{
     apply_font_preview, apply_no_glyph_class, bp_with_setters, build_search_result_store,
     build_unicode_grid_factory, build_unicode_store, collect_cell_labels,
     compute_positions_boundaries, font_attr_list, font_covers_range, grid_geometry,
-    update_sticky_header,
+    single_pasted_char, update_sticky_header,
 };
 use crate::tr;
 use crate::unicode::{UnicodeEntry, UnicodeSet, raw_offset_to_filtered_index};
@@ -463,7 +463,7 @@ impl App {
             .search_entry
             .as_ref()
             .map(|entry| entry.text().to_string());
-        if let Some(query) = query.filter(|query| query.chars().count() >= 2) {
+        if let Some(query) = query.filter(|query| !query.is_empty() && single_pasted_char(query).is_none()) {
             self.refresh_search_results(&query, sender);
         }
     }
@@ -1250,13 +1250,14 @@ impl SimpleComponent for App {
                 }
             }
             Messages::SearchChanged(search) => {
-                let len = search.chars().count();
-                if len <= 1 {
+                if let Some(ch) = single_pasted_char(&search) {
                     if self.is_showing_search_results {
                         self.restore_browse_grid(&sender);
                     }
-                    if let Some(code) = search.chars().next().map(|ch| ch as u32) {
-                        self.find_char(code);
+                    self.find_char(ch as u32);
+                } else if search.is_empty() {
+                    if self.is_showing_search_results {
+                        self.restore_browse_grid(&sender);
                     }
                 } else {
                     self.refresh_search_results(&search, &sender);

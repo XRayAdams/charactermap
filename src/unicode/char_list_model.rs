@@ -1,14 +1,13 @@
 // Copyright (c) 2026 Konstantin Adamov. Licensed under MIT.
 //
-// Custom `gio::ListModel` backed directly by unicode block ranges.
+// Custom `gio::ListModel` backed directly by unicode block ranges
 use gtk4::{gio, glib, subclass::prelude::*};
 
 use super::UnicodeEntry;
 
 const EXCLUDED_RANGES: [(u32, u32); 3] = [(0x00, 0x1F), (0x7F, 0x9F), (0xD800, 0xDFFF)];
 
-/// Number of displayable (non-excluded) codepoints in the inclusive
-/// `start..=end` range. O(1) -- no codepoint is ever enumerated.
+/// Number of displayable (non-excluded) codepoints in `start..=end`, O(1)
 pub(crate) fn displayable_count(start: u32, end: u32) -> u32 {
     let mut total = 0u32;
     let mut cursor = start;
@@ -30,8 +29,7 @@ pub(crate) fn displayable_count(start: u32, end: u32) -> u32 {
     total
 }
 
-/// The `local_offset`-th (0-based) displayable codepoint in the inclusive
-/// `start..=end` range, skipping `EXCLUDED_RANGES`. O(1).
+/// The `local_offset`-th (0-based) displayable codepoint in `start..=end`, O(1)
 fn nth_displayable_char(start: u32, end: u32, mut local_offset: u32) -> Option<char> {
     let mut cursor = start;
     for &(excluded_start, excluded_end) in &EXCLUDED_RANGES {
@@ -60,7 +58,7 @@ fn nth_displayable_char(start: u32, end: u32, mut local_offset: u32) -> Option<c
 }
 
 
-/// Converts a raw unfiltered offset (e.g. 127) into a filtered grid index.
+/// Converts a raw unfiltered offset (e.g. 127) into a filtered grid index
 pub fn raw_offset_to_filtered_index(start: u32, end: u32, local_unfiltered_offset: u32) -> Option<u32> {
     let target_codepoint = start + local_unfiltered_offset;
 
@@ -90,8 +88,7 @@ mod imp {
 
     use gtk4::{gio, glib, prelude::*, subclass::prelude::*};
 
-    /// One included block: `cumulative_start` is the flat model position of
-    /// its first displayable char; `start`/`end` are its raw codepoint range.
+    /// One included block: `cumulative_start` is its first flat model position, `start`/`end` its range
     #[derive(Default)]
     pub struct UnicodeCharModel {
         pub(super) sections: RefCell<Vec<(u32, u32, u32)>>,
@@ -138,8 +135,7 @@ glib::wrapper! {
 }
 
 impl UnicodeCharModel {
-    /// Builds a model for the given (already filtered) blocks. O(number of
-    /// blocks) -- no codepoint is enumerated at construction time.
+    /// Builds a model for the given (already filtered) blocks, O(number of blocks)
     pub fn new(sections: &[UnicodeEntry]) -> Self {
         let model: Self = glib::Object::new();
 
@@ -166,8 +162,7 @@ mod tests {
 
     use super::*;
 
-    /// Brute-force reference: every displayable char in `start..=end`, in
-    /// order (mirrors the old eager `build_unicode_store` loop exactly).
+    /// Brute-force reference: every displayable char in `start..=end`, in order
     fn brute_force(start: u32, end: u32) -> Vec<char> {
         (start..=end)
             .filter_map(|code| char::from_u32(code).filter(|ch| !ch.is_control()))
@@ -229,8 +224,7 @@ mod tests {
         assert_eq!(displayable_count(0x0000, 0x0000), 0);
     }
 
-    /// Validates the analytical count/mapping against the real production
-    /// block list to catch edge cases synthetic tests might miss.
+    /// Validates the analytical count/mapping against the real production block list
     #[test]
     fn matches_brute_force_over_real_unicode_set() {
         let sections = crate::unicode::UnicodeSet::new().unicode_sections;
@@ -296,7 +290,7 @@ mod tests {
         }
         assert!(model.item(expected.len() as u32).is_none());
 
-        // Now against the real, unfiltered production block list.
+        // Now against the real, unfiltered production block list
         let real_sections = crate::unicode::UnicodeSet::new().unicode_sections;
         let mut real_expected = Vec::new();
         for section in &real_sections {
