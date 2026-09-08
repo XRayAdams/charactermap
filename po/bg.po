@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-08-22 18:20-0700\n"
+"POT-Creation-Date: 2026-09-07 17:57-0700\n"
 "PO-Revision-Date: 2026-08-31 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -21,47 +21,47 @@ msgstr ""
 msgid "Search results ({})"
 msgstr "Резултати от търсенето ({})"
 
-#: src/app.rs:514
+#: src/app.rs:516
 msgid "_Help"
 msgstr "_Помощ"
 
-#: src/app.rs:515
+#: src/app.rs:517
 msgid "_About"
 msgstr "_Относно"
 
-#: src/app.rs:539
+#: src/app.rs:541
 msgid "Fonts"
 msgstr "Шрифтове"
 
-#: src/app.rs:559
+#: src/app.rs:561
 msgid "Search fonts…"
 msgstr "Търсене на шрифтове…"
 
-#: src/app.rs:641
+#: src/app.rs:643
 msgid "Single letter or character name"
 msgstr "Единична буква или име на знак"
 
-#: src/app.rs:727
+#: src/app.rs:729
 msgid "Character Information"
 msgstr "Информация за знака"
 
-#: src/app.rs:743
+#: src/app.rs:745
 msgid "Jump to Unicode Set"
 msgstr "Преминаване към набор от Уникод"
 
-#: src/app.rs:773
+#: src/app.rs:775
 msgid "double click character to add here"
 msgstr "щракнете двукратно върху знак, за да го добавите тук"
 
-#: src/app.rs:800
+#: src/app.rs:802
 msgid "Hex:"
 msgstr "Хекс:"
 
-#: src/app.rs:826
+#: src/app.rs:828
 msgid "Dec:"
 msgstr "Дес:"
 
-#: src/app.rs:1181
+#: src/app.rs:1183
 msgid "Copied to clipboard"
 msgstr "Копирано в клипборда"
 
@@ -131,11 +131,10 @@ msgstr "Полета за шестнайсетична и десетична с�
 
 #: src/widgets/help_dialog.rs:42
 msgid ""
-"Enter a hex value, a decimal value, or a character, then press Enter to find "
-"it."
+"Enter a hex value or a decimal value, then press Enter to find the character."
 msgstr ""
-"Въведете шестнайсетична стойност, десетична стойност или знак, след което "
-"натиснете Enter, за да го намерите."
+"Въведете шестнайсетична стойност или десетична стойност, след което "
+"натиснете Enter, за да намерите знака."
 
 #: src/widgets/help_dialog.rs:45
 msgid "Search"
@@ -147,7 +146,8 @@ msgstr "Щракнете върху иконата за търсене, за д�
 
 #: src/widgets/help_dialog.rs:48
 msgid "Type a character's name to find every character whose name contains it."
-msgstr "Въведете името на знак, за да намерите всеки знак, чието име го съдържа."
+msgstr ""
+"Въведете името на знак, за да намерите всеки знак, чието име го съдържа."
 
 #: src/widgets/help_dialog.rs:49
 msgid "Type, or paste, a single character to find it directly."

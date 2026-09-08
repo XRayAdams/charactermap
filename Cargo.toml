@@ -1,6 +1,6 @@
 [package]
 name = "charactermap"
-version = "1.1.11+24"
+version = "1.1.12+25"
 edition = "2024"
 description = "A simple character map."
 license = "MIT"

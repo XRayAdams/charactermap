@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-08-22 18:20-0700\n"
+"POT-Creation-Date: 2026-09-07 17:57-0700\n"
 "PO-Revision-Date: 2026-08-02 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -21,47 +21,47 @@ msgstr ""
 msgid "Search results ({})"
 msgstr "Risultati della ricerca ({})"
 
-#: src/app.rs:514
+#: src/app.rs:516
 msgid "_Help"
 msgstr "_Aiuto"
 
-#: src/app.rs:515
+#: src/app.rs:517
 msgid "_About"
 msgstr "_Informazioni"
 
-#: src/app.rs:539
+#: src/app.rs:541
 msgid "Fonts"
 msgstr "Tipi di carattere"
 
-#: src/app.rs:559
+#: src/app.rs:561
 msgid "Search fonts…"
 msgstr "Cerca tipi di carattere…"
 
-#: src/app.rs:641
+#: src/app.rs:643
 msgid "Single letter or character name"
 msgstr "Singola lettera o nome del carattere"
 
-#: src/app.rs:727
+#: src/app.rs:729
 msgid "Character Information"
 msgstr "Informazioni sul carattere"
 
-#: src/app.rs:743
+#: src/app.rs:745
 msgid "Jump to Unicode Set"
 msgstr "Vai a un insieme Unicode"
 
-#: src/app.rs:773
+#: src/app.rs:775
 msgid "double click character to add here"
 msgstr "fai doppio clic su un carattere per aggiungerlo qui"
 
-#: src/app.rs:800
+#: src/app.rs:802
 msgid "Hex:"
 msgstr "Hex:"
 
-#: src/app.rs:826
+#: src/app.rs:828
 msgid "Dec:"
 msgstr "Dec:"
 
-#: src/app.rs:1181
+#: src/app.rs:1183
 msgid "Copied to clipboard"
 msgstr "Copiato negli appunti"
 
@@ -132,11 +132,10 @@ msgstr "Campi esadecimale e decimale"
 
 #: src/widgets/help_dialog.rs:42
 msgid ""
-"Enter a hex value, a decimal value, or a character, then press Enter to find "
-"it."
+"Enter a hex value or a decimal value, then press Enter to find the character."
 msgstr ""
-"Inserisci un valore esadecimale, un valore decimale o un carattere, quindi "
-"premi Invio per trovarlo."
+"Inserisci un valore esadecimale o un valore decimale, quindi premi Invio "
+"per trovare il carattere."
 
 #: src/widgets/help_dialog.rs:45
 msgid "Search"

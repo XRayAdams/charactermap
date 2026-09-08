@@ -39,7 +39,7 @@ const HELP_SECTIONS: &[HelpSection] = &[
     },
     HelpSection {
         title: N_!("Hex and Dec Entries"),
-        lines: &[N_!("Enter a hex value, a decimal value, or a character, then press Enter to find it.")],
+        lines: &[N_!("Enter a hex value or a decimal value, then press Enter to find the character.")],
     },
     HelpSection {
         title: N_!("Search"),

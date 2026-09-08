@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-08-22 18:20-0700\n"
+"POT-Creation-Date: 2026-09-07 17:57-0700\n"
 "PO-Revision-Date: 2026-08-31 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -21,47 +21,47 @@ msgstr ""
 msgid "Search results ({})"
 msgstr "نتایج جستجو ({})"
 
-#: src/app.rs:514
+#: src/app.rs:516
 msgid "_Help"
 msgstr "_راهنما"
 
-#: src/app.rs:515
+#: src/app.rs:517
 msgid "_About"
 msgstr "_درباره"
 
-#: src/app.rs:539
+#: src/app.rs:541
 msgid "Fonts"
 msgstr "قلم‌ها"
 
-#: src/app.rs:559
+#: src/app.rs:561
 msgid "Search fonts…"
 msgstr "جستجوی قلم‌ها…"
 
-#: src/app.rs:641
+#: src/app.rs:643
 msgid "Single letter or character name"
 msgstr "یک حرف یا نام نویسه"
 
-#: src/app.rs:727
+#: src/app.rs:729
 msgid "Character Information"
 msgstr "اطلاعات نویسه"
 
-#: src/app.rs:743
+#: src/app.rs:745
 msgid "Jump to Unicode Set"
 msgstr "پرش به مجموعه یونیکد"
 
-#: src/app.rs:773
+#: src/app.rs:775
 msgid "double click character to add here"
 msgstr "برای افزودن نویسه در اینجا دوبار کلیک کنید"
 
-#: src/app.rs:800
+#: src/app.rs:802
 msgid "Hex:"
 msgstr "هگز:"
 
-#: src/app.rs:826
+#: src/app.rs:828
 msgid "Dec:"
 msgstr "دهدهی:"
 
-#: src/app.rs:1181
+#: src/app.rs:1183
 msgid "Copied to clipboard"
 msgstr "در کلیپ‌بورد کپی شد"
 
@@ -110,8 +110,8 @@ msgid ""
 "Double-click, or press Enter, to add the selected character to the "
 "collection box."
 msgstr ""
-"برای افزودن نویسه انتخاب‌شده به جعبه مجموعه، دوبار کلیک کنید یا Enter را "
-"فشار دهید."
+"برای افزودن نویسه انتخاب‌شده به جعبه مجموعه، دوبار کلیک کنید یا Enter را فشار "
+"دهید."
 
 #: src/widgets/help_dialog.rs:36
 msgid "Press Ctrl+C to copy the selected character to the clipboard."
@@ -122,8 +122,8 @@ msgid ""
 "If a character is not present in the selected font, it will be shown as a "
 "tofu box with a different background."
 msgstr ""
-"اگر نویسه‌ای در قلم انتخاب‌شده وجود نداشته باشد، به‌صورت جعبه توفو با "
-"پس‌زمینه‌ای متفاوت نمایش داده می‌شود."
+"اگر نویسه‌ای در قلم انتخاب‌شده وجود نداشته باشد، به‌صورت جعبه توفو با پس‌زمینه‌ای "
+"متفاوت نمایش داده می‌شود."
 
 #: src/widgets/help_dialog.rs:41
 msgid "Hex and Dec Entries"
@@ -131,11 +131,10 @@ msgstr "ورودی‌های هگز و دهدهی"
 
 #: src/widgets/help_dialog.rs:42
 msgid ""
-"Enter a hex value, a decimal value, or a character, then press Enter to find "
-"it."
+"Enter a hex value or a decimal value, then press Enter to find the character."
 msgstr ""
-"یک مقدار هگزادسیمال، یک مقدار دهدهی یا یک نویسه وارد کنید، سپس Enter را "
-"برای یافتن آن فشار دهید."
+"یک مقدار هگزادسیمال یا یک مقدار دهدهی وارد کنید، سپس برای یافتن نویسه Enter "
+"را فشار دهید."
 
 #: src/widgets/help_dialog.rs:45
 msgid "Search"
