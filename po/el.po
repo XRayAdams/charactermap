@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-08-22 18:20-0700\n"
+"POT-Creation-Date: 2026-09-07 18:38-0700\n"
 "PO-Revision-Date: 2026-08-02 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,54 +16,70 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/app.rs:446
+#: src/app.rs:448
 #, rust-format
 msgid "Search results ({})"
 msgstr "Αποτελέσματα αναζήτησης ({})"
 
-#: src/app.rs:514
+#: src/app.rs:520
 msgid "_Help"
 msgstr "_Βοήθεια"
 
-#: src/app.rs:515
+#: src/app.rs:521
 msgid "_About"
 msgstr "_Πληροφορίες"
 
-#: src/app.rs:539
+#: src/app.rs:545
 msgid "Fonts"
 msgstr "Γραμματοσειρές"
 
-#: src/app.rs:559
+#: src/app.rs:565
 msgid "Search fonts…"
 msgstr "Αναζήτηση γραμματοσειρών…"
 
-#: src/app.rs:641
+#: src/app.rs:647
 msgid "Single letter or character name"
 msgstr "Ένα γράμμα ή όνομα χαρακτήρα"
 
-#: src/app.rs:727
+#: src/app.rs:733 src/widgets/help_dialog.rs:45
 msgid "Character Information"
 msgstr "Πληροφορίες χαρακτήρα"
 
-#: src/app.rs:743
+#: src/app.rs:753
 msgid "Jump to Unicode Set"
 msgstr "Μετάβαση σε σύνολο Unicode"
 
-#: src/app.rs:773
+#: src/app.rs:783
 msgid "double click character to add here"
 msgstr "κάντε διπλό κλικ στον χαρακτήρα για να τον προσθέσετε εδώ"
 
-#: src/app.rs:800
+#: src/app.rs:810
 msgid "Hex:"
 msgstr "Δεκ.εξ.:"
 
-#: src/app.rs:826
+#: src/app.rs:836
 msgid "Dec:"
 msgstr "Δεκ.:"
 
-#: src/app.rs:1181
+#: src/app.rs:873 src/app.rs:1228
+msgid "Save Character as Image"
+msgstr "Αποθήκευση χαρακτήρα ως εικόνα"
+
+#: src/app.rs:1210
 msgid "Copied to clipboard"
 msgstr "Αντιγράφηκε στο πρόχειρο"
+
+#: src/app.rs:1223
+msgid "PNG images"
+msgstr "Εικόνες PNG"
+
+#: src/app.rs:1241
+msgid "Character saved as image"
+msgstr "Ο χαρακτήρας αποθηκεύτηκε ως εικόνα"
+
+#: src/app.rs:1242
+msgid "Could not save the image"
+msgstr "Δεν ήταν δυνατή η αποθήκευση της εικόνας"
 
 #: src/helpers/static_data.rs:6
 msgid "Character Map"
@@ -134,32 +150,35 @@ msgstr "Πεδία δεκαεξαδικού και δεκαδικού"
 
 #: src/widgets/help_dialog.rs:42
 msgid ""
-"Enter a hex value, a decimal value, or a character, then press Enter to find "
-"it."
+"Enter a hex value or a decimal value, then press Enter to find the character."
 msgstr ""
-"Εισαγάγετε μια δεκαεξαδική τιμή, μια δεκαδική τιμή ή έναν χαρακτήρα και "
-"πατήστε Enter για να τον βρείτε."
+"Εισαγάγετε μια δεκαεξαδική ή μια δεκαδική τιμή και πατήστε Enter για να "
+"βρείτε τον χαρακτήρα."
 
-#: src/widgets/help_dialog.rs:45
+#: src/widgets/help_dialog.rs:46
+msgid "Click the save icon to save the selected character as a PNG image."
+msgstr "Κάντε κλικ στο εικονίδιο αποθήκευσης για να αποθηκεύσετε τον επιλεγμένο χαρακτήρα ως εικόνα PNG."
+
+#: src/widgets/help_dialog.rs:49
 msgid "Search"
 msgstr "Αναζήτηση"
 
-#: src/widgets/help_dialog.rs:47
+#: src/widgets/help_dialog.rs:51
 msgid "Click the search icon to open the search bar."
 msgstr ""
 "Κάντε κλικ στο εικονίδιο αναζήτησης για να ανοίξετε τη γραμμή αναζήτησης."
 
-#: src/widgets/help_dialog.rs:48
+#: src/widgets/help_dialog.rs:52
 msgid "Type a character's name to find every character whose name contains it."
 msgstr ""
 "Πληκτρολογήστε το όνομα ενός χαρακτήρα για να βρείτε όλους τους χαρακτήρες "
 "των οποίων το όνομα το περιέχει."
 
-#: src/widgets/help_dialog.rs:49
+#: src/widgets/help_dialog.rs:53
 msgid "Type, or paste, a single character to find it directly."
 msgstr ""
 "Πληκτρολογήστε ή επικολλήστε έναν μόνο χαρακτήρα για να τον βρείτε απευθείας."
 
-#: src/widgets/help_dialog.rs:88
+#: src/widgets/help_dialog.rs:92
 msgid "Help"
 msgstr "Βοήθεια"

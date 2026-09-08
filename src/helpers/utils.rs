@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Konstantin Adamov. Licensed under MIT.
 
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, fs, rc::Rc};
 
 use libadwaita as adw;
 use gtk4::{gio, glib::{self, object::{Cast, IsA, ObjectExt}, value::ToValue}, pango::prelude::FontExt, prelude::{ListItemExt, WidgetExt}};
@@ -45,6 +45,43 @@ pub fn font_attr_list(font_name: &str, size_pt: Option<i32>) -> gtk4::pango::Att
     attrs.insert(gtk4::pango::AttrInt::new_fallback(false));
 
     attrs
+}
+
+/// Renders `ch` in `font_name` onto a transparent-background PNG at `path`
+pub fn render_character_to_png(
+    ch: char,
+    font_name: &str,
+    path: &std::path::Path,
+) -> Result<(), String> {
+    const IMAGE_SIZE: i32 = 512;
+
+    let surface = gtk4::cairo::ImageSurface::create(gtk4::cairo::Format::ARgb32, IMAGE_SIZE, IMAGE_SIZE)
+        .map_err(|e| e.to_string())?;
+    let cr = gtk4::cairo::Context::new(&surface).map_err(|e| e.to_string())?;
+
+    let layout = pangocairo::functions::create_layout(&cr);
+    let mut font_desc = gtk4::pango::FontDescription::new();
+    font_desc.set_family(font_name);
+    // pixel-based size, independent of the layout's DPI
+    font_desc.set_absolute_size(f64::from(IMAGE_SIZE) * 0.7 * f64::from(gtk4::pango::SCALE));
+    layout.set_font_description(Some(&font_desc));
+
+    let attrs = gtk4::pango::AttrList::new();
+    attrs.insert(gtk4::pango::AttrInt::new_fallback(false));
+    layout.set_attributes(Some(&attrs));
+
+    layout.set_text(&ch.to_string());
+
+    let (text_width, text_height) = layout.pixel_size();
+    cr.move_to(
+        f64::from(IMAGE_SIZE - text_width) / 2.0,
+        f64::from(IMAGE_SIZE - text_height) / 2.0,
+    );
+    cr.set_source_rgba(0.0, 0.0, 0.0, 1.0);
+    pangocairo::functions::show_layout(&cr, &layout);
+
+    let mut file = fs::File::create(path).map_err(|e| e.to_string())?;
+    surface.write_to_png(&mut file).map_err(|e| e.to_string())
 }
 
 /// Whether the already-loaded font has a glyph for at least one codepoint in range

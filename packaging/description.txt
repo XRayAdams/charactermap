@@ -7,3 +7,4 @@ A character map and special-characters viewer for Linux, helping you browse inst
 * Jump straight to a Unicode block
 * Preview characters large, in the selected font
 * Collect and copy characters to the clipboard
+* Save the selected character as a PNG image

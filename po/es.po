@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-08-22 18:20-0700\n"
+"POT-Creation-Date: 2026-09-07 18:38-0700\n"
 "PO-Revision-Date: 2026-08-01 19:23-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,54 +16,70 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/app.rs:446
+#: src/app.rs:448
 #, rust-format
 msgid "Search results ({})"
 msgstr "Resultados de búsqueda ({})"
 
-#: src/app.rs:514
+#: src/app.rs:520
 msgid "_Help"
 msgstr "A_yuda"
 
-#: src/app.rs:515
+#: src/app.rs:521
 msgid "_About"
 msgstr "_Acerca de"
 
-#: src/app.rs:539
+#: src/app.rs:545
 msgid "Fonts"
 msgstr "Fuentes"
 
-#: src/app.rs:559
+#: src/app.rs:565
 msgid "Search fonts…"
 msgstr "Buscar fuentes…"
 
-#: src/app.rs:641
+#: src/app.rs:647
 msgid "Single letter or character name"
 msgstr "Una sola letra o nombre de carácter"
 
-#: src/app.rs:727
+#: src/app.rs:733 src/widgets/help_dialog.rs:45
 msgid "Character Information"
 msgstr "Información del carácter"
 
-#: src/app.rs:743
+#: src/app.rs:753
 msgid "Jump to Unicode Set"
 msgstr "Ir a un conjunto Unicode"
 
-#: src/app.rs:773
+#: src/app.rs:783
 msgid "double click character to add here"
 msgstr "haz doble clic en un carácter para añadirlo aquí"
 
-#: src/app.rs:800
+#: src/app.rs:810
 msgid "Hex:"
 msgstr "Hex:"
 
-#: src/app.rs:826
+#: src/app.rs:836
 msgid "Dec:"
 msgstr "Dec:"
 
-#: src/app.rs:1181
+#: src/app.rs:873 src/app.rs:1228
+msgid "Save Character as Image"
+msgstr "Guardar carácter como imagen"
+
+#: src/app.rs:1210
 msgid "Copied to clipboard"
 msgstr "Copiado al portapapeles"
+
+#: src/app.rs:1223
+msgid "PNG images"
+msgstr "Imágenes PNG"
+
+#: src/app.rs:1241
+msgid "Character saved as image"
+msgstr "Carácter guardado como imagen"
+
+#: src/app.rs:1242
+msgid "Could not save the image"
+msgstr "No se pudo guardar la imagen"
 
 #: src/helpers/static_data.rs:6
 msgid "Character Map"
@@ -131,29 +147,32 @@ msgstr "Campos hexadecimal y decimal"
 
 #: src/widgets/help_dialog.rs:42
 msgid ""
-"Enter a hex value, a decimal value, or a character, then press Enter to find "
-"it."
+"Enter a hex value or a decimal value, then press Enter to find the character."
 msgstr ""
-"Introduce un valor hexadecimal, un valor decimal o un carácter, y pulsa "
-"Intro para encontrarlo."
+"Introduce un valor hexadecimal o un valor decimal, y pulsa Intro para "
+"encontrar el carácter."
 
-#: src/widgets/help_dialog.rs:45
+#: src/widgets/help_dialog.rs:46
+msgid "Click the save icon to save the selected character as a PNG image."
+msgstr "Haz clic en el icono de guardar para guardar el carácter seleccionado como una imagen PNG."
+
+#: src/widgets/help_dialog.rs:49
 msgid "Search"
 msgstr "Buscar"
 
-#: src/widgets/help_dialog.rs:47
+#: src/widgets/help_dialog.rs:51
 msgid "Click the search icon to open the search bar."
 msgstr "Haz clic en el icono de búsqueda para abrir la barra de búsqueda."
 
-#: src/widgets/help_dialog.rs:48
+#: src/widgets/help_dialog.rs:52
 msgid "Type a character's name to find every character whose name contains it."
 msgstr ""
 "Escribe el nombre de un carácter para encontrar todos los que lo contengan."
 
-#: src/widgets/help_dialog.rs:49
+#: src/widgets/help_dialog.rs:53
 msgid "Type, or paste, a single character to find it directly."
 msgstr "Escribe o pega un solo carácter para encontrarlo directamente."
 
-#: src/widgets/help_dialog.rs:88
+#: src/widgets/help_dialog.rs:92
 msgid "Help"
 msgstr "Ayuda"
