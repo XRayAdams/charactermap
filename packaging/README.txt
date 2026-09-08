@@ -15,6 +15,7 @@ Features
 - Jump straight to a Unicode block
 - Preview characters large, in the selected font
 - Collect and copy characters to the clipboard
+- Save the selected character as a PNG image
 
 Project page
 -------------

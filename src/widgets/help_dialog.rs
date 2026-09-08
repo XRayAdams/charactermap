@@ -42,6 +42,10 @@ const HELP_SECTIONS: &[HelpSection] = &[
         lines: &[N_!("Enter a hex value or a decimal value, then press Enter to find the character.")],
     },
     HelpSection {
+        title: N_!("Character Information"),
+        lines: &[N_!("Click the save icon to save the selected character as a PNG image.")],
+    },
+    HelpSection {
         title: N_!("Search"),
         lines: &[
             N_!("Click the search icon to open the search bar."),

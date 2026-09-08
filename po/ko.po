@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.4\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-09-07 17:57-0700\n"
+"POT-Creation-Date: 2026-09-07 18:38-0700\n"
 "PO-Revision-Date: 2026-08-03 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,54 +16,70 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/app.rs:446
+#: src/app.rs:448
 #, rust-format
 msgid "Search results ({})"
 msgstr "검색 결과 ({})"
 
-#: src/app.rs:516
+#: src/app.rs:520
 msgid "_Help"
 msgstr "도움말(_H)"
 
-#: src/app.rs:517
+#: src/app.rs:521
 msgid "_About"
 msgstr "정보(_A)"
 
-#: src/app.rs:541
+#: src/app.rs:545
 msgid "Fonts"
 msgstr "글꼴"
 
-#: src/app.rs:561
+#: src/app.rs:565
 msgid "Search fonts…"
 msgstr "글꼴 검색…"
 
-#: src/app.rs:643
+#: src/app.rs:647
 msgid "Single letter or character name"
 msgstr "한 글자 또는 문자 이름"
 
-#: src/app.rs:729
+#: src/app.rs:733 src/widgets/help_dialog.rs:45
 msgid "Character Information"
 msgstr "문자 정보"
 
-#: src/app.rs:745
+#: src/app.rs:753
 msgid "Jump to Unicode Set"
 msgstr "유니코드 세트로 이동"
 
-#: src/app.rs:775
+#: src/app.rs:783
 msgid "double click character to add here"
 msgstr "문자를 더블클릭하여 여기에 추가"
 
-#: src/app.rs:802
+#: src/app.rs:810
 msgid "Hex:"
 msgstr "16진수:"
 
-#: src/app.rs:828
+#: src/app.rs:836
 msgid "Dec:"
 msgstr "10진수:"
 
-#: src/app.rs:1183
+#: src/app.rs:873 src/app.rs:1228
+msgid "Save Character as Image"
+msgstr "문자를 이미지로 저장"
+
+#: src/app.rs:1210
 msgid "Copied to clipboard"
 msgstr "클립보드에 복사됨"
+
+#: src/app.rs:1223
+msgid "PNG images"
+msgstr "PNG 이미지"
+
+#: src/app.rs:1241
+msgid "Character saved as image"
+msgstr "문자를 이미지로 저장했습니다"
+
+#: src/app.rs:1242
+msgid "Could not save the image"
+msgstr "이미지를 저장할 수 없습니다"
 
 #: src/helpers/static_data.rs:6
 msgid "Character Map"
@@ -130,24 +146,29 @@ msgstr "16진수 및 10진수 입력란"
 #: src/widgets/help_dialog.rs:42
 msgid ""
 "Enter a hex value or a decimal value, then press Enter to find the character."
-msgstr "16진수 값 또는 10진수 값을 입력한 다음 Enter 키를 눌러 문자를 찾습니다."
+msgstr ""
+"16진수 값 또는 10진수 값을 입력한 다음 Enter 키를 눌러 문자를 찾습니다."
 
-#: src/widgets/help_dialog.rs:45
+#: src/widgets/help_dialog.rs:46
+msgid "Click the save icon to save the selected character as a PNG image."
+msgstr "저장 아이콘을 클릭하여 선택한 문자를 PNG 이미지로 저장합니다."
+
+#: src/widgets/help_dialog.rs:49
 msgid "Search"
 msgstr "검색"
 
-#: src/widgets/help_dialog.rs:47
+#: src/widgets/help_dialog.rs:51
 msgid "Click the search icon to open the search bar."
 msgstr "검색 아이콘을 클릭하여 검색창을 엽니다."
 
-#: src/widgets/help_dialog.rs:48
+#: src/widgets/help_dialog.rs:52
 msgid "Type a character's name to find every character whose name contains it."
 msgstr "문자 이름을 입력하면 해당 이름이 포함된 모든 문자를 찾습니다."
 
-#: src/widgets/help_dialog.rs:49
+#: src/widgets/help_dialog.rs:53
 msgid "Type, or paste, a single character to find it directly."
 msgstr "한 문자를 입력하거나 붙여넣으면 바로 찾을 수 있습니다."
 
-#: src/widgets/help_dialog.rs:88
+#: src/widgets/help_dialog.rs:92
 msgid "Help"
 msgstr "도움말"

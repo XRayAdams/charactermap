@@ -21,12 +21,12 @@ use crate::helpers::utils::{
     apply_font_preview, apply_no_glyph_class, bp_with_setters, build_search_result_store,
     build_unicode_grid_factory, build_unicode_store, collect_cell_labels,
     compute_positions_boundaries, font_attr_list, font_covers_range, grid_geometry,
-    single_pasted_char, update_sticky_header,
+    render_character_to_png, single_pasted_char, update_sticky_header,
 };
+use crate::templates::{CharFindEntry, FilterSwitchRow, FontPreviewToggle};
 use crate::tr;
 use crate::unicode::{UnicodeEntry, UnicodeSet, raw_offset_to_filtered_index};
 use crate::widgets::{HelpAction, create_help_action};
-use crate::templates::{FilterSwitchRow, FontPreviewToggle, CharFindEntry};
 /// Limits how many characters a name search can display (is 500 enough?)
 const MAX_SEARCH_RESULTS: usize = 500;
 
@@ -90,6 +90,7 @@ pub struct App {
     browse_block_boundaries: Vec<(u32, String)>,
     browse_header: String,
     toast_overlay: Option<adw::ToastOverlay>,
+    main_window: Option<adw::ApplicationWindow>,
 }
 
 #[derive(Debug)]
@@ -109,6 +110,7 @@ pub enum Messages {
     ShowHideSearch,
     SearchChanged(String),
     CopySelectedCharacter,
+    SaveCharacterAsImage,
 }
 
 /// Wires "selecting a cell updates the character preview" on a grid
@@ -465,7 +467,9 @@ impl App {
             .search_entry
             .as_ref()
             .map(|entry| entry.text().to_string());
-        if let Some(query) = query.filter(|query| !query.is_empty() && single_pasted_char(query).is_none()) {
+        if let Some(query) =
+            query.filter(|query| !query.is_empty() && single_pasted_char(query).is_none())
+        {
             self.refresh_search_results(&query, sender);
         }
     }
@@ -730,159 +734,180 @@ impl SimpleComponent for App {
 
                                     #[wrap(Some)]
                                     set_child = &gtk::Box {
-                                        set_orientation: gtk::Orientation::Horizontal,
+                                        set_orientation: gtk::Orientation::Vertical,
                                         set_margin_start: SPACING_SMALL,
-                                        set_height_request: 200,
+                                        set_height_request: 210,
 
                                         gtk::Box {
-                                            set_orientation: gtk::Orientation::Vertical,
-                                            set_spacing: SPACING_SMALL,
-                                            set_valign: gtk4::Align::Start,
+                                            set_orientation: gtk::Orientation::Horizontal,
+                                            set_margin_start: SPACING_SMALL,
 
-                                            #[name = "jump_to_set_button"]
-                                            gtk::MenuButton {
-                                                set_valign: gtk::Align::Center,
-                                                set_label: &tr!("Jump to Unicode Set"),
-                                                #[watch]
-                                                set_sensitive: !model.is_showing_search_results,
+                                            gtk::Box {
+                                                set_orientation: gtk::Orientation::Vertical,
+                                                set_spacing: SPACING_SMALL,
+                                                set_valign: gtk4::Align::Start,
 
-                                                #[wrap(Some)]
-                                                set_popover = &gtk::Popover {
+                                                #[name = "jump_to_set_button"]
+                                                gtk::MenuButton {
+                                                    set_valign: gtk::Align::Center,
+                                                    set_label: &tr!("Jump to Unicode Set"),
+                                                    #[watch]
+                                                    set_sensitive: !model.is_showing_search_results,
+
                                                     #[wrap(Some)]
-                                                    set_child = &gtk::ScrolledWindow {
-                                                        set_min_content_height: 300,
-                                                        set_min_content_width: 250,
-                                                        set_hscrollbar_policy: gtk::PolicyType::Never,
+                                                    set_popover = &gtk::Popover {
+                                                        #[wrap(Some)]
+                                                        set_child = &gtk::ScrolledWindow {
+                                                            set_min_content_height: 300,
+                                                            set_min_content_width: 250,
+                                                            set_hscrollbar_policy: gtk::PolicyType::Never,
 
-                                                        #[name = "unicode_set_list"]
-                                                        gtk::ListBox {
-                                                            set_selection_mode: gtk::SelectionMode::Single,
-                                                            connect_row_activated[sender, jump_to_set_button] => move |_, row| {
-                                                                if let Some(label) = row
-                                                                    .child()
-                                                                    .and_then(|w| w.downcast::<gtk::Label>().ok())
-                                                                {
-                                                                    sender.input(Messages::JumpToUnicodeSet(label.text().to_string()));
-                                                                }
-                                                                jump_to_set_button.popdown();
-                                                            },
+                                                            #[name = "unicode_set_list"]
+                                                            gtk::ListBox {
+                                                                set_selection_mode: gtk::SelectionMode::Single,
+                                                                connect_row_activated[sender, jump_to_set_button] => move |_, row| {
+                                                                    if let Some(label) = row
+                                                                        .child()
+                                                                        .and_then(|w| w.downcast::<gtk::Label>().ok())
+                                                                    {
+                                                                        sender.input(Messages::JumpToUnicodeSet(label.text().to_string()));
+                                                                    }
+                                                                    jump_to_set_button.popdown();
+                                                                },
+                                                            }
                                                         }
-                                                    }
+                                                    },
                                                 },
+
+                                                gtk::Entry {
+                                                    set_placeholder_text: Some(&tr!("double click character to add here")),
+                                                    set_icon_from_icon_name[Some("edit-clear-symbolic")]: gtk::EntryIconPosition::Secondary,
+                                                    set_icon_activatable[true]: gtk::EntryIconPosition::Secondary,
+                                                    set_editable: false,
+                                                    #[watch]
+                                                    set_icon_sensitive[!model.collected_text.is_empty()]: gtk::EntryIconPosition::Secondary,
+                                                    connect_icon_release[sender] => move |_, pos| {
+                                                        if pos == gtk::EntryIconPosition::Secondary {
+                                                            sender.input(Messages::ClearCollectedText);
+                                                        }
+                                                    },
+                                                    #[watch]
+                                                    set_text: &model.collected_text,
+                                                    #[watch]
+                                                    set_attributes: &if model.collected_text.is_empty() {
+                                                        gtk4::pango::AttrList::new()
+                                                    } else {
+                                                        model.cell_attrs.borrow().clone()
+                                                    },
+                                                },
+
+                                                #[name="hex_find"]
+                                                #[template]
+                                                CharFindEntry {
+                                                    #[template_child]
+                                                    label {
+                                                        #[watch]
+                                                        set_label: &tr!("Hex:"),
+                                                    },
+                                                    #[template_child]
+                                                    entry {
+                                                        connect_changed[sender] => move |entry| {
+                                                            sender.input(Messages::SetHexValue(entry.text().to_string()));
+                                                        },
+                                                        connect_activate[sender] => move |_| {
+                                                            sender.input(Messages::FindHex);
+                                                        },
+                                                    },
+                                                    #[template_child]
+                                                    button {
+                                                        #[watch]
+                                                        set_sensitive: !model.hex_value.is_empty(),
+                                                        connect_clicked[sender] => move |_| {
+                                                            sender.input(Messages::FindHex);
+                                                        },
+                                                    },
+                                                },
+                                                #[name="dec_find"]
+                                                #[template]
+                                                CharFindEntry {
+                                                    #[template_child]
+                                                    label {
+                                                        #[watch]
+                                                        set_label: &tr!("Dec:"),
+                                                    },
+                                                    #[template_child]
+                                                    entry {
+                                                        connect_changed[sender] => move |entry| {
+                                                            sender.input(Messages::SetDecValue(entry.text().to_string()));
+                                                        },
+                                                        connect_activate[sender] => move |_| {
+                                                            sender.input(Messages::FindDec);
+                                                        },
+                                                    },
+                                                    #[template_child]
+                                                    button {
+                                                        #[watch]
+                                                        set_sensitive: !model.dec_value.is_empty(),
+                                                        connect_clicked[sender] => move |_| {
+                                                            sender.input(Messages::FindDec);
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                            gtk::Box {
+                                                set_hexpand: true,
                                             },
 
-                                            gtk::Entry {
-                                                set_placeholder_text: Some(&tr!("double click character to add here")),
-                                                set_icon_from_icon_name[Some("edit-clear-symbolic")]: gtk::EntryIconPosition::Secondary,
-                                                set_icon_activatable[true]: gtk::EntryIconPosition::Secondary,
-                                                set_editable: false,
-                                                #[watch]
-                                                set_icon_sensitive[!model.collected_text.is_empty()]: gtk::EntryIconPosition::Secondary,
-                                                connect_icon_release[sender] => move |_, pos| {
-                                                    if pos == gtk::EntryIconPosition::Secondary {
-                                                        sender.input(Messages::ClearCollectedText);
-                                                    }
-                                                },
-                                                #[watch]
-                                                set_text: &model.collected_text,
-                                                #[watch]
-                                                set_attributes: &if model.collected_text.is_empty() {
-                                                    gtk4::pango::AttrList::new()
-                                                } else {
-                                                    model.cell_attrs.borrow().clone()
-                                                },
-                                            },
-
-                                            #[name="hex_find"]
-                                            #[template]
-                                            CharFindEntry {
-                                                #[template_child]
-                                                label {
-                                                    #[watch]
-                                                    set_label: &tr!("Hex:"),
-                                                },
-                                                #[template_child]
-                                                entry {
-                                                    connect_changed[sender] => move |entry| {
-                                                        sender.input(Messages::SetHexValue(entry.text().to_string()));
-                                                    },
-                                                    connect_activate[sender] => move |_| {
-                                                        sender.input(Messages::FindHex);
-                                                    },
-                                                },
-                                                #[template_child]
-                                                button {
-                                                    #[watch]
-                                                    set_sensitive: !model.hex_value.is_empty(),
-                                                    connect_clicked[sender] => move |_| {
-                                                        sender.input(Messages::FindHex);
-                                                    },
-                                                },
-                                            },
-                                            #[name="dec_find"]
-                                            #[template]
-                                            CharFindEntry {
-                                                #[template_child]
-                                                label {
-                                                    #[watch]
-                                                    set_label: &tr!("Dec:"),
-                                                },
-                                                #[template_child]
-                                                entry {
-                                                    connect_changed[sender] => move |entry| {
-                                                        sender.input(Messages::SetDecValue(entry.text().to_string()));
-                                                    },
-                                                    connect_activate[sender] => move |_| {
-                                                        sender.input(Messages::FindDec);
-                                                    },
-                                                },
-                                                #[template_child]
-                                                button {
-                                                    #[watch]
-                                                    set_sensitive: !model.dec_value.is_empty(),
-                                                    connect_clicked[sender] => move |_| {
-                                                        sender.input(Messages::FindDec);
-                                                    },
-                                                },
-                                            },
-                                        },
-                                        gtk::Box {
-                                            set_hexpand: true,
-                                        },
-
-                                        gtk::Box {
+                                            gtk::Box {
                                                 set_orientation: gtk::Orientation::Vertical,
                                                 set_margin_end: SPACING_SMALL,
                                                 set_halign: gtk::Align::Start,
                                                 set_valign: gtk::Align::Start,
 
-                                            gtk::Box {
-                                                set_halign: gtk::Align::End,
+                                                gtk::Box {
+                                                    set_halign: gtk::Align::End,
+                                                    set_margin_bottom: SPACING_SMALL,
 
-                                                gtk::Label {
-                                                    #[watch]
-                                                    set_label: &model.selected_character.map(|ch| ch.to_string()).unwrap_or_default(),
-                                                    set_width_request: 150,
-                                                    set_height_request: 150,
-                                                    add_css_class: "card",
-                                                    set_justify: gtk::Justification::Center,
-                                                    #[watch]
-                                                    set_attributes: Some(&model.char_label_attrs.borrow()),
+                                                    gtk::Button {
+                                                        set_icon_name: "document-save-symbolic",
+                                                        set_tooltip_text: Some(&tr!("Save Character as Image")),
+                                                        #[watch]
+                                                        set_sensitive: model.selected_character.is_some(),
+                                                        connect_clicked[sender] => move |_| {
+                                                            sender.input(Messages::SaveCharacterAsImage);
+                                                        },
+                                                    },
+                                                },
+
+                                                gtk::Box {
+                                                    set_halign: gtk::Align::End,
+
+                                                    gtk::Label {
+                                                        #[watch]
+                                                        set_label: &model.selected_character.map(|ch| ch.to_string()).unwrap_or_default(),
+                                                        set_width_request: 150,
+                                                        set_height_request: 150,
+                                                        add_css_class: "card",
+                                                        set_justify: gtk::Justification::Center,
+                                                        #[watch]
+                                                        set_attributes: Some(&model.char_label_attrs.borrow()),
+                                                    },
                                                 },
                                             },
 
-                                            gtk::Label {
-                                                #[watch]
-                                                set_label: &model.character_name,
-                                                set_margin_top: SPACING_SMALL,
-                                                set_halign: gtk::Align::End,
-                                                set_valign: gtk::Align::End,
-                                                set_wrap: true,
-                                            }
                                         },
+                                        gtk::Label {
+                                            #[watch]
+                                            set_label: &model.character_name,
+                                            set_margin_top: SPACING_SMALL,
+                                            set_margin_end: SPACING_SMALL,
+                                            set_margin_bottom: SPACING_SMALL,
+                                            set_halign: gtk::Align::End,
+                                            set_valign: gtk::Align::End,
+                                        }
 
+                                    },
                                 },
-                            },
                             }
                         },
 
@@ -969,6 +994,7 @@ impl SimpleComponent for App {
             browse_block_boundaries: Vec::new(),
             browse_header: String::new(),
             toast_overlay: None,
+            main_window: None,
         };
 
         let widgets = view_output!();
@@ -980,6 +1006,7 @@ impl SimpleComponent for App {
         model.dec_entry = Some(widgets.dec_find.entry.clone());
         model.search_entry = Some(widgets.search_entry.clone());
         model.toast_overlay = Some(widgets.toast_overlay.clone());
+        model.main_window = Some(widgets.main_window.clone());
 
         // Build the initial GridView through the same path font changes use
         let empty_model = gio::ListStore::new::<gtk::StringObject>().upcast::<gio::ListModel>();
@@ -1184,6 +1211,42 @@ impl SimpleComponent for App {
                     }
                 }
             }
+            Messages::SaveCharacterAsImage => {
+                if let (Some(ch), Some(window)) =
+                    (self.selected_character, self.main_window.clone())
+                {
+                    let font_name = self.selected_font.clone();
+                    let toast_overlay = self.toast_overlay.clone();
+
+                    let filter = gtk::FileFilter::new();
+                    filter.add_pattern("*.png");
+                    filter.set_name(Some(&tr!("PNG images")));
+                    let filters = gio::ListStore::new::<gtk::FileFilter>();
+                    filters.append(&filter);
+
+                    let dialog = gtk::FileDialog::builder()
+                        .title(tr!("Save Character as Image"))
+                        .initial_name(format!("U+{:04X}.png", ch as u32))
+                        .filters(&filters)
+                        .build();
+
+                    glib::spawn_future_local(async move {
+                        let Ok(file) = dialog.save_future(Some(&window)).await else {
+                            // dialog cancelled, nothing to do
+                            return;
+                        };
+                        let Some(path) = file.path() else { return };
+
+                        let message = match render_character_to_png(ch, &font_name, &path) {
+                            Ok(()) => tr!("Character saved as image"),
+                            Err(_) => tr!("Could not save the image"),
+                        };
+                        if let Some(overlay) = &toast_overlay {
+                            overlay.add_toast(adw::Toast::new(&message));
+                        }
+                    });
+                }
+            }
             Messages::ClearCollectedText => {
                 self.collected_text.clear();
             }
@@ -1195,7 +1258,7 @@ impl SimpleComponent for App {
                 self.save_config();
                 self.refresh_unicode_sections(&sender);
                 self.rerun_search_if_active(&sender);
-                
+
                 self.selected_character = None;
                 self.update_character_preview();
             }

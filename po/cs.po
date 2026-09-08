@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-09-07 17:57-0700\n"
+"POT-Creation-Date: 2026-09-07 18:38-0700\n"
 "PO-Revision-Date: 2026-08-31 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,54 +16,70 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
-#: src/app.rs:446
+#: src/app.rs:448
 #, rust-format
 msgid "Search results ({})"
 msgstr "Výsledky hledání ({})"
 
-#: src/app.rs:516
+#: src/app.rs:520
 msgid "_Help"
 msgstr "_Nápověda"
 
-#: src/app.rs:517
+#: src/app.rs:521
 msgid "_About"
 msgstr "_O aplikaci"
 
-#: src/app.rs:541
+#: src/app.rs:545
 msgid "Fonts"
 msgstr "Písma"
 
-#: src/app.rs:561
+#: src/app.rs:565
 msgid "Search fonts…"
 msgstr "Hledat písma…"
 
-#: src/app.rs:643
+#: src/app.rs:647
 msgid "Single letter or character name"
 msgstr "Jedno písmeno nebo název znaku"
 
-#: src/app.rs:729
+#: src/app.rs:733 src/widgets/help_dialog.rs:45
 msgid "Character Information"
 msgstr "Informace o znaku"
 
-#: src/app.rs:745
+#: src/app.rs:753
 msgid "Jump to Unicode Set"
 msgstr "Přejít na sadu Unicode"
 
-#: src/app.rs:775
+#: src/app.rs:783
 msgid "double click character to add here"
 msgstr "dvojklikem na znak jej sem přidáte"
 
-#: src/app.rs:802
+#: src/app.rs:810
 msgid "Hex:"
 msgstr "Hex:"
 
-#: src/app.rs:828
+#: src/app.rs:836
 msgid "Dec:"
 msgstr "Dec:"
 
-#: src/app.rs:1183
+#: src/app.rs:873 src/app.rs:1228
+msgid "Save Character as Image"
+msgstr "Uložit znak jako obrázek"
+
+#: src/app.rs:1210
 msgid "Copied to clipboard"
 msgstr "Zkopírováno do schránky"
+
+#: src/app.rs:1223
+msgid "PNG images"
+msgstr "Obrázky PNG"
+
+#: src/app.rs:1241
+msgid "Character saved as image"
+msgstr "Znak byl uložen jako obrázek"
+
+#: src/app.rs:1242
+msgid "Could not save the image"
+msgstr "Obrázek se nepodařilo uložit"
 
 #: src/helpers/static_data.rs:6
 msgid "Character Map"
@@ -136,22 +152,26 @@ msgstr ""
 "Zadejte hexadecimální nebo desítkovou hodnotu a stisknutím klávesy Enter "
 "znak najdete."
 
-#: src/widgets/help_dialog.rs:45
+#: src/widgets/help_dialog.rs:46
+msgid "Click the save icon to save the selected character as a PNG image."
+msgstr "Kliknutím na ikonu uložení uložíte vybraný znak jako obrázek PNG."
+
+#: src/widgets/help_dialog.rs:49
 msgid "Search"
 msgstr "Hledat"
 
-#: src/widgets/help_dialog.rs:47
+#: src/widgets/help_dialog.rs:51
 msgid "Click the search icon to open the search bar."
 msgstr "Kliknutím na ikonu hledání otevřete vyhledávací panel."
 
-#: src/widgets/help_dialog.rs:48
+#: src/widgets/help_dialog.rs:52
 msgid "Type a character's name to find every character whose name contains it."
 msgstr "Zadejte název znaku a najdete každý znak, jehož název jej obsahuje."
 
-#: src/widgets/help_dialog.rs:49
+#: src/widgets/help_dialog.rs:53
 msgid "Type, or paste, a single character to find it directly."
 msgstr "Zadejte nebo vložte jeden znak a najdete jej přímo."
 
-#: src/widgets/help_dialog.rs:88
+#: src/widgets/help_dialog.rs:92
 msgid "Help"
 msgstr "Nápověda"

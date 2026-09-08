@@ -1,7 +1,7 @@
 # Maintainer: Konstantin Adamov <xrayadamo@gmail.com>
 pkgname=charactermap
-pkgver=1.1.11
-pkgrel=24
+pkgver=1.2.13
+pkgrel=26
 pkgdesc="A character map / special-characters viewer for Linux."
 arch=('x86_64' 'aarch64')
 url="https://github.com/XRayAdams/charactermap"
