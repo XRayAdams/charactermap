@@ -1,5 +1,5 @@
 Package: charactermap
-Version: 1.2.13+26
+Version: 1.2.15+28
 Section: utils
 Architecture: amd64
 Priority: optional

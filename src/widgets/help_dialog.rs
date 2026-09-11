@@ -43,7 +43,10 @@ const HELP_SECTIONS: &[HelpSection] = &[
     },
     HelpSection {
         title: N_!("Character Information"),
-        lines: &[N_!("Click the save icon to save the selected character as a PNG image.")],
+        lines: &[
+            N_!("Click the save icon to save the selected character as a PNG image."),
+            N_!("Blue guide lines show the glyph's shape and baseline; they are not shown if the selected font does not cover the character."),
+        ],
     },
     HelpSection {
         title: N_!("Search"),
@@ -100,8 +103,8 @@ pub fn create_help_action(parent: adw::ApplicationWindow) -> RelmAction<HelpActi
 
         let dialog = adw::Dialog::builder()
             .title(title.as_str())
-            .content_width(420)
-            .content_height(480)
+            .content_width(520)
+            .content_height(580)
             .child(&toolbar_view)
             .can_close(true)
             .build();

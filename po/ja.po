@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.4\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-09-07 18:38-0700\n"
+"POT-Creation-Date: 2026-09-10 18:37-0700\n"
 "PO-Revision-Date: 2026-08-03 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,68 +16,68 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/app.rs:448
+#: src/app.rs:464
 #, rust-format
 msgid "Search results ({})"
 msgstr "検索結果 ({})"
 
-#: src/app.rs:520
+#: src/app.rs:536
 msgid "_Help"
 msgstr "ヘルプ(_H)"
 
-#: src/app.rs:521
+#: src/app.rs:537
 msgid "_About"
 msgstr "このアプリについて(_A)"
 
-#: src/app.rs:545
+#: src/app.rs:561
 msgid "Fonts"
 msgstr "フォント"
 
-#: src/app.rs:565
+#: src/app.rs:581
 msgid "Search fonts…"
 msgstr "フォントを検索…"
 
-#: src/app.rs:647
+#: src/app.rs:663
 msgid "Single letter or character name"
 msgstr "1文字または文字の名前"
 
-#: src/app.rs:733 src/widgets/help_dialog.rs:45
+#: src/app.rs:749 src/widgets/help_dialog.rs:45
 msgid "Character Information"
 msgstr "文字情報"
 
-#: src/app.rs:753
+#: src/app.rs:769
 msgid "Jump to Unicode Set"
 msgstr "Unicodeセットへ移動"
 
-#: src/app.rs:783
+#: src/app.rs:799
 msgid "double click character to add here"
 msgstr "文字をダブルクリックしてここに追加"
 
-#: src/app.rs:810
+#: src/app.rs:826
 msgid "Hex:"
 msgstr "16進:"
 
-#: src/app.rs:836
+#: src/app.rs:852
 msgid "Dec:"
 msgstr "10進:"
 
-#: src/app.rs:873 src/app.rs:1228
+#: src/app.rs:889 src/app.rs:1317
 msgid "Save Character as Image"
 msgstr "文字を画像として保存"
 
-#: src/app.rs:1210
+#: src/app.rs:1299
 msgid "Copied to clipboard"
 msgstr "クリップボードにコピーしました"
 
-#: src/app.rs:1223
+#: src/app.rs:1312
 msgid "PNG images"
 msgstr "PNG画像"
 
-#: src/app.rs:1241
+#: src/app.rs:1330
 msgid "Character saved as image"
 msgstr "文字を画像として保存しました"
 
-#: src/app.rs:1242
+#: src/app.rs:1331
 msgid "Could not save the image"
 msgstr "画像を保存できませんでした"
 
@@ -150,26 +150,35 @@ msgid ""
 "Enter a hex value or a decimal value, then press Enter to find the character."
 msgstr "16進数または10進数を入力し、Enterキーを押して文字を検索します。"
 
-#: src/widgets/help_dialog.rs:46
+#: src/widgets/help_dialog.rs:47
 msgid "Click the save icon to save the selected character as a PNG image."
-msgstr "保存アイコンをクリックすると、選択した文字をPNG画像として保存できます。"
+msgstr ""
+"保存アイコンをクリックすると、選択した文字をPNG画像として保存できます。"
 
-#: src/widgets/help_dialog.rs:49
+#: src/widgets/help_dialog.rs:48
+msgid ""
+"Blue guide lines show the glyph's shape and baseline; they are not shown if "
+"the selected font does not cover the character."
+msgstr ""
+"青いガイドラインはグリフの形状とベースラインを示します。選択したフォントが "
+"その文字をカバーしていない場合は表示されません。"
+
+#: src/widgets/help_dialog.rs:52
 msgid "Search"
 msgstr "検索"
 
-#: src/widgets/help_dialog.rs:51
+#: src/widgets/help_dialog.rs:54
 msgid "Click the search icon to open the search bar."
 msgstr "検索アイコンをクリックすると検索バーが開きます。"
 
-#: src/widgets/help_dialog.rs:52
+#: src/widgets/help_dialog.rs:55
 msgid "Type a character's name to find every character whose name contains it."
 msgstr "文字の名前を入力すると、その名前を含むすべての文字が見つかります。"
 
-#: src/widgets/help_dialog.rs:53
+#: src/widgets/help_dialog.rs:56
 msgid "Type, or paste, a single character to find it directly."
 msgstr "1文字を入力または貼り付けると、直接検索できます。"
 
-#: src/widgets/help_dialog.rs:92
+#: src/widgets/help_dialog.rs:95
 msgid "Help"
 msgstr "ヘルプ"

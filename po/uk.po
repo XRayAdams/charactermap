@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-09-07 18:38-0700\n"
+"POT-Creation-Date: 2026-09-10 18:37-0700\n"
 "PO-Revision-Date: 2026-08-02 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,68 +17,68 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: src/app.rs:448
+#: src/app.rs:464
 #, rust-format
 msgid "Search results ({})"
 msgstr "Результати пошуку ({})"
 
-#: src/app.rs:520
+#: src/app.rs:536
 msgid "_Help"
 msgstr "_Довідка"
 
-#: src/app.rs:521
+#: src/app.rs:537
 msgid "_About"
 msgstr "_Про програму"
 
-#: src/app.rs:545
+#: src/app.rs:561
 msgid "Fonts"
 msgstr "Шрифти"
 
-#: src/app.rs:565
+#: src/app.rs:581
 msgid "Search fonts…"
 msgstr "Пошук шрифтів…"
 
-#: src/app.rs:647
+#: src/app.rs:663
 msgid "Single letter or character name"
 msgstr "Одна літера або назва символу"
 
-#: src/app.rs:733 src/widgets/help_dialog.rs:45
+#: src/app.rs:749 src/widgets/help_dialog.rs:45
 msgid "Character Information"
 msgstr "Інформація про символ"
 
-#: src/app.rs:753
+#: src/app.rs:769
 msgid "Jump to Unicode Set"
 msgstr "Перейти до набору Юнікоду"
 
-#: src/app.rs:783
+#: src/app.rs:799
 msgid "double click character to add here"
 msgstr "двічі клацніть символ, щоб додати його сюди"
 
-#: src/app.rs:810
+#: src/app.rs:826
 msgid "Hex:"
 msgstr "Шістн.:"
 
-#: src/app.rs:836
+#: src/app.rs:852
 msgid "Dec:"
 msgstr "Десятк.:"
 
-#: src/app.rs:873 src/app.rs:1228
+#: src/app.rs:889 src/app.rs:1317
 msgid "Save Character as Image"
 msgstr "Зберегти символ як зображення"
 
-#: src/app.rs:1210
+#: src/app.rs:1299
 msgid "Copied to clipboard"
 msgstr "Скопійовано в буфер обміну"
 
-#: src/app.rs:1223
+#: src/app.rs:1312
 msgid "PNG images"
 msgstr "Зображення PNG"
 
-#: src/app.rs:1241
+#: src/app.rs:1330
 msgid "Character saved as image"
 msgstr "Символ збережено як зображення"
 
-#: src/app.rs:1242
+#: src/app.rs:1331
 msgid "Could not save the image"
 msgstr "Не вдалося зберегти зображення"
 
@@ -152,26 +152,36 @@ msgstr ""
 "Введіть шістнадцяткове або десяткове значення, а потім натисніть Enter, щоб "
 "знайти символ."
 
-#: src/widgets/help_dialog.rs:46
+#: src/widgets/help_dialog.rs:47
 msgid "Click the save icon to save the selected character as a PNG image."
-msgstr "Натисніть піктограму збереження, щоб зберегти вибраний символ як зображення PNG."
+msgstr ""
+"Натисніть піктограму збереження, щоб зберегти вибраний символ як зображення "
+"PNG."
 
-#: src/widgets/help_dialog.rs:49
+#: src/widgets/help_dialog.rs:48
+msgid ""
+"Blue guide lines show the glyph's shape and baseline; they are not shown if "
+"the selected font does not cover the character."
+msgstr ""
+"Сині напрямні лінії показують форму та базову лінію гліфа; вони не "
+"відображаються, якщо вибраний шрифт не підтримує цей символ."
+
+#: src/widgets/help_dialog.rs:52
 msgid "Search"
 msgstr "Пошук"
 
-#: src/widgets/help_dialog.rs:51
+#: src/widgets/help_dialog.rs:54
 msgid "Click the search icon to open the search bar."
 msgstr "Натисніть піктограму пошуку, щоб відкрити панель пошуку."
 
-#: src/widgets/help_dialog.rs:52
+#: src/widgets/help_dialog.rs:55
 msgid "Type a character's name to find every character whose name contains it."
 msgstr "Введіть назву символу, щоб знайти всі символи, назва яких її містить."
 
-#: src/widgets/help_dialog.rs:53
+#: src/widgets/help_dialog.rs:56
 msgid "Type, or paste, a single character to find it directly."
 msgstr "Введіть або вставте один символ, щоб знайти його безпосередньо."
 
-#: src/widgets/help_dialog.rs:92
+#: src/widgets/help_dialog.rs:95
 msgid "Help"
 msgstr "Довідка"

@@ -1,5 +1,5 @@
 name: charactermap
-version: 1.2.13+26
+version: 1.2.15+28
 description: A character map / special-characters viewer for Linux.
 contact: xrayadamo@gmail.com
 icon: snap/gui/charactermap.png

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-09-07 18:38-0700\n"
+"POT-Creation-Date: 2026-09-10 18:37-0700\n"
 "PO-Revision-Date: 2026-08-02 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,68 +16,68 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: src/app.rs:448
+#: src/app.rs:464
 #, rust-format
 msgid "Search results ({})"
 msgstr "Arama sonuçları ({})"
 
-#: src/app.rs:520
+#: src/app.rs:536
 msgid "_Help"
 msgstr "_Yardım"
 
-#: src/app.rs:521
+#: src/app.rs:537
 msgid "_About"
 msgstr "_Hakkında"
 
-#: src/app.rs:545
+#: src/app.rs:561
 msgid "Fonts"
 msgstr "Yazı Tipleri"
 
-#: src/app.rs:565
+#: src/app.rs:581
 msgid "Search fonts…"
 msgstr "Yazı tiplerinde ara…"
 
-#: src/app.rs:647
+#: src/app.rs:663
 msgid "Single letter or character name"
 msgstr "Tek harf veya karakter adı"
 
-#: src/app.rs:733 src/widgets/help_dialog.rs:45
+#: src/app.rs:749 src/widgets/help_dialog.rs:45
 msgid "Character Information"
 msgstr "Karakter Bilgisi"
 
-#: src/app.rs:753
+#: src/app.rs:769
 msgid "Jump to Unicode Set"
 msgstr "Unicode Kümesine Git"
 
-#: src/app.rs:783
+#: src/app.rs:799
 msgid "double click character to add here"
 msgstr "buraya eklemek için karaktere çift tıklayın"
 
-#: src/app.rs:810
+#: src/app.rs:826
 msgid "Hex:"
 msgstr "Onaltılık:"
 
-#: src/app.rs:836
+#: src/app.rs:852
 msgid "Dec:"
 msgstr "Ondalık:"
 
-#: src/app.rs:873 src/app.rs:1228
+#: src/app.rs:889 src/app.rs:1317
 msgid "Save Character as Image"
 msgstr "Karakteri Görüntü Olarak Kaydet"
 
-#: src/app.rs:1210
+#: src/app.rs:1299
 msgid "Copied to clipboard"
 msgstr "Panoya kopyalandı"
 
-#: src/app.rs:1223
+#: src/app.rs:1312
 msgid "PNG images"
 msgstr "PNG görüntüleri"
 
-#: src/app.rs:1241
+#: src/app.rs:1330
 msgid "Character saved as image"
 msgstr "Karakter görüntü olarak kaydedildi"
 
-#: src/app.rs:1242
+#: src/app.rs:1331
 msgid "Could not save the image"
 msgstr "Görüntü kaydedilemedi"
 
@@ -152,28 +152,38 @@ msgstr ""
 "Karakteri bulmak için onaltılık bir değer veya ondalık bir değer girin, "
 "ardından Enter tuşuna basın."
 
-#: src/widgets/help_dialog.rs:46
+#: src/widgets/help_dialog.rs:47
 msgid "Click the save icon to save the selected character as a PNG image."
-msgstr "Seçili karakteri PNG görüntüsü olarak kaydetmek için kaydet simgesine tıklayın."
+msgstr ""
+"Seçili karakteri PNG görüntüsü olarak kaydetmek için kaydet simgesine "
+"tıklayın."
 
-#: src/widgets/help_dialog.rs:49
+#: src/widgets/help_dialog.rs:48
+msgid ""
+"Blue guide lines show the glyph's shape and baseline; they are not shown if "
+"the selected font does not cover the character."
+msgstr ""
+"Mavi kılavuz çizgileri glifin şeklini ve taban çizgisini gösterir; seçili "
+"yazı tipi karakteri kapsamıyorsa gösterilmezler."
+
+#: src/widgets/help_dialog.rs:52
 msgid "Search"
 msgstr "Ara"
 
-#: src/widgets/help_dialog.rs:51
+#: src/widgets/help_dialog.rs:54
 msgid "Click the search icon to open the search bar."
 msgstr "Arama çubuğunu açmak için arama simgesine tıklayın."
 
-#: src/widgets/help_dialog.rs:52
+#: src/widgets/help_dialog.rs:55
 msgid "Type a character's name to find every character whose name contains it."
 msgstr ""
 "Adında belirttiğiniz metni içeren tüm karakterleri bulmak için bir "
 "karakterin adını yazın."
 
-#: src/widgets/help_dialog.rs:53
+#: src/widgets/help_dialog.rs:56
 msgid "Type, or paste, a single character to find it directly."
 msgstr "Doğrudan bulmak için tek bir karakter yazın veya yapıştırın."
 
-#: src/widgets/help_dialog.rs:92
+#: src/widgets/help_dialog.rs:95
 msgid "Help"
 msgstr "Yardım"
