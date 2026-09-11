@@ -91,6 +91,13 @@ pub struct App {
     browse_header: String,
     toast_overlay: Option<adw::ToastOverlay>,
     main_window: Option<adw::ApplicationWindow>,
+    /// Font used by the big character preview, shared with the guide-lines
+    /// draw func so it can recompute glyph metrics after a font change
+    preview_font_name: Rc<RefCell<String>>,
+    /// Character currently shown in the big preview, shared with the
+    /// guide-lines draw func since its ink bounds differ per character
+    preview_char: Rc<RefCell<Option<char>>>,
+    preview_guides: Option<gtk::DrawingArea>,
 }
 
 #[derive(Debug)]
@@ -234,6 +241,10 @@ impl App {
         // the selected font.
         *self.cell_attrs.borrow_mut() = font_attr_list(&font_name, Some(GRID_FONT_SIZE));
         *self.char_label_attrs.borrow_mut() = font_attr_list(&font_name, Some(LABEL_FONT_SIZE));
+        *self.preview_font_name.borrow_mut() = font_name.clone();
+        if let Some(guides) = &self.preview_guides {
+            guides.queue_draw();
+        }
 
         if let Some(mut grid_view) = self.unicode_grid_view.clone() {
             // Update positions/boundaries BEFORE swapping the model so the
@@ -405,6 +416,11 @@ impl App {
                 self.dec_entry.as_ref().map(|entry| entry.set_text(""));
                 self.hex_entry.as_ref().map(|entry| entry.set_text(""));
             }
+        }
+
+        *self.preview_char.borrow_mut() = self.selected_character;
+        if let Some(guides) = &self.preview_guides {
+            guides.queue_draw();
         }
     }
 
@@ -882,15 +898,24 @@ impl SimpleComponent for App {
                                                 gtk::Box {
                                                     set_halign: gtk::Align::End,
 
-                                                    gtk::Label {
-                                                        #[watch]
-                                                        set_label: &model.selected_character.map(|ch| ch.to_string()).unwrap_or_default(),
+                                                    gtk::Overlay {
                                                         set_width_request: 150,
                                                         set_height_request: 150,
                                                         add_css_class: "card",
-                                                        set_justify: gtk::Justification::Center,
-                                                        #[watch]
-                                                        set_attributes: Some(&model.char_label_attrs.borrow()),
+
+                                                        #[wrap(Some)]
+                                                        set_child = &gtk::Label {
+                                                            #[watch]
+                                                            set_label: &model.selected_character.map(|ch| ch.to_string()).unwrap_or_default(),
+                                                            set_justify: gtk::Justification::Center,
+                                                            #[watch]
+                                                            set_attributes: Some(&model.char_label_attrs.borrow()),
+                                                        },
+
+                                                        #[name = "preview_guides"]
+                                                        add_overlay = &gtk::DrawingArea {
+                                                            set_can_target: false,
+                                                        },
                                                     },
                                                 },
                                             },
@@ -995,6 +1020,9 @@ impl SimpleComponent for App {
             browse_header: String::new(),
             toast_overlay: None,
             main_window: None,
+            preview_font_name: Rc::new(RefCell::new(String::new())),
+            preview_char: Rc::new(RefCell::new(None)),
+            preview_guides: None,
         };
 
         let widgets = view_output!();
@@ -1007,6 +1035,67 @@ impl SimpleComponent for App {
         model.search_entry = Some(widgets.search_entry.clone());
         model.toast_overlay = Some(widgets.toast_overlay.clone());
         model.main_window = Some(widgets.main_window.clone());
+
+        // Guide lines (glyph ink bounds + baseline) drawn behind the preview
+        {
+            let preview_font_name = model.preview_font_name.clone();
+            let preview_char = model.preview_char.clone();
+            let loaded_font = model.loaded_font.clone();
+            widgets
+                .preview_guides
+                .set_draw_func(move |area, cr, width, height| {
+                    let Some(ch) = *preview_char.borrow() else {
+                        return;
+                    };
+
+                    // Guides would be meaningless for a glyph the font can't render
+                    let has_glyph = loaded_font
+                        .borrow()
+                        .as_ref()
+                        .is_some_and(|font| font.has_char(ch));
+                    if !has_glyph {
+                        return;
+                    }
+
+                    let mut font_desc = gtk4::pango::FontDescription::new();
+                    font_desc.set_family(&preview_font_name.borrow());
+                    font_desc.set_size(LABEL_FONT_SIZE * gtk4::pango::SCALE);
+
+                    let layout = area.create_pango_layout(Some(&ch.to_string()));
+                    layout.set_font_description(Some(&font_desc));
+
+                    let (ink, logical) = layout.pixel_extents();
+                    let baseline =
+                        f64::from(layout.baseline()) / f64::from(gtk4::pango::SCALE);
+
+                    // Logical box is centered in the preview; ink/baseline
+                    // are relative to it, so shift by the same offset
+                    let offset_x = (f64::from(width) - f64::from(logical.width())) / 2.0
+                        - f64::from(logical.x());
+                    let offset_y = (f64::from(height) - f64::from(logical.height())) / 2.0
+                        - f64::from(logical.y());
+
+                    let left = (offset_x + f64::from(ink.x())).round() + 0.5;
+                    let right = (offset_x + f64::from(ink.x() + ink.width())).round() + 0.5;
+                    let baseline_y = (offset_y + baseline).round() + 0.5;
+
+                    cr.set_line_width(1.0);
+                    cr.set_source_rgba(0.2, 0.5, 1.0, 0.6);
+
+                    cr.move_to(left, 0.0);
+                    cr.line_to(left, f64::from(height));
+                    let _ = cr.stroke();
+
+                    cr.move_to(right, 0.0);
+                    cr.line_to(right, f64::from(height));
+                    let _ = cr.stroke();
+
+                    cr.move_to(0.0, baseline_y);
+                    cr.line_to(f64::from(width), baseline_y);
+                    let _ = cr.stroke();
+                });
+        }
+        model.preview_guides = Some(widgets.preview_guides.clone());
 
         // Build the initial GridView through the same path font changes use
         let empty_model = gio::ListStore::new::<gtk::StringObject>().upcast::<gio::ListModel>();

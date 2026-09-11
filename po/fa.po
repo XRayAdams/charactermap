@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-09-07 18:38-0700\n"
+"POT-Creation-Date: 2026-09-10 18:37-0700\n"
 "PO-Revision-Date: 2026-08-31 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,68 +16,68 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/app.rs:448
+#: src/app.rs:464
 #, rust-format
 msgid "Search results ({})"
 msgstr "نتایج جستجو ({})"
 
-#: src/app.rs:520
+#: src/app.rs:536
 msgid "_Help"
 msgstr "_راهنما"
 
-#: src/app.rs:521
+#: src/app.rs:537
 msgid "_About"
 msgstr "_درباره"
 
-#: src/app.rs:545
+#: src/app.rs:561
 msgid "Fonts"
 msgstr "قلم‌ها"
 
-#: src/app.rs:565
+#: src/app.rs:581
 msgid "Search fonts…"
 msgstr "جستجوی قلم‌ها…"
 
-#: src/app.rs:647
+#: src/app.rs:663
 msgid "Single letter or character name"
 msgstr "یک حرف یا نام نویسه"
 
-#: src/app.rs:733 src/widgets/help_dialog.rs:45
+#: src/app.rs:749 src/widgets/help_dialog.rs:45
 msgid "Character Information"
 msgstr "اطلاعات نویسه"
 
-#: src/app.rs:753
+#: src/app.rs:769
 msgid "Jump to Unicode Set"
 msgstr "پرش به مجموعه یونیکد"
 
-#: src/app.rs:783
+#: src/app.rs:799
 msgid "double click character to add here"
 msgstr "برای افزودن نویسه در اینجا دوبار کلیک کنید"
 
-#: src/app.rs:810
+#: src/app.rs:826
 msgid "Hex:"
 msgstr "هگز:"
 
-#: src/app.rs:836
+#: src/app.rs:852
 msgid "Dec:"
 msgstr "دهدهی:"
 
-#: src/app.rs:873 src/app.rs:1228
+#: src/app.rs:889 src/app.rs:1317
 msgid "Save Character as Image"
 msgstr "ذخیره نویسه به عنوان تصویر"
 
-#: src/app.rs:1210
+#: src/app.rs:1299
 msgid "Copied to clipboard"
 msgstr "در کلیپ‌بورد کپی شد"
 
-#: src/app.rs:1223
+#: src/app.rs:1312
 msgid "PNG images"
 msgstr "تصاویر PNG"
 
-#: src/app.rs:1241
+#: src/app.rs:1330
 msgid "Character saved as image"
 msgstr "نویسه به عنوان تصویر ذخیره شد"
 
-#: src/app.rs:1242
+#: src/app.rs:1331
 msgid "Could not save the image"
 msgstr "ذخیره تصویر ممکن نشد"
 
@@ -152,26 +152,35 @@ msgstr ""
 "یک مقدار هگزادسیمال یا یک مقدار دهدهی وارد کنید، سپس برای یافتن نویسه Enter "
 "را فشار دهید."
 
-#: src/widgets/help_dialog.rs:46
+#: src/widgets/help_dialog.rs:47
 msgid "Click the save icon to save the selected character as a PNG image."
-msgstr "برای ذخیره نویسه انتخاب‌شده به عنوان تصویر PNG، روی نماد ذخیره کلیک کنید."
+msgstr ""
+"برای ذخیره نویسه انتخاب‌شده به عنوان تصویر PNG، روی نماد ذخیره کلیک کنید."
 
-#: src/widgets/help_dialog.rs:49
+#: src/widgets/help_dialog.rs:48
+msgid ""
+"Blue guide lines show the glyph's shape and baseline; they are not shown if "
+"the selected font does not cover the character."
+msgstr ""
+"خطوط راهنمای آبی شکل و خط پایه گلیف را نشان می‌دهند؛ اگر قلم انتخاب‌شده این "
+"نویسه را پوشش ندهد، نمایش داده نمی‌شوند."
+
+#: src/widgets/help_dialog.rs:52
 msgid "Search"
 msgstr "جستجو"
 
-#: src/widgets/help_dialog.rs:51
+#: src/widgets/help_dialog.rs:54
 msgid "Click the search icon to open the search bar."
 msgstr "برای باز کردن نوار جستجو روی نماد جستجو کلیک کنید."
 
-#: src/widgets/help_dialog.rs:52
+#: src/widgets/help_dialog.rs:55
 msgid "Type a character's name to find every character whose name contains it."
 msgstr "نام یک نویسه را تایپ کنید تا هر نویسه‌ای که نامش شامل آن باشد پیدا شود."
 
-#: src/widgets/help_dialog.rs:53
+#: src/widgets/help_dialog.rs:56
 msgid "Type, or paste, a single character to find it directly."
 msgstr "یک نویسه را تایپ یا جای‌گذاری کنید تا مستقیماً پیدا شود."
 
-#: src/widgets/help_dialog.rs:92
+#: src/widgets/help_dialog.rs:95
 msgid "Help"
 msgstr "راهنما"

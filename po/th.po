@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: charactermap 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/XRayAdams/charactermap/issues\n"
-"POT-Creation-Date: 2026-09-07 18:38-0700\n"
+"POT-Creation-Date: 2026-09-10 18:37-0700\n"
 "PO-Revision-Date: 2026-08-31 00:00-0700\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,68 +16,68 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/app.rs:448
+#: src/app.rs:464
 #, rust-format
 msgid "Search results ({})"
 msgstr "ผลการค้นหา ({})"
 
-#: src/app.rs:520
+#: src/app.rs:536
 msgid "_Help"
 msgstr "_ช่วยเหลือ"
 
-#: src/app.rs:521
+#: src/app.rs:537
 msgid "_About"
 msgstr "เ_กี่ยวกับ"
 
-#: src/app.rs:545
+#: src/app.rs:561
 msgid "Fonts"
 msgstr "แบบอักษร"
 
-#: src/app.rs:565
+#: src/app.rs:581
 msgid "Search fonts…"
 msgstr "ค้นหาแบบอักษร…"
 
-#: src/app.rs:647
+#: src/app.rs:663
 msgid "Single letter or character name"
 msgstr "ตัวอักษรเดียวหรือชื่ออักขระ"
 
-#: src/app.rs:733 src/widgets/help_dialog.rs:45
+#: src/app.rs:749 src/widgets/help_dialog.rs:45
 msgid "Character Information"
 msgstr "ข้อมูลอักขระ"
 
-#: src/app.rs:753
+#: src/app.rs:769
 msgid "Jump to Unicode Set"
 msgstr "ไปยังชุดยูนิโค้ด"
 
-#: src/app.rs:783
+#: src/app.rs:799
 msgid "double click character to add here"
 msgstr "ดับเบิลคลิกอักขระเพื่อเพิ่มที่นี่"
 
-#: src/app.rs:810
+#: src/app.rs:826
 msgid "Hex:"
 msgstr "เลขฐานสิบหก:"
 
-#: src/app.rs:836
+#: src/app.rs:852
 msgid "Dec:"
 msgstr "เลขฐานสิบ:"
 
-#: src/app.rs:873 src/app.rs:1228
+#: src/app.rs:889 src/app.rs:1317
 msgid "Save Character as Image"
 msgstr "บันทึกอักขระเป็นรูปภาพ"
 
-#: src/app.rs:1210
+#: src/app.rs:1299
 msgid "Copied to clipboard"
 msgstr "คัดลอกไปยังคลิปบอร์ดแล้ว"
 
-#: src/app.rs:1223
+#: src/app.rs:1312
 msgid "PNG images"
 msgstr "รูปภาพ PNG"
 
-#: src/app.rs:1241
+#: src/app.rs:1330
 msgid "Character saved as image"
 msgstr "บันทึกอักขระเป็นรูปภาพแล้ว"
 
-#: src/app.rs:1242
+#: src/app.rs:1331
 msgid "Could not save the image"
 msgstr "ไม่สามารถบันทึกรูปภาพได้"
 
@@ -146,26 +146,34 @@ msgid ""
 "Enter a hex value or a decimal value, then press Enter to find the character."
 msgstr "ป้อนค่าฐานสิบหกหรือค่าฐานสิบ แล้วกด Enter เพื่อค้นหาอักขระ"
 
-#: src/widgets/help_dialog.rs:46
+#: src/widgets/help_dialog.rs:47
 msgid "Click the save icon to save the selected character as a PNG image."
 msgstr "คลิกไอคอนบันทึกเพื่อบันทึกอักขระที่เลือกเป็นรูปภาพ PNG"
 
-#: src/widgets/help_dialog.rs:49
+#: src/widgets/help_dialog.rs:48
+msgid ""
+"Blue guide lines show the glyph's shape and baseline; they are not shown if "
+"the selected font does not cover the character."
+msgstr ""
+"เส้นไกด์สีน้ำเงินแสดงรูปทรงและเส้นฐานของตัวอักษร จะไม่แสดงหากแบบอักษรที่ "
+"เลือกไม่รองรับอักขระนั้น"
+
+#: src/widgets/help_dialog.rs:52
 msgid "Search"
 msgstr "ค้นหา"
 
-#: src/widgets/help_dialog.rs:51
+#: src/widgets/help_dialog.rs:54
 msgid "Click the search icon to open the search bar."
 msgstr "คลิกไอคอนค้นหาเพื่อเปิดแถบค้นหา"
 
-#: src/widgets/help_dialog.rs:52
+#: src/widgets/help_dialog.rs:55
 msgid "Type a character's name to find every character whose name contains it."
 msgstr "พิมพ์ชื่ออักขระเพื่อค้นหาอักขระทุกตัวที่ชื่อมีคำนั้นอยู่"
 
-#: src/widgets/help_dialog.rs:53
+#: src/widgets/help_dialog.rs:56
 msgid "Type, or paste, a single character to find it directly."
 msgstr "พิมพ์หรือวางอักขระตัวเดียวเพื่อค้นหาโดยตรง"
 
-#: src/widgets/help_dialog.rs:92
+#: src/widgets/help_dialog.rs:95
 msgid "Help"
 msgstr "ช่วยเหลือ"
