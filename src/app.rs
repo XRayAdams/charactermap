@@ -675,8 +675,7 @@ impl SimpleComponent for App {
                                     }
                                 },
 
-                                pack_start = &gtk4::Button {
-                                    set_icon_name: "sidebar-show-symbolic",
+                                pack_start = &gtk4::Button::from_icon_name("sidebar-show-symbolic") {
                                     set_can_focus: false,
                                     #[watch]
                                     set_visible: model.is_collapsed,
