@@ -821,7 +821,6 @@ impl SimpleComponent for App {
                                                 CharFindEntry {
                                                     #[template_child]
                                                     label {
-                                                        #[watch]
                                                         set_label: &tr!("Hex:"),
                                                     },
                                                     #[template_child]
@@ -845,7 +844,6 @@ impl SimpleComponent for App {
                                                 CharFindEntry {
                                                     #[template_child]
                                                     label {
-                                                        #[watch]
                                                         set_label: &tr!("Dec:"),
                                                     },
                                                     #[template_child]
