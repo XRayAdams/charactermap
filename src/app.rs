@@ -5,7 +5,7 @@ use gtk4::{gio, glib, prelude::*};
 use libadwaita as adw;
 use relm4::actions::RelmActionGroup;
 use relm4::{
-    binding::{Binding, BoolBinding, ConnectBindingExt, F64Binding, StringBinding},
+    binding::{Binding,ConnectBindingExt,StringBinding},
     prelude::*,
 };
 use serde::{Deserialize, Serialize};
