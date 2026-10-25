@@ -4,7 +4,10 @@ use adw::prelude::*;
 use gtk4::{gio, glib, prelude::*};
 use libadwaita as adw;
 use relm4::actions::RelmActionGroup;
-use relm4::prelude::*;
+use relm4::{
+    binding::{Binding,ConnectBindingExt,StringBinding},
+    prelude::*,
+};
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -76,7 +79,7 @@ pub struct App {
     block_boundaries: Rc<RefCell<Vec<(u32, String)>>>,
     sticky_header: Option<gtk::Label>,
     character_names: CharacterNames,
-    character_name: String,
+    character_name: StringBinding,
     hex_entry: Option<gtk::Entry>,
     dec_entry: Option<gtk::Entry>,
     search_entry: Option<gtk::SearchEntry>,
@@ -407,12 +410,12 @@ impl App {
                 self.hex_entry
                     .as_ref()
                     .map(|entry| entry.set_text(&self.hex_value));
-                self.character_name = self.character_names.name(ch).unwrap_or_default();
+                self.character_name.set(self.character_names.name(ch).unwrap_or_default());
             }
             None => {
                 self.hex_value.clear();
                 self.dec_value.clear();
-                self.character_name.clear();
+                self.character_name.set("".to_string());
                 self.dec_entry.as_ref().map(|entry| entry.set_text(""));
                 self.hex_entry.as_ref().map(|entry| entry.set_text(""));
             }
@@ -672,8 +675,7 @@ impl SimpleComponent for App {
                                     }
                                 },
 
-                                pack_start = &gtk4::Button {
-                                    set_icon_name: "sidebar-show-symbolic",
+                                pack_start = &gtk4::Button::from_icon_name("sidebar-show-symbolic") {
                                     set_can_focus: false,
                                     #[watch]
                                     set_visible: model.is_collapsed,
@@ -685,12 +687,9 @@ impl SimpleComponent for App {
                                     set_orientation: gtk::Orientation::Horizontal,
                                     set_spacing: SPACING_SMALL,
 
-                                    gtk::Button {
-                                        set_icon_name: "search-symbolic",
+                                    gtk::Button::from_icon_name("search-symbolic") {
                                         set_can_focus: false,
-                                        connect_clicked[sender] => move |_| {
-                                            sender.input(Messages::ShowHideSearch);
-                                        },
+                                        connect_clicked => Messages::ShowHideSearch
                                     },
                                     gtk::MenuButton {
                                         set_icon_name: "open-menu-symbolic",
@@ -822,7 +821,6 @@ impl SimpleComponent for App {
                                                 CharFindEntry {
                                                     #[template_child]
                                                     label {
-                                                        #[watch]
                                                         set_label: &tr!("Hex:"),
                                                     },
                                                     #[template_child]
@@ -838,9 +836,7 @@ impl SimpleComponent for App {
                                                     button {
                                                         #[watch]
                                                         set_sensitive: !model.hex_value.is_empty(),
-                                                        connect_clicked[sender] => move |_| {
-                                                            sender.input(Messages::FindHex);
-                                                        },
+                                                        connect_clicked => Messages::FindHex,
                                                     },
                                                 },
                                                 #[name="dec_find"]
@@ -848,7 +844,6 @@ impl SimpleComponent for App {
                                                 CharFindEntry {
                                                     #[template_child]
                                                     label {
-                                                        #[watch]
                                                         set_label: &tr!("Dec:"),
                                                     },
                                                     #[template_child]
@@ -864,9 +859,7 @@ impl SimpleComponent for App {
                                                     button {
                                                         #[watch]
                                                         set_sensitive: !model.dec_value.is_empty(),
-                                                        connect_clicked[sender] => move |_| {
-                                                            sender.input(Messages::FindDec);
-                                                        },
+                                                        connect_clicked => Messages::FindDec,
                                                     },
                                                 },
                                             },
@@ -884,14 +877,11 @@ impl SimpleComponent for App {
                                                     set_halign: gtk::Align::End,
                                                     set_margin_bottom: SPACING_SMALL,
 
-                                                    gtk::Button {
-                                                        set_icon_name: "document-save-symbolic",
+                                                    gtk::Button::from_icon_name("document-save-symbolic") {
                                                         set_tooltip_text: Some(&tr!("Save Character as Image")),
                                                         #[watch]
                                                         set_sensitive: model.selected_character.is_some(),
-                                                        connect_clicked[sender] => move |_| {
-                                                            sender.input(Messages::SaveCharacterAsImage);
-                                                        },
+                                                        connect_clicked => Messages::SaveCharacterAsImage,
                                                     },
                                                 },
 
@@ -902,7 +892,7 @@ impl SimpleComponent for App {
                                                         set_width_request: 150,
                                                         set_height_request: 150,
                                                         add_css_class: "card",
-
+                                                        
                                                         #[wrap(Some)]
                                                         set_child = &gtk::Label {
                                                             #[watch]
@@ -921,9 +911,7 @@ impl SimpleComponent for App {
                                             },
 
                                         },
-                                        gtk::Label {
-                                            #[watch]
-                                            set_label: &model.character_name,
+                                        gtk::Label::with_binding(&model.character_name) {
                                             set_margin_top: SPACING_SMALL,
                                             set_margin_end: SPACING_SMALL,
                                             set_margin_bottom: SPACING_SMALL,
@@ -1009,7 +997,7 @@ impl SimpleComponent for App {
             block_boundaries: Rc::new(RefCell::new(Vec::new())),
             sticky_header: None,
             character_names: CharacterNames::new(),
-            character_name: String::new(),
+            character_name: StringBinding::new(""),
             hex_entry: None,
             dec_entry: None,
             search_entry: None,
